@@ -1,0 +1,6 @@
+Django==1.8.3
+django-filter==0.10.0
+django-suit==0.2.14
+djangorestframework==3.2.1
+Markdown==2.6.2
+Pillow==2.9.0
