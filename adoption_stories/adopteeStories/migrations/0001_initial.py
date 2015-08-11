@@ -13,18 +13,18 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Adoptee',
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='ID', auto_created=True)),
-                ('english_name', models.CharField(null=True, max_length=150, blank=True)),
-                ('pinyin_name', models.CharField(null=True, max_length=150, blank=True)),
-                ('chinese_name', models.CharField(null=True, max_length=50, blank=True)),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
+                ('english_name', models.CharField(max_length=150, null=True, blank=True)),
+                ('pinyin_name', models.CharField(max_length=150, null=True, blank=True)),
+                ('chinese_name', models.CharField(max_length=50, null=True, blank=True)),
             ],
         ),
         migrations.CreateModel(
             name='Audio',
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='ID', auto_created=True)),
-                ('english_caption', models.CharField(null=True, max_length=200, blank=True)),
-                ('chinese_caption', models.CharField(null=True, max_length=200, blank=True)),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
+                ('english_caption', models.CharField(max_length=200, null=True, blank=True)),
+                ('chinese_caption', models.CharField(max_length=200, null=True, blank=True)),
                 ('approved', models.BooleanField(default=False)),
                 ('audio_file', models.FileField(upload_to='')),
             ],
@@ -35,9 +35,9 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Photo',
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='ID', auto_created=True)),
-                ('english_caption', models.CharField(null=True, max_length=200, blank=True)),
-                ('chinese_caption', models.CharField(null=True, max_length=200, blank=True)),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
+                ('english_caption', models.CharField(max_length=200, null=True, blank=True)),
+                ('chinese_caption', models.CharField(max_length=200, null=True, blank=True)),
                 ('approved', models.BooleanField(default=False)),
                 ('photo_file', models.ImageField(upload_to='')),
             ],
@@ -48,7 +48,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='RelationshipCategory',
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='ID', auto_created=True)),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
                 ('english_name', models.CharField(max_length=30)),
                 ('chinese_name', models.CharField(max_length=30)),
                 ('approved', models.BooleanField(default=False)),
@@ -57,10 +57,13 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='StoryTeller',
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='ID', auto_created=True)),
-                ('storyText', models.TextField()),
+                ('id', models.AutoField(serialize=False, verbose_name='ID', auto_created=True, primary_key=True)),
+                ('story_text', models.TextField()),
                 ('email', models.EmailField(max_length=254)),
                 ('approved', models.BooleanField(default=False)),
+                ('english_name', models.CharField(max_length=150)),
+                ('chinese_name', models.CharField(max_length=50)),
+                ('pinyin_name', models.CharField(max_length=150)),
                 ('related_adoptee', models.ForeignKey(to='adopteeStories.Adoptee')),
                 ('relationshipToStory', models.ForeignKey(to='adopteeStories.RelationshipCategory')),
             ],
@@ -68,21 +71,21 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='photo',
             name='story_teller',
-            field=models.ForeignKey(to='adopteeStories.StoryTeller'),
+            field=models.ForeignKey(null=True, to='adopteeStories.StoryTeller'),
         ),
         migrations.AddField(
             model_name='audio',
             name='story_teller',
-            field=models.ForeignKey(to='adopteeStories.StoryTeller'),
+            field=models.ForeignKey(null=True, to='adopteeStories.StoryTeller'),
         ),
         migrations.AddField(
             model_name='adoptee',
             name='front_story',
-            field=models.ForeignKey(to='adopteeStories.StoryTeller', null=True),
+            field=models.ForeignKey(null=True, to='adopteeStories.StoryTeller'),
         ),
         migrations.AddField(
             model_name='adoptee',
             name='photo_front_story',
-            field=models.ForeignKey(null=True, to='adopteeStories.Photo', blank=True),
+            field=models.ForeignKey(null=True, blank=True, to='adopteeStories.Photo'),
         ),
     ]

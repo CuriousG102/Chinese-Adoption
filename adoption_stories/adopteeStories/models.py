@@ -26,7 +26,7 @@ class MultimediaItem(models.Model):
     chinese_caption = models.CharField(max_length=200, null=True, blank=True)
 
     approved = models.BooleanField(default=False)
-    story_teller = models.ForeignKey('StoryTeller')
+    story_teller = models.ForeignKey('StoryTeller', null=True)
 
     class Meta:
         abstract = True
@@ -52,7 +52,10 @@ class StoryTeller(models.Model):
     category_is_approved = {'approved': True}
     relationshipToStory = models.ForeignKey('RelationshipCategory',
                                             limit_choices_to=category_is_approved)
-    storyText = models.TextField()
+    story_text = models.TextField()
     email = models.EmailField()
     approved = models.BooleanField(default=False)
     related_adoptee = models.ForeignKey('Adoptee')
+    english_name = models.CharField(max_length=150)
+    chinese_name = models.CharField(max_length=50)
+    pinyin_name = models.CharField(max_length=150)
