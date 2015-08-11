@@ -59,4 +59,4 @@ class AdopteeDetailSerializer(AdopteeBasicsSerializer):
     def get_ordered_stories(self, instance):
         ordered_stories = StoryTeller.filter(related_adoptee=instance.id)\
                                      .order_by('updated_at')
-        return [StorySerializer(story) for story in ordered_stories]
+        return StorySerializer(ordered_stories, many=True)
