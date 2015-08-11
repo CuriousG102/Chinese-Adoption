@@ -55,7 +55,7 @@ class StoryTeller(models.Model):
     story_text = models.TextField()
     email = models.EmailField()
     approved = models.BooleanField(default=False)
-    related_adoptee = models.ForeignKey('Adoptee')
+    related_adoptee = models.ForeignKey('Adoptee', related_name='stories')
     english_name = models.CharField(max_length=150)
     chinese_name = models.CharField(max_length=50)
     pinyin_name = models.CharField(max_length=150)
