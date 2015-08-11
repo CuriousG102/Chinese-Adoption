@@ -17,6 +17,8 @@ class Adoptee(models.Model):
     # front_story is restricted to story tellers tied
     # to the current adoptee in custom form logic
     front_story = models.ForeignKey('StoryTeller', null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 
 class MultimediaItem(models.Model):
@@ -27,6 +29,9 @@ class MultimediaItem(models.Model):
 
     approved = models.BooleanField(default=False)
     story_teller = models.ForeignKey('StoryTeller', null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         abstract = True
@@ -43,19 +48,29 @@ class Audio(MultimediaItem):
 
 
 class RelationshipCategory(models.Model):
-    english_name = models.CharField(max_length=30)
-    chinese_name = models.CharField(max_length=30)
+    # english_name must have a value || chinese name must have a value at first
+    # but to publish both must have a value or all stories with an untranslated
+    # category must only show up english side/chinese side
+    english_name = models.CharField(max_length=30, null=True)
+    chinese_name = models.CharField(max_length=30, null=True)
+
     approved = models.BooleanField(default=False)
 
 
+# TODO: Support for media
 class StoryTeller(models.Model):
     category_is_approved = {'approved': True}
-    relationshipToStory = models.ForeignKey('RelationshipCategory',
-                                            limit_choices_to=category_is_approved)
+    relationship_to_story = models.ForeignKey('RelationshipCategory',
+                                              limit_choices_to=category_is_approved)
     story_text = models.TextField()
     email = models.EmailField()
     approved = models.BooleanField(default=False)
     related_adoptee = models.ForeignKey('Adoptee', related_name='stories')
-    english_name = models.CharField(max_length=150)
-    chinese_name = models.CharField(max_length=50)
-    pinyin_name = models.CharField(max_length=150)
+
+    # english_name must have a value || (pinyin_name && chinese_name)
+    # must have a value implemented form level
+    english_name = models.CharField(max_length=150, null=True)
+    chinese_name = models.CharField(max_length=50, null=True)
+    pinyin_name = models.CharField(max_length=150, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
