@@ -17,6 +17,7 @@ class AdopteeSearch(generics.ListAPIView):
     FILTER_FOR_FIELDS = '__startswith'
 
     def get_queryset(self):
+        # TODO: add some error handling for if this view is hit without a query_param 'q'
         userSearch = self.request.query_params['q']
         query = Q()
 
