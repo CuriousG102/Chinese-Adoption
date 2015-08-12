@@ -14,7 +14,7 @@ from rest_framework import mixins
 class AdopteeSearch(generics.ListAPIView):
     serializer_class = serializers.AdopteeSearchSerializer
     FIELDS_TO_SEARCH_ON = ['english_name', 'pinyin_name', 'chinese_name']
-    FILTER_FOR_FIELDS = '__startswith'
+    FILTER_FOR_FIELDS = '__istartswith'
 
     def get_queryset(self):
         # TODO: add some error handling for if this view is hit without a query_param 'q'
