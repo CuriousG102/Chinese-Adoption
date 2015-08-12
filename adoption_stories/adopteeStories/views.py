@@ -1,15 +1,34 @@
 # TODO: Clean up imports list and make it PEP8 compliant
-from adoption_stories.adopteeStories.models import Adoptee, RelationshipCategory
-from adoption_stories.adopteeStories import serializers
+from adopteeStories.models import Adoptee, RelationshipCategory
+from adopteeStories import serializers
 from django.db.models import Q
 
 # Create your views here.
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework import generics
 from rest_framework import status
 from rest_framework import mixins
 
+# -- Basic SQL required for selecting distinct adoptees who have an approved storyteller --
+# SELECT DISTINCT ID
+# FROM ADOPTEE
+# INNER JOIN STORYTELLER
+# ON ADOPTEE.ID = STORYTELLER.RELATED_ADOPTEE
+# WHERE STORYTELLER.APPROVED = 1
+
+ADOPTEE_FILTERS_Q_OBJECTS = [Q(stories__approved=True)]
+ADOPTEE_FILTER = Q()
+
+for q_object in ADOPTEE_FILTERS_Q_OBJECTS:
+    ADOPTEE_FILTER &= q_object
+
+CATEGORY_FILTERS_Q_OBJECTS = [Q(approved=True)]
+CATEGORY_FILTER = Q()
+
+for q_object in CATEGORY_FILTERS_Q_OBJECTS:
+    CATEGORY_FILTER &= q_object
 
 class AdopteeSearch(generics.ListAPIView):
     serializer_class = serializers.AdopteeSearchSerializer
@@ -17,23 +36,25 @@ class AdopteeSearch(generics.ListAPIView):
     FILTER_FOR_FIELDS = '__istartswith'
 
     def get_queryset(self):
-        # TODO: add some error handling for if this view is hit without a query_param 'q'
-        userSearch = self.request.query_params['q']
+        try:
+            userSearch = self.request.query_params['q']
+        except KeyError:
+            raise ValidationError('Need a query parameter')
         query = Q()
 
         for field in self.FIELDS_TO_SEARCH_ON:
             query |= Q(**{field + self.FILTER_FOR_FIELDS: userSearch})
 
-        return Adoptee.objects.get(query)
+        return Adoptee.objects.get(query & ADOPTEE_FILTER)
 
 
 class AdopteeList(generics.ListAPIView):
-    queryset = Adoptee.objects.all()
+    queryset = Adoptee.objects.get(ADOPTEE_FILTER)
     serializer_class = serializers.AdopteeListSerializer
 
 
 class AdopteeDetail(generics.RetrieveAPIView):
-    queryset = Adoptee.objects.all()
+    queryset = Adoptee.objects.get(ADOPTEE_FILTER)
     serializer_class = serializers.AdopteeDetailSerializer
 
 
@@ -65,7 +86,4 @@ class StoryTellerCreate(GenericCreate):
 
 class CategoryListAndCreate(GenericCreate, mixins.ListModelMixin):
     serializer_class = serializers.RelationshipSerializer
-    queryset = RelationshipCategory.objects.all()
-
-    # TODO: Make sure there is a test to ensure that no pagination is occuring here
-    paginator = None
+    queryset = RelationshipCategory.objects.get(CATEGORY_FILTER)

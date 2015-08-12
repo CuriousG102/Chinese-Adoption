@@ -1,4 +1,4 @@
-from adoption_stories.adopteeStories import views
+from adopteeStories import views
 from django.conf.urls import url
 
 urlpatterns = [

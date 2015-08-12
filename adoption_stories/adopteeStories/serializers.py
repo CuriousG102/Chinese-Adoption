@@ -1,4 +1,4 @@
-from adoption_stories.adopteeStories.models import Adoptee, Photo, StoryTeller, RelationshipCategory
+from adopteeStories.models import Adoptee, Photo, StoryTeller, RelationshipCategory
 from rest_framework import serializers
 
 
