@@ -6,9 +6,12 @@ from django.db import models
 class Adoptee(models.Model):
     # english_name must have a value || (pinyin_name && chinese_name)
     # must have a value implemented form level
-    english_name = models.CharField(max_length=150, null=True, blank=True)
-    pinyin_name = models.CharField(max_length=150, null=True, blank=True)
-    chinese_name = models.CharField(max_length=50, null=True, blank=True)
+    english_name = models.CharField(max_length=150, null=True, blank=True,
+                                    db_index=True)
+    pinyin_name = models.CharField(max_length=150, null=True, blank=True,
+                                   db_index=True)
+    chinese_name = models.CharField(max_length=50, null=True, blank=True,
+                                    db_index=True)
 
     # photo_front_story is restricted to photos tied to a story teller tied
     # to the current adoptee in custom form logic
@@ -19,6 +22,9 @@ class Adoptee(models.Model):
     front_story = models.ForeignKey('StoryTeller', null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['created_at']
 
 
 class MultimediaItem(models.Model):
@@ -35,6 +41,7 @@ class MultimediaItem(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ['created_at']
 
 
 class Photo(MultimediaItem):
@@ -74,3 +81,6 @@ class StoryTeller(models.Model):
     pinyin_name = models.CharField(max_length=150, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['created_at']
