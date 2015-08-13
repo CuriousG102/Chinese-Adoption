@@ -11,6 +11,9 @@ from rest_framework import generics
 from rest_framework import status
 from rest_framework import mixins
 
+
+# TODO: Address code debt around these filters
+
 # -- Basic SQL required for selecting distinct adoptees who have an approved storyteller --
 # SELECT DISTINCT ID
 # FROM ADOPTEE
@@ -29,6 +32,8 @@ CATEGORY_FILTER = Q()
 
 for q_object in CATEGORY_FILTERS_Q_OBJECTS:
     CATEGORY_FILTER &= q_object
+
+UPDATE_FILTER = Q(approved=False)
 
 
 class AdopteeSearch(generics.ListAPIView):
@@ -98,7 +103,6 @@ class AudioFileCreate(GenericUpload):
     serializer_class = serializers.AudioFileSerializer
 
 
-# TODO: Patch vulnerability where this clearly allows people to change captions on live multimedia that doesn't belong to them
 # TODO: Put in stopgap security measure where you can't update a multimedia item that has been approved (preventing live site from being modified by malicious actor)
 class GenericMediaUpdate(generics.GenericAPIView, mixins.UpdateModelMixin):
     def patch(self, request, *args, **kwargs):
@@ -106,10 +110,10 @@ class GenericMediaUpdate(generics.GenericAPIView, mixins.UpdateModelMixin):
 
 
 class PhotoUpdate(GenericMediaUpdate):
-    queryset = Photo.objects.all()
+    queryset = Photo.objects.get(UPDATE_FILTER)
     serializer_class = serializers.PhotoInfoSerializer
 
 
 class AudioUpdate(GenericMediaUpdate):
-    queryset = Audio.objects.all()
+    queryset = Audio.objects.get(UPDATE_FILTER)
     serializer_class = serializers.AudioInfoSerializer
