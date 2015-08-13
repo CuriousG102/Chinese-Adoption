@@ -1,12 +1,12 @@
 # TODO: Clean up imports list and make it PEP8 compliant
-from adopteeStories.models import Adoptee, RelationshipCategory
+from adopteeStories.models import Adoptee, RelationshipCategory, Photo, Audio
 from adopteeStories import serializers
 from django.db.models import Q
 
 # Create your views here.
 from rest_framework.exceptions import ValidationError
+from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
-from rest_framework.settings import api_settings
 from rest_framework import generics
 from rest_framework import status
 from rest_framework import mixins
@@ -29,6 +29,7 @@ CATEGORY_FILTER = Q()
 
 for q_object in CATEGORY_FILTERS_Q_OBJECTS:
     CATEGORY_FILTER &= q_object
+
 
 class AdopteeSearch(generics.ListAPIView):
     serializer_class = serializers.AdopteeSearchSerializer
@@ -58,7 +59,7 @@ class AdopteeDetail(generics.RetrieveAPIView):
     serializer_class = serializers.AdopteeDetailSerializer
 
 
-class GenericCreate(generics.GenericAPIView):
+class GenericCreate(generics.GenericAPIView, mixins.CreateModelMixin):
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
@@ -67,19 +68,15 @@ class GenericCreate(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         new_model_instance = serializer.save()
         headers = self.get_success_headers(serializer.data)
-        return Response({'id': new_model_instance.id}, status=status.HTTP_201_CREATED, headers=headers)
-
-    def get_success_headers(self, data):
-        try:
-            return {'Location': data[api_settings.URL_FIELD_NAME]}
-        except (TypeError, KeyError):
-            return {}
+        return Response({'pk': new_model_instance.id}, status=status.HTTP_201_CREATED, headers=headers)
 
 
+# TODO: Enforce adoptee having a name
 class AdopteeCreate(GenericCreate):
     serializer_class = serializers.AdopteeBasicsSerializer
 
 
+# TODO: Enforce storyteller having a name
 class StoryTellerCreate(GenericCreate):
     serializer_class = serializers.StoryCreationSerializer
 
@@ -87,3 +84,32 @@ class StoryTellerCreate(GenericCreate):
 class CategoryListAndCreate(GenericCreate, mixins.ListModelMixin):
     serializer_class = serializers.RelationshipSerializer
     queryset = RelationshipCategory.objects.get(CATEGORY_FILTER)
+
+
+class GenericUpload(GenericCreate):
+    parser_classes = (MultiPartParser,)
+
+
+class PhotoFileCreate(GenericUpload):
+    serializer_class = serializers.PhotoFileSerializer
+
+
+class AudioFileCreate(GenericUpload):
+    serializer_class = serializers.AudioFileSerializer
+
+
+# TODO: Patch vulnerability where this clearly allows people to change captions on live multimedia that doesn't belong to them
+# TODO: Put in stopgap security measure where you can't update a multimedia item that has been approved (preventing live site from being modified by malicious actor)
+class GenericMediaUpdate(generics.GenericAPIView, mixins.UpdateModelMixin):
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+
+class PhotoUpdate(GenericMediaUpdate):
+    queryset = Photo.objects.all()
+    serializer_class = serializers.PhotoInfoSerializer
+
+
+class AudioUpdate(GenericMediaUpdate):
+    queryset = Audio.objects.all()
+    serializer_class = serializers.AudioInfoSerializer

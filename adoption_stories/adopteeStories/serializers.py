@@ -1,4 +1,4 @@
-from adopteeStories.models import Adoptee, Photo, StoryTeller, RelationshipCategory
+from adopteeStories.models import Adoptee, Photo, StoryTeller, RelationshipCategory, Audio
 from rest_framework import serializers
 
 
@@ -40,8 +40,6 @@ class StoryBasicsSerializer(serializers.ModelSerializer):
         model = StoryTeller
         fields = ('story_text', 'english_name', 'chinese_name', 'pinyin_name',)
 
-
-# TODO: Support for media
 class StorySerializer(StoryBasicsSerializer):
     relationship_to_story = RelationshipSerializer(many=False)
 
@@ -60,3 +58,42 @@ class AdopteeDetailSerializer(AdopteeBasicsSerializer):
         ordered_stories = StoryTeller.filter(related_adoptee=instance.id)\
                                      .order_by('updated_at')
         return StorySerializer(ordered_stories, many=True)
+
+
+class RestrictedImageField(serializers.ImageField):
+    # TODO: This will contain file size and image perspective ratio validation
+    pass
+
+
+class PhotoFileSerializer(serializers.Serializer):
+    photo_file = RestrictedImageField()
+
+    def create(self, validated_data):
+        return Photo.objects.create(**validated_data)
+
+
+class AudioField(serializers.FileField):
+    # TODO: Validate that our audio file is indeed a supported audio file, and is below a certain file size
+    pass
+
+
+class AudioFileSerializer(serializers.Serializer):
+    audio_file = AudioField()
+
+    def create(self, validated_data):
+        return Audio.objects.create(**validated_data)
+
+
+MULTIMEDIA_FIELDS = ('english_caption', 'chinese_caption', 'story_teller',)
+
+
+class PhotoInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Photo
+        fields = MULTIMEDIA_FIELDS
+
+
+class AudioInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Audio
+        fields = MULTIMEDIA_FIELDS
