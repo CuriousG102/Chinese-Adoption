@@ -103,7 +103,7 @@ class AudioFileCreate(GenericUpload):
     serializer_class = serializers.AudioFileSerializer
 
 
-# TODO: Put in stopgap security measure where you can't update a multimedia item that has been approved (preventing live site from being modified by malicious actor)
+# TODO: Patch vulnerability where this clearly allows people to change captions on multimedia that doesn't belong to them
 class GenericMediaUpdate(generics.GenericAPIView, mixins.UpdateModelMixin):
     def patch(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
