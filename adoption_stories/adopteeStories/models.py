@@ -82,7 +82,6 @@ class RelationshipCategory(models.Model):
         verbose_name = _('Relationship Category')
         verbose_name_plural = _('Relationship Categories')
 
-# TODO: Support for media
 class StoryTeller(models.Model):
     category_is_approved = {'approved': True}
     relationship_to_story = models.ForeignKey('RelationshipCategory',
