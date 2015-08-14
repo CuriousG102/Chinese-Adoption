@@ -200,3 +200,24 @@ class AdopteeGetTestCase(TestCase):
         self.storytellers[0].save()
         response = self.c.get(reverse('adopteeDetail', args=[self.adoptees[0].id]))
         self.assertEqual(response.status_code, 404)
+
+
+class AdopteeCreateTestCase(TestCase):
+    def setUp(self):
+        self.c = Client()
+        self.adoptee_create_url = reverse('adopteeCreate')
+
+    def test_possible_to_create_full_adoptee_through_api(self):
+        response = self.c.post(self.adoptee_create_url,
+                               content_type="application/json",
+                               data='{"english_name": "Madeleine Jing-Mei",'
+                                    ' "pinyin_name":  "Jǐngměi",'
+                                    ' "chinese_name": "景美"}')
+        self.assertEqual(response.status_code, 201)
+        qs = Adoptee.objects.all()
+        self.assertEqual(len(qs), 1)
+        self.assertJSONEqual(response.content.decode('utf-8'),
+                             '{{"id": {0.id}}}'.format(qs[0]))
+        # adoptee should be unreachable because they're not yet approved
+        response = self.c.get(reverse('adopteeDetail', args=[qs[0].id]))
+        self.assertEqual(response.status_code, 404)

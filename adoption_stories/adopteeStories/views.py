@@ -80,7 +80,7 @@ class GenericCreate(generics.GenericAPIView, mixins.CreateModelMixin):
         serializer.is_valid(raise_exception=True)
         new_model_instance = serializer.save()
         headers = self.get_success_headers(serializer.data)
-        return Response({'pk': new_model_instance.id}, status=status.HTTP_201_CREATED, headers=headers)
+        return Response({'id': new_model_instance.id}, status=status.HTTP_201_CREATED, headers=headers)
 
 
 # TODO: Enforce adoptee having a name
