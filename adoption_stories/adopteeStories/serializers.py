@@ -21,12 +21,19 @@ class AdopteeBasicsSerializer(serializers.ModelSerializer):
 
 
 class AdopteeSearchSerializer(AdopteeBasicsSerializer):
-    front_photo_link = PhotoLinkSerializer(many=False)
+    photo_front_story = PhotoLinkSerializer(many=False)
+
+    class Meta(AdopteeBasicsSerializer.Meta):
+        fields = AdopteeBasicsSerializer.Meta.fields + ('photo_front_story',)
 
 
 class AdopteeListSerializer(AdopteeBasicsSerializer):
     front_photo_link = PhotoLinkSerializer(many=False)
     front_story_text = StoryTextSerializer(many=False)
+
+    class Meta(AdopteeBasicsSerializer.Meta):
+        fields = AdopteeBasicsSerializer.Meta.fields + ('front_photo_link',
+                                                        'front_story_text',)
 
 
 class RelationshipSerializer(serializers.ModelSerializer):
@@ -40,8 +47,13 @@ class StoryBasicsSerializer(serializers.ModelSerializer):
         model = StoryTeller
         fields = ('story_text', 'english_name', 'chinese_name', 'pinyin_name',)
 
+
+# TODO: Add media to story
 class StorySerializer(StoryBasicsSerializer):
     relationship_to_story = RelationshipSerializer(many=False)
+
+    class Meta(StoryBasicsSerializer.Meta):
+        fields = StoryBasicsSerializer.Meta.fields + ('relationship_to_story',)
 
 
 class StoryCreationSerializer(StoryBasicsSerializer):
@@ -58,6 +70,9 @@ class AdopteeDetailSerializer(AdopteeBasicsSerializer):
         ordered_stories = StoryTeller.filter(related_adoptee=instance.id)\
                                      .order_by('updated_at')
         return StorySerializer(ordered_stories, many=True)
+
+    class Meta(AdopteeBasicsSerializer.Meta):
+        fields = AdopteeBasicsSerializer.Meta.fields + ('stories',)
 
 
 class RestrictedImageField(serializers.ImageField):

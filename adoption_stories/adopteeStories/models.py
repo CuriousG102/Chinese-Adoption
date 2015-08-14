@@ -20,11 +20,11 @@ class Adoptee(models.Model):
 
     # TODO: front_story is restricted to story tellers tied to the current adoptee in custom form logic
     front_story = models.ForeignKey('StoryTeller', null=True, verbose_name=_('Front Story'))
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
-    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated At'))
+    created = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
+    updated = models.DateTimeField(auto_now=True, verbose_name=_('Updated At'))
 
     class Meta:
-        ordering = ['created_at']
+        ordering = ['created']
         verbose_name = _('Adoptee')
         verbose_name_plural = _('Adoptees')
 
@@ -41,12 +41,12 @@ class MultimediaItem(models.Model):
     approved = models.BooleanField(default=False, verbose_name=_('Approved'))
     story_teller = models.ForeignKey('StoryTeller', null=True, verbose_name=_('Story Teller'))
 
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
-    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated At'))
+    created = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
+    updated = models.DateTimeField(auto_now=True, verbose_name=_('Updated At'))
 
     class Meta:
         abstract = True
-        ordering = ['created_at']
+        ordering = ['created']
 
 
 class Photo(MultimediaItem):
@@ -101,12 +101,12 @@ class StoryTeller(models.Model):
                                     verbose_name=_('Chinese Name'))
     pinyin_name = models.CharField(max_length=150, null=True,
                                    verbose_name=_('Pinyin Name'))
-    created_at = models.DateTimeField(auto_now_add=True,
+    created = models.DateTimeField(auto_now_add=True,
                                       verbose_name=_('Created At'))
-    updated_at = models.DateTimeField(auto_now=True,
+    updated = models.DateTimeField(auto_now=True,
                                       verbose_name=_('Updated At'))
 
     class Meta:
-        ordering = ['created_at']
+        ordering = ['created']
         verbose_name = _('Story Teller')
         verbose_name_plural = _('Story Tellers')

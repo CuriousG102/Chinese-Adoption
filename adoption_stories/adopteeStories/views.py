@@ -51,16 +51,16 @@ class AdopteeSearch(generics.ListAPIView):
         for field in self.FIELDS_TO_SEARCH_ON:
             query |= Q(**{field + self.FILTER_FOR_FIELDS: userSearch})
 
-        return Adoptee.objects.get(query & ADOPTEE_FILTER)
+        return Adoptee.objects.all().filter(query & ADOPTEE_FILTER)
 
 
 class AdopteeList(generics.ListAPIView):
-    queryset = Adoptee.objects.get(ADOPTEE_FILTER)
+    queryset = Adoptee.objects.all().filter(ADOPTEE_FILTER)
     serializer_class = serializers.AdopteeListSerializer
 
 
 class AdopteeDetail(generics.RetrieveAPIView):
-    queryset = Adoptee.objects.get(ADOPTEE_FILTER)
+    queryset = Adoptee.objects.all().filter(ADOPTEE_FILTER)
     serializer_class = serializers.AdopteeDetailSerializer
 
 
@@ -88,7 +88,7 @@ class StoryTellerCreate(GenericCreate):
 
 class CategoryListAndCreate(GenericCreate, mixins.ListModelMixin):
     serializer_class = serializers.RelationshipSerializer
-    queryset = RelationshipCategory.objects.get(CATEGORY_FILTER)
+    queryset = RelationshipCategory.objects.all().filter(CATEGORY_FILTER)
 
 
 class GenericUpload(GenericCreate):
@@ -110,10 +110,10 @@ class GenericMediaUpdate(generics.GenericAPIView, mixins.UpdateModelMixin):
 
 
 class PhotoUpdate(GenericMediaUpdate):
-    queryset = Photo.objects.get(UPDATE_FILTER)
+    queryset = Photo.objects.all().filter(UPDATE_FILTER)
     serializer_class = serializers.PhotoInfoSerializer
 
 
 class AudioUpdate(GenericMediaUpdate):
-    queryset = Audio.objects.get(UPDATE_FILTER)
+    queryset = Audio.objects.all().filter(UPDATE_FILTER)
     serializer_class = serializers.AudioInfoSerializer
