@@ -221,3 +221,45 @@ class AdopteeCreateTestCase(TestCase):
         # adoptee should be unreachable because they're not yet approved
         response = self.c.get(reverse('adopteeDetail', args=[qs[0].id]))
         self.assertEqual(response.status_code, 404)
+
+
+class StorytellerCreateTestCase(TestCase):
+    def setUp(self):
+        self.adoptees = [
+            Adoptee(english_name='Madeline Jing-Mei',
+                    pinyin_name='Jǐngměi',
+                    chinese_name='景美'),
+            Adoptee(english_name='Kim Bla', ),
+            Adoptee(english_name='Search Test',
+                    pinyin_name='Lala',
+                    chinese_name='搜索的一例'),
+            Adoptee(chinese_name='景',
+                    pinyin_name='Lola')
+        ]
+        for adoptee in self.adoptees:
+            adoptee.save()
+
+        self.c = Client()
+        self.storyteller_create_url = reverse('storytellerCreate')
+        self.relationship = RelationshipCategory(english_name='test')
+        self.relationship.save()
+
+    def test_possible_to_create_storyteller_through_api(self):
+        response = self.c.post(self.storyteller_create_url,
+                               content_type="application/json",
+                               data='{{"relationship_to_story": {0.id},'
+                                    '  "story_text": "bs",'
+                                    '  "email": "bs@example.com",'
+                                    '  "related_adoptee": {1.id},'
+                                    '  "english_name": "mark",'
+                                    '  "chinese_name": null,'
+                                    '  "pinyin_name": null}}'
+                               .format(self.relationship, self.adoptees[0]))
+        self.assertEqual(response.status_code, 201)
+
+        qs = StoryTeller.objects.all()
+        self.assertEqual(len(qs), 1)
+        self.assertEqual(qs[0].relationship_to_story, self.relationship)
+        self.assertEqual(qs[0].related_adoptee, self.adoptees[0])
+        self.assertJSONEqual(response.content.decode('utf-8'),
+                             '{{"id": {0.id}}}'.format(qs[0]))
