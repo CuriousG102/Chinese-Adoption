@@ -21,6 +21,13 @@ from rest_framework import mixins
 # ON ADOPTEE.ID = STORYTELLER.RELATED_ADOPTEE
 # WHERE STORYTELLER.APPROVED = 1
 
+# If you are very keen, you may notice that this filter will allow through
+# adoptees with storytellers who are approved, but who do not possess approved
+# categories. I noticed this while writing my tests and debated it myself.
+# At the end of the day, I decided that I was ok with this. Admins should know
+# that approving a storyteller means associated content will be out there with
+# that storyteller if it isn't media. This allows granularity in making one-off
+# exceptions for relationship categories without bloating the selector as well.
 ADOPTEE_FILTERS_Q_OBJECTS = [Q(stories__approved=True)]
 ADOPTEE_FILTER = Q()
 

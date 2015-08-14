@@ -28,12 +28,12 @@ class AdopteeSearchSerializer(AdopteeBasicsSerializer):
 
 
 class AdopteeListSerializer(AdopteeBasicsSerializer):
-    front_photo_link = PhotoLinkSerializer(many=False)
-    front_story_text = StoryTextSerializer(many=False)
+    photo_front_story = PhotoLinkSerializer(many=False)
+    front_story = StoryTextSerializer(many=False)
 
     class Meta(AdopteeBasicsSerializer.Meta):
-        fields = AdopteeBasicsSerializer.Meta.fields + ('front_photo_link',
-                                                        'front_story_text',)
+        fields = AdopteeBasicsSerializer.Meta.fields + ('photo_front_story',
+                                                        'front_story',)
 
 
 class RelationshipSerializer(serializers.ModelSerializer):
@@ -67,9 +67,12 @@ class AdopteeDetailSerializer(AdopteeBasicsSerializer):
     stories = serializers.SerializerMethodField('get_ordered_stories')
 
     def get_ordered_stories(self, instance):
-        ordered_stories = StoryTeller.filter(related_adoptee=instance.id)\
-                                     .order_by('updated_at')
-        return StorySerializer(ordered_stories, many=True)
+        ordered_stories = StoryTeller.objects.all() \
+            .filter(related_adoptee=instance.id) \
+            .filter(approved=True) \
+            .filter(relationship_to_story__approved=True) \
+            .order_by('-updated', '-created')
+        return StorySerializer(ordered_stories, many=True).data
 
     class Meta(AdopteeBasicsSerializer.Meta):
         fields = AdopteeBasicsSerializer.Meta.fields + ('stories',)

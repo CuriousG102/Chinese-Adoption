@@ -15,6 +15,7 @@ class Adoptee(models.Model):
                                     db_index=True, verbose_name=_('Chinese Name'))
 
     # TODO: photo_front_story is restricted to photos tied to a story teller tied to the current adoptee in custom form logic
+    # TODO: Layers of prevention around admin selecting non-approved content for front_story
     photo_front_story = models.ForeignKey('Photo', null=True, blank=True,
                                           verbose_name=_('Photo Front Story'))
 
@@ -24,6 +25,7 @@ class Adoptee(models.Model):
     updated = models.DateTimeField(auto_now=True, verbose_name=_('Updated At'))
 
     class Meta:
+        # TODO: Change to descending order
         ordering = ['created']
         verbose_name = _('Adoptee')
         verbose_name_plural = _('Adoptees')
@@ -46,6 +48,7 @@ class MultimediaItem(models.Model):
 
     class Meta:
         abstract = True
+        # TODO: Change to descending order
         ordering = ['created']
 
 
@@ -107,6 +110,7 @@ class StoryTeller(models.Model):
                                       verbose_name=_('Updated At'))
 
     class Meta:
+        # TODO: Change to descending order
         ordering = ['created']
         verbose_name = _('Story Teller')
         verbose_name_plural = _('Story Tellers')
