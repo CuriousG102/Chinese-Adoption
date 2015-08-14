@@ -80,6 +80,10 @@ class RelationshipCategory(models.Model):
     chinese_name = models.CharField(max_length=30, null=True, verbose_name=_('Chinese Name'))
 
     approved = models.BooleanField(default=False, verbose_name=_('Approved'))
+    created = models.DateTimeField(auto_now_add=True,
+                                   verbose_name=_('Created At'))
+    updated = models.DateTimeField(auto_now=True,
+                                   verbose_name=_('Updated At'))
 
     class Meta:
         verbose_name = _('Relationship Category')

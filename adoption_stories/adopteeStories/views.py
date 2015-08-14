@@ -93,7 +93,7 @@ class StoryTellerCreate(GenericCreate):
     serializer_class = serializers.StoryCreationSerializer
 
 
-class CategoryListAndCreate(GenericCreate, mixins.ListModelMixin):
+class CategoryListAndCreate(GenericCreate, generics.ListAPIView):
     serializer_class = serializers.RelationshipSerializer
     queryset = RelationshipCategory.objects.all().filter(CATEGORY_FILTER)
 

@@ -263,3 +263,49 @@ class StorytellerCreateTestCase(TestCase):
         self.assertEqual(qs[0].related_adoptee, self.adoptees[0])
         self.assertJSONEqual(response.content.decode('utf-8'),
                              '{{"id": {0.id}}}'.format(qs[0]))
+
+
+class CategoryGetTestCase(TestCase):
+    def setUp(self):
+        self.c = Client()
+        self.relationship = RelationshipCategory(english_name='test')
+        self.relationship.save()
+        self.category_url = reverse('categoryListAndCreate')
+
+    def test_unapproved_category_not_listed(self):
+        response = self.c.get(self.category_url)
+        expected_response = '{"next": null,"previous": null,"results": []}'
+        self.assertJSONEqual(response.content.decode('utf-8'),
+                             expected_response)
+
+    def test_approved_category_listed(self):
+        self.relationship.approved = True
+        self.relationship.save()
+
+        response = self.c.get(self.category_url)
+        relationship_json = '{{"english_name": "{0.english_name}",' \
+                            '  "chinese_name": null,' \
+                            '  "id": {0.id}}}'.format(self.relationship)
+
+        expected_response = '{{"next":null,"previous":null,"results":[{}]}}' \
+            .format(relationship_json)
+        self.assertJSONEqual(response.content.decode('utf-8'),
+                             expected_response)
+
+
+class CategoryCreateTestCase(TestCase):
+    def setUp(self):
+        self.c = Client()
+        self.category_url = reverse('categoryListAndCreate')
+
+    def test_category_post(self):
+        response = self.c.post(self.category_url, content_type="application/json",
+                               data='{"english_name":"test",'
+                                    '  "chinese_name":"景"}')
+        self.assertEqual(response.status_code, 201)
+        qs = RelationshipCategory.objects.all()
+        self.assertEqual(len(qs), 1)
+        self.assertEqual(qs[0].english_name, "test")
+        self.assertEqual(qs[0].chinese_name, "景")
+        self.assertJSONEqual(response.content.decode("utf-8"),
+                             '{{"id": {0.id}}}'.format(qs[0]))

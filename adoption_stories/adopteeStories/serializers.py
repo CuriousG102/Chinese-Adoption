@@ -39,7 +39,7 @@ class AdopteeListSerializer(AdopteeBasicsSerializer):
 class RelationshipSerializer(serializers.ModelSerializer):
     class Meta:
         model = RelationshipCategory
-        fields = ('english_name', 'chinese_name', 'id')
+        fields = ('english_name', 'chinese_name', 'id',)
 
 
 class StoryBasicsSerializer(serializers.ModelSerializer):
