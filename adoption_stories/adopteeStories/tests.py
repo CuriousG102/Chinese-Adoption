@@ -98,3 +98,10 @@ class AdopteeSearchTestCase(TestCase):
             .format(lola_json, m_jing_mei_json)
         self.assertJSONEqual(response.content.decode('utf-8'),
                              expected_response)
+
+    def test_adoptee_search_fail_without_q(self):
+        """
+        Search endpoint hit without q parameter returns a 400 status
+        """
+        response = self.c.get(self.adoptee_search_url)
+        self.assertEqual(response.status_code, 400)
