@@ -1,4 +1,8 @@
+from adopteeStories import default_settings
 from adopteeStories.models import Adoptee, Photo, StoryTeller, RelationshipCategory, Audio
+from django.conf import settings
+from django import forms
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
 
@@ -78,9 +82,48 @@ class AdopteeDetailSerializer(AdopteeBasicsSerializer):
         fields = AdopteeBasicsSerializer.Meta.fields + ('stories',)
 
 
+class RestrictedDjangoImageField(forms.ImageField):
+    def to_python(self, data):
+        """
+        Checks that the file-upload field contains a JPEG, and nothing else.
+        Uses PIL validation and also ensures that the file is above a minimum height and width
+        """
+        file = super(RestrictedDjangoImageField, self).to_python(data)
+
+        d_config = default_settings.ADOPTEE_STORIES_CONFIG
+        min_width, min_height, formats = d_config['MIN_WIDTH'], d_config['MIN_HEIGHT'], d_config['FORMATS']
+
+        if settings.ADOPTEE_STORIES_CONFIG:
+            min_width = settings.ADOPTEE_STORIES_CONFIG['MIN_WIDTH'] or min_width
+            min_height = settings.ADOPTEE_STORIES_CONFIG['MIN_HEIGHT'] or min_height
+            formats = settings.ADOPTEE_STORIES_CONFIG['FORMATS'] or formats
+
+        width, height = file.image.size
+
+        if width < min_width or height < min_height:
+            raise serializers.ValidationError(detail=_('Image does not meet '
+                                                       'minimum width and height'
+                                                       ' requirements'))
+        format = file.image.format
+
+        if format not in formats:
+            raise serializers.ValidationError(detail=_('Image does not meet '
+                                                       'formatting requirements'))
+
+        return file
+
+
 class RestrictedImageField(serializers.ImageField):
     # TODO: This will contain file size and image perspective ratio validation
-    pass
+    def __init__(self, *args, **kwargs):
+        # super sketch replacement of private variable. Maybe there's a
+        # better way to do robust validation here ...
+        super(RestrictedImageField, self).__init__(*args, **kwargs)
+        self._DjangoImageField = RestrictedDjangoImageField
+
+        # def to_internal_value(self, data):
+        #     file_object = super(RestrictedImageField, self).to_internal_value(data)
+        #     return file_object
 
 
 class PhotoFileSerializer(serializers.Serializer):
