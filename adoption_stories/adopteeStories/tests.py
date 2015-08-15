@@ -1,7 +1,8 @@
-from adopteeStories.models import Adoptee, StoryTeller, RelationshipCategory
+import io
+from PIL import Image
+from adopteeStories.models import Adoptee, StoryTeller, RelationshipCategory, Photo
 from django.core.urlresolvers import reverse
 from django.test import TestCase, Client
-
 
 # Create your tests here.
 
@@ -309,3 +310,85 @@ class CategoryCreateTestCase(TestCase):
         self.assertEqual(qs[0].chinese_name, "景")
         self.assertJSONEqual(response.content.decode("utf-8"),
                              '{{"id": {0.id}}}'.format(qs[0]))
+
+
+class PhotoFileUploadTestCase(TestCase):
+    def setUp(self):
+        self.c = Client()
+        self.upload_url = reverse('photoCreate')
+        self.MIN_WIDTH = 600
+        self.MIN_HEIGHT = 400
+
+    def test_file_post_for_valid_photo(self):
+        """
+        test file uploads with valid photo sizes
+        """
+
+        edgeSizeImage = Image.new('RGB', (self.MIN_WIDTH, self.MIN_HEIGHT), (255, 255, 255))
+        nonEdgeSizeImage = Image.new('RGB', (int(self.MIN_WIDTH * 1.5), int(self.MIN_HEIGHT * 1.5)), (255, 255, 255))
+
+        fakeFile = io.BytesIO()
+        edgeSizeImage.save(fakeFile, format="JPEG")
+        fakeFile.name = 'myTestImage.jpg'
+        fakeFile.seek(0)
+        response = self.c.post(self.upload_url, {'photo_file': fakeFile})
+        self.assertEqual(response.status_code, 201)
+        qs = Photo.objects.all()
+        self.assertEqual(len(qs), 1)
+        fakeFile.seek(0)
+        self.assertEqual(qs[0].photo_file.read(), fakeFile.getvalue())
+        self.assertJSONEqual(response.content.decode('utf-8'),
+                             '{{"id":{0.id}}}'.format(qs[0]))
+
+        qs.delete()
+
+        fakeFile = io.BytesIO()
+        nonEdgeSizeImage.save(fakeFile, format="JPEG")
+        fakeFile.name = 'myTestImage.jpg'
+        fakeFile.seek(0)
+        response = self.c.post(self.upload_url, {'photo_file': fakeFile})
+        self.assertEqual(response.status_code, 201)
+        qs = Photo.objects.all()
+        self.assertEqual(len(qs), 1)
+        fakeFile.seek(0)
+        self.assertEqual(qs[0].photo_file.read(), fakeFile.getvalue())
+        self.assertJSONEqual(response.content.decode('utf-8'),
+                             '{{"id":{0.id}}}'.format(qs[0]))
+
+    def test_file_post_for_invalid_photo_dimensions(self):
+        badImage = Image.new('RGB', (int(self.MIN_WIDTH * .5), int(self.MIN_HEIGHT * .5)), (255, 255, 255))
+        fakeFile = io.BytesIO()
+        badImage.save(fakeFile, format="JPEG")
+        fakeFile.name = 'myTestImage.jpg'
+        fakeFile.seek(0)
+        response = self.c.post(self.upload_url, {'photo_file': fakeFile})
+        self.assertEqual(response.status_code, 400)
+        qs = Photo.objects.all()
+        self.assertEqual(len(qs), 0)
+
+    def test_file_post_for_invalid_photo_format(self):
+        nonEdgeSizeImage = Image.new('RGB', (int(self.MIN_WIDTH * 1.5), int(self.MIN_HEIGHT * 1.5)), (255, 255, 255))
+        fakeFile = io.BytesIO()
+        nonEdgeSizeImage.save(fakeFile, format="PNG")
+        fakeFile.name = 'myTestImage.png'
+        fakeFile.seek(0)
+        response = self.c.post(self.upload_url, {'photo_file': fakeFile})
+        self.assertEqual(response.status_code, 400)
+        qs = Photo.objects.all()
+        self.assertEqual(len(qs), 0)
+
+        fakeFile.name = 'myTestImage.jpg'
+        fakeFile.seek(0)
+        response = self.c.post(self.upload_url, {'photo_file': fakeFile})
+        self.assertEqual(response.status_code, 400)
+        qs = Photo.objects.all()
+        self.assertEqual(len(qs), 0)
+
+    def test_file_post_for_invalid_photo_content(self):
+        fakeFile = io.BytesIO(b"lolzi'ma1337hacker")
+        fakeFile.name = 'myTestImage.jpg'
+        fakeFile.seek(0)
+        response = self.c.post(self.upload_url, {'photo_file': fakeFile})
+        self.assertEqual(response.status_code, 400)
+        qs = Photo.objects.all()
+        self.assertEqual(len(qs), 0)

@@ -15,5 +15,7 @@ urlpatterns = [
     url(r'^search/adoptee/$', views.AdopteeSearch.as_view(),
         name="adopteeSearch"),
     url(r'^category/$', views.CategoryListAndCreate.as_view(),
-        name="categoryListAndCreate")
+        name="categoryListAndCreate"),
+    url(r'^photoUpload/$', views.PhotoFileCreate.as_view(),
+        name="photoCreate")
 ]
