@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+import embed_video.fields
 
 
 class Migration(migrations.Migration):
@@ -13,62 +14,63 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Adoptee',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True, serialize=False)),
-                ('english_name', models.CharField(verbose_name='English Name', null=True, blank=True, db_index=True, max_length=150)),
-                ('pinyin_name', models.CharField(verbose_name='Pinyin Name', null=True, blank=True, db_index=True, max_length=150)),
-                ('chinese_name', models.CharField(verbose_name='Chinese Name', null=True, blank=True, db_index=True, max_length=50)),
-                ('created', models.DateTimeField(verbose_name='Created At', auto_now_add=True)),
+                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
+                ('english_name', models.CharField(db_index=True, max_length=150, verbose_name='English Name', blank=True, null=True)),
+                ('pinyin_name', models.CharField(db_index=True, max_length=150, verbose_name='Pinyin Name', blank=True, null=True)),
+                ('chinese_name', models.CharField(db_index=True, max_length=50, verbose_name='Chinese Name', blank=True, null=True)),
+                ('created', models.DateTimeField(auto_now_add=True, verbose_name='Created At')),
                 ('updated', models.DateTimeField(verbose_name='Updated At', auto_now=True)),
             ],
             options={
+                'ordering': ['created'],
                 'verbose_name': 'Adoptee',
                 'verbose_name_plural': 'Adoptees',
-                'ordering': ['created'],
             },
         ),
         migrations.CreateModel(
             name='Audio',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True, serialize=False)),
-                ('english_caption', models.CharField(verbose_name='English Caption', null=True, blank=True, max_length=200)),
-                ('chinese_caption', models.CharField(verbose_name='Chinese Caption', null=True, blank=True, max_length=200)),
-                ('approved', models.BooleanField(verbose_name='Approved', default=False)),
-                ('created', models.DateTimeField(verbose_name='Created At', auto_now_add=True)),
+                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
+                ('english_caption', models.CharField(max_length=200, verbose_name='English Caption', blank=True, null=True)),
+                ('chinese_caption', models.CharField(max_length=200, verbose_name='Chinese Caption', blank=True, null=True)),
+                ('approved', models.BooleanField(default=False, verbose_name='Approved')),
+                ('created', models.DateTimeField(auto_now_add=True, verbose_name='Created At')),
                 ('updated', models.DateTimeField(verbose_name='Updated At', auto_now=True)),
+                ('audio', embed_video.fields.EmbedSoundcloudField(verbose_name='Audio Soundcloud Embed')),
             ],
             options={
+                'ordering': ['created'],
                 'verbose_name': 'Audio item',
                 'verbose_name_plural': 'Audio items',
                 'abstract': False,
-                'ordering': ['created'],
             },
         ),
         migrations.CreateModel(
             name='Photo',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True, serialize=False)),
-                ('english_caption', models.CharField(verbose_name='English Caption', null=True, blank=True, max_length=200)),
-                ('chinese_caption', models.CharField(verbose_name='Chinese Caption', null=True, blank=True, max_length=200)),
-                ('approved', models.BooleanField(verbose_name='Approved', default=False)),
-                ('created', models.DateTimeField(verbose_name='Created At', auto_now_add=True)),
+                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
+                ('english_caption', models.CharField(max_length=200, verbose_name='English Caption', blank=True, null=True)),
+                ('chinese_caption', models.CharField(max_length=200, verbose_name='Chinese Caption', blank=True, null=True)),
+                ('approved', models.BooleanField(default=False, verbose_name='Approved')),
+                ('created', models.DateTimeField(auto_now_add=True, verbose_name='Created At')),
                 ('updated', models.DateTimeField(verbose_name='Updated At', auto_now=True)),
-                ('photo_file', models.ImageField(verbose_name='Photo File', upload_to='')),
+                ('photo_file', models.ImageField(upload_to='', verbose_name='Photo File')),
             ],
             options={
+                'ordering': ['created'],
                 'verbose_name': 'Photo',
                 'verbose_name_plural': 'Photos',
                 'abstract': False,
-                'ordering': ['created'],
             },
         ),
         migrations.CreateModel(
             name='RelationshipCategory',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True, serialize=False)),
-                ('english_name', models.CharField(verbose_name='English Name', null=True, max_length=30)),
-                ('chinese_name', models.CharField(verbose_name='Chinese Name', null=True, max_length=30)),
-                ('approved', models.BooleanField(verbose_name='Approved', default=False)),
-                ('created', models.DateTimeField(verbose_name='Created At', auto_now_add=True)),
+                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
+                ('english_name', models.CharField(max_length=30, verbose_name='English Name', null=True)),
+                ('chinese_name', models.CharField(max_length=30, verbose_name='Chinese Name', null=True)),
+                ('approved', models.BooleanField(default=False, verbose_name='Approved')),
+                ('created', models.DateTimeField(auto_now_add=True, verbose_name='Created At')),
                 ('updated', models.DateTimeField(verbose_name='Updated At', auto_now=True)),
             ],
             options={
@@ -79,40 +81,41 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='StoryTeller',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True, serialize=False)),
+                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
                 ('story_text', models.TextField(verbose_name='Story Text')),
-                ('email', models.EmailField(verbose_name='Email', max_length=254)),
-                ('approved', models.BooleanField(verbose_name='Approved', default=False)),
-                ('english_name', models.CharField(verbose_name='English Name', null=True, max_length=150)),
-                ('chinese_name', models.CharField(verbose_name='Chinese Name', null=True, max_length=50)),
-                ('pinyin_name', models.CharField(verbose_name='Pinyin Name', null=True, max_length=150)),
-                ('created', models.DateTimeField(verbose_name='Created At', auto_now_add=True)),
+                ('email', models.EmailField(max_length=254, verbose_name='Email')),
+                ('approved', models.BooleanField(default=False, verbose_name='Approved')),
+                ('english_name', models.CharField(max_length=150, verbose_name='English Name', null=True)),
+                ('chinese_name', models.CharField(max_length=50, verbose_name='Chinese Name', null=True)),
+                ('pinyin_name', models.CharField(max_length=150, verbose_name='Pinyin Name', null=True)),
+                ('created', models.DateTimeField(auto_now_add=True, verbose_name='Created At')),
                 ('updated', models.DateTimeField(verbose_name='Updated At', auto_now=True)),
-                ('related_adoptee', models.ForeignKey(verbose_name='Related Adoptee', related_name='stories', to='adopteeStories.Adoptee')),
+                ('related_adoptee', models.ForeignKey(related_name='stories', verbose_name='Related Adoptee', to='adopteeStories.Adoptee')),
                 ('relationship_to_story', models.ForeignKey(verbose_name='Relationship to Story', to='adopteeStories.RelationshipCategory')),
             ],
             options={
+                'ordering': ['created'],
                 'verbose_name': 'Story Teller',
                 'verbose_name_plural': 'Story Tellers',
-                'ordering': ['created'],
             },
         ),
         migrations.CreateModel(
             name='Video',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True, serialize=False)),
-                ('english_caption', models.CharField(verbose_name='English Caption', null=True, blank=True, max_length=200)),
-                ('chinese_caption', models.CharField(verbose_name='Chinese Caption', null=True, blank=True, max_length=200)),
-                ('approved', models.BooleanField(verbose_name='Approved', default=False)),
-                ('created', models.DateTimeField(verbose_name='Created At', auto_now_add=True)),
+                ('id', models.AutoField(auto_created=True, serialize=False, verbose_name='ID', primary_key=True)),
+                ('english_caption', models.CharField(max_length=200, verbose_name='English Caption', blank=True, null=True)),
+                ('chinese_caption', models.CharField(max_length=200, verbose_name='Chinese Caption', blank=True, null=True)),
+                ('approved', models.BooleanField(default=False, verbose_name='Approved')),
+                ('created', models.DateTimeField(auto_now_add=True, verbose_name='Created At')),
                 ('updated', models.DateTimeField(verbose_name='Updated At', auto_now=True)),
+                ('video', embed_video.fields.EmbedYoutubeField(verbose_name='Youtube Soundcloud Embed')),
                 ('story_teller', models.ForeignKey(verbose_name='Story Teller', to='adopteeStories.StoryTeller', null=True)),
             ],
             options={
+                'ordering': ['created'],
                 'verbose_name': 'Video item',
                 'verbose_name_plural': 'Video items',
                 'abstract': False,
-                'ordering': ['created'],
             },
         ),
         migrations.AddField(
@@ -133,6 +136,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='adoptee',
             name='photo_front_story',
-            field=models.ForeignKey(verbose_name='Photo Front Story', blank=True, to='adopteeStories.Photo', null=True),
+            field=models.ForeignKey(to='adopteeStories.Photo', verbose_name='Photo Front Story', blank=True, null=True),
         ),
     ]

@@ -3,7 +3,7 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from .backends import detect_backend, UnknownIdException, \
-    UnknownBackendException
+    UnknownBackendException, YoutubeBackend, SoundCloudBackend
 
 __all__ = ('EmbedVideoField', 'EmbedVideoFormField')
 
@@ -18,6 +18,23 @@ class EmbedVideoField(models.URLField):
         defaults = {'form_class': EmbedVideoFormField}
         defaults.update(kwargs)
         return super(EmbedVideoField, self).formfield(**defaults)
+
+    def south_field_triple(self):
+        from south.modelsinspector import introspector
+        cls_name = '%s.%s' % (
+            self.__class__.__module__,
+            self.__class__.__name__
+        )
+        args, kwargs = introspector(self)
+        return (cls_name, args, kwargs)
+
+
+# TODO: Clean this up with some proper inheritance
+class EmbedBackendField(models.URLField):
+    def formfield(self, **kwargs):
+        defaults = {'form_class': self.backend_field_class}
+        defaults.update(kwargs)
+        return super(EmbedBackendField, self).formfield(**defaults)
 
     def south_field_triple(self):
         from south.modelsinspector import introspector
@@ -59,12 +76,6 @@ class EmbedBackendFormField(forms.URLField):
     :py:class:`django.forms.URLField`
     """
 
-    def __init__(self, backend_class, max_length=None, min_length=None, *args, **kwargs):
-        kwargs['max_length'] = max_length
-        kwargs['min_length'] = min_length
-        super(EmbedBackendFormField, self).__init__(*args, **kwargs)
-        self.backend_class = backend_class
-
     def validate(self, url):
         # if empty url is not allowed throws an exception
         super(EmbedBackendFormField, self).validate(url)
@@ -81,3 +92,19 @@ class EmbedBackendFormField(forms.URLField):
             raise forms.ValidationError(_(u'ID of this video could not be '
                                           u'recognized.'))
         return url
+
+
+class EmbedYoutubeFormField(EmbedBackendFormField):
+    backend_class = YoutubeBackend
+
+
+class EmbedSoundcloudFormField(EmbedBackendFormField):
+    backend_class = SoundCloudBackend
+
+
+class EmbedYoutubeField(EmbedBackendField):
+    backend_field_class = EmbedYoutubeFormField
+
+
+class EmbedSoundcloudField(EmbedBackendField):
+    backend_field_class = EmbedSoundcloudFormField

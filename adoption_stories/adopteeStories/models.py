@@ -3,8 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 # Create your models here.
-from embed_video import backends
-from embed_video.fields import EmbedBackendFormField
+from embed_video.fields import EmbedYoutubeField, EmbedSoundcloudField
 
 
 class Adoptee(models.Model):
@@ -70,7 +69,8 @@ class MultimediaItem(models.Model):
 
 
 class Audio(MultimediaItem):
-    audio = EmbedBackendFormField(backend_class=backends.SoundCloudBackend)
+    # Translators: name of field in the admin page
+    audio = EmbedSoundcloudField(verbose_name=_('Audio Soundcloud Embed'))
 
     class Meta(MultimediaItem.Meta):
         abstract = False
@@ -81,7 +81,8 @@ class Audio(MultimediaItem):
 
 
 class Video(MultimediaItem):
-    video = EmbedBackendFormField(backend_class=backends.YoutubeBackend)
+    # Translators: name of field in the admin page
+    video = EmbedYoutubeField(verbose_name=_('Youtube Soundcloud Embed'))
 
     class Meta(MultimediaItem.Meta):
         abstract = False
