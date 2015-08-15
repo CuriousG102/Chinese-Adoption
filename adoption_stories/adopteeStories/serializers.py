@@ -106,6 +106,7 @@ class RestrictedDjangoImageField(forms.ImageField):
         # giving users who try to upload a truly massive file a much ruder experience
         # (dropped connection) to prevent huge server load on our end
         if data.size > max_size:
+            # Translators: Error message for people who try to bypass image upload restrictions
             raise serializers.ValidationError(detail=_('Image is too large'))
 
         file = super(RestrictedDjangoImageField, self).to_python(data)
@@ -113,12 +114,14 @@ class RestrictedDjangoImageField(forms.ImageField):
         width, height = file.image.size
 
         if width < min_width or height < min_height:
+            # Translators: Error message when image is too small
             raise serializers.ValidationError(detail=_('Image does not meet '
                                                        'minimum width and height'
                                                        ' requirements'))
         format = file.image.format
 
         if format not in formats:
+            # Translators: Error message when image is not one of the allowed formats
             raise serializers.ValidationError(detail=_('Image does not meet '
                                                        'formatting requirements'))
 
