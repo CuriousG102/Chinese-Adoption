@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'rest_framework',
     'adopteeStories',
+    'embed_video',
 )
 
 MIDDLEWARE_CLASSES = (

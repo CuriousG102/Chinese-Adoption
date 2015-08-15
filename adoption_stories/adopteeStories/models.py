@@ -3,6 +3,8 @@ from django.utils.translation import ugettext_lazy as _
 
 
 # Create your models here.
+from embed_video import backends
+from embed_video.fields import EmbedBackendFormField
 
 
 class Adoptee(models.Model):
@@ -67,6 +69,27 @@ class MultimediaItem(models.Model):
         ordering = ['created']
 
 
+class Audio(MultimediaItem):
+    audio = EmbedBackendFormField(backend_class=backends.SoundCloudBackend)
+
+    class Meta(MultimediaItem.Meta):
+        abstract = False
+        # Translators: Name of a field in the admin page
+        verbose_name = _('Audio item')
+        # Translators: Name of a field in the admin page
+        verbose_name_plural = _('Audio items')
+
+
+class Video(MultimediaItem):
+    video = EmbedBackendFormField(backend_class=backends.YoutubeBackend)
+
+    class Meta(MultimediaItem.Meta):
+        abstract = False
+        # Translators: Name of a field in the admin page
+        verbose_name = _('Video item')
+        # Translators: Name of a field in the admin page
+        verbose_name_plural = _('Video items')
+
 class Photo(MultimediaItem):
     # file size and type checking added on form level
 
@@ -79,20 +102,6 @@ class Photo(MultimediaItem):
         verbose_name = _('Photo')
         # Translators: Name of a field in the admin page
         verbose_name_plural = _('Photos')
-
-
-class Audio(MultimediaItem):
-    # file size and type checking added on form level
-    # Translators: Name of a field in the admin page
-    audio_file = models.FileField(verbose_name=_('Audio File'))
-
-    class Meta(MultimediaItem.Meta):
-        abstract = False
-        # Translators: Name of a field in the admin page
-        verbose_name = _('Audio Recording')
-        # Translators: Name of a field in the admin page
-        verbose_name_plural = _('Audio Recordings')
-
 
 class RelationshipCategory(models.Model):
     # english_name must have a value || chinese name must have a value at first
