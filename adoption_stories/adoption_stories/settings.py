@@ -164,4 +164,5 @@ ADOPTEE_STORIES_CONFIG = {
     'MIN_HEIGHT': 400,
     'FORMATS': {'JPEG',
                 },
+    'IMAGE_MAX_SIZE': int(2.5 * 2 ** 20),  # 2.5 megabytes
 }

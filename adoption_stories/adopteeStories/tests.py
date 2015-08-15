@@ -392,3 +392,5 @@ class PhotoFileUploadTestCase(TestCase):
         self.assertEqual(response.status_code, 400)
         qs = Photo.objects.all()
         self.assertEqual(len(qs), 0)
+
+        # TODO: Test validation with a file that is too large

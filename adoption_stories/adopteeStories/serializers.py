@@ -88,15 +88,27 @@ class RestrictedDjangoImageField(forms.ImageField):
         Checks that the file-upload field contains a JPEG, and nothing else.
         Uses PIL validation and also ensures that the file is above a minimum height and width
         """
-        file = super(RestrictedDjangoImageField, self).to_python(data)
-
         d_config = default_settings.ADOPTEE_STORIES_CONFIG
-        min_width, min_height, formats = d_config['MIN_WIDTH'], d_config['MIN_HEIGHT'], d_config['FORMATS']
+        min_width, min_height, formats, max_size = d_config['MIN_WIDTH'], d_config['MIN_HEIGHT'], d_config['FORMATS'], \
+                                                   d_config['IMAGE_MAX_SIZE']
 
         if settings.ADOPTEE_STORIES_CONFIG:
             min_width = settings.ADOPTEE_STORIES_CONFIG['MIN_WIDTH'] or min_width
             min_height = settings.ADOPTEE_STORIES_CONFIG['MIN_HEIGHT'] or min_height
             formats = settings.ADOPTEE_STORIES_CONFIG['FORMATS'] or formats
+            max_size = settings.ADOPTEE_STORIES_CONFIG['IMAGE_MAX_SIZE'] or max_size
+
+        # While a lot of validation will only be carried out in-depth on the backend,
+        # due to the difficulty of writing it, this size validation will be on the
+        # frontend as well. This is because allowing somebody to upload a
+        # large file just to get it kicked back would be a huge UX degradation
+        # and also a bandwidth hog. This size validation will be accompanied by nginx
+        # giving users who try to upload a truly massive file a much ruder experience
+        # (dropped connection) to prevent huge server load on our end
+        if data.size > max_size:
+            raise serializers.ValidationError(detail=_('Image is too large'))
+
+        file = super(RestrictedDjangoImageField, self).to_python(data)
 
         width, height = file.image.size
 
@@ -114,16 +126,9 @@ class RestrictedDjangoImageField(forms.ImageField):
 
 
 class RestrictedImageField(serializers.ImageField):
-    # TODO: This will contain file size and image perspective ratio validation
     def __init__(self, *args, **kwargs):
-        # super sketch replacement of private variable. Maybe there's a
-        # better way to do robust validation here ...
         super(RestrictedImageField, self).__init__(*args, **kwargs)
         self._DjangoImageField = RestrictedDjangoImageField
-
-        # def to_internal_value(self, data):
-        #     file_object = super(RestrictedImageField, self).to_internal_value(data)
-        #     return file_object
 
 
 class PhotoFileSerializer(serializers.Serializer):
