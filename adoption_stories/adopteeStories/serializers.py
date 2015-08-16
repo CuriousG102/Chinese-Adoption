@@ -1,5 +1,6 @@
 from adopteeStories import default_settings
-from adopteeStories.models import Adoptee, Photo, StoryTeller, RelationshipCategory, Audio
+from adopteeStories.custom_rest_fields import SoundcloudField, YoutubeField
+from adopteeStories.models import Adoptee, Photo, StoryTeller, RelationshipCategory, Audio, Video
 from django.conf import settings
 from django import forms
 from django.utils.translation import ugettext_lazy as _
@@ -143,18 +144,6 @@ class PhotoFileSerializer(serializers.Serializer):
         return Photo.objects.create(**validated_data)
 
 
-class AudioField(serializers.FileField):
-    # TODO: Validate that our audio file is indeed a supported audio file, and is below a certain file size
-    pass
-
-
-class AudioFileSerializer(serializers.Serializer):
-    audio_file = AudioField()
-
-    def create(self, validated_data):
-        return Audio.objects.create(**validated_data)
-
-
 MULTIMEDIA_FIELDS = ('english_caption', 'chinese_caption', 'story_teller',)
 
 
@@ -164,7 +153,17 @@ class PhotoInfoSerializer(serializers.ModelSerializer):
         fields = MULTIMEDIA_FIELDS
 
 
-class AudioInfoSerializer(serializers.ModelSerializer):
+class AudioSerializer(serializers.ModelSerializer):
+    audio = SoundcloudField()
+
     class Meta:
         model = Audio
-        fields = MULTIMEDIA_FIELDS
+        fields = MULTIMEDIA_FIELDS + ('audio',)
+
+
+class YoutubeSerializer(serializers.ModelSerializer):
+    video = YoutubeField()
+
+    class Meta:
+        model = Video
+        fields = MULTIMEDIA_FIELDS + ('video',)

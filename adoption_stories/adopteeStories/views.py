@@ -1,5 +1,5 @@
 # TODO: Clean up imports list and make it PEP8 compliant
-from adopteeStories.models import Adoptee, RelationshipCategory, Photo, Audio
+from adopteeStories.models import Adoptee, RelationshipCategory, Photo
 from adopteeStories import serializers
 from django.db.models import Q
 
@@ -106,10 +106,6 @@ class PhotoFileCreate(GenericUpload):
     serializer_class = serializers.PhotoFileSerializer
 
 
-class AudioFileCreate(GenericUpload):
-    serializer_class = serializers.AudioFileSerializer
-
-
 # TODO: Patch vulnerability where this clearly allows people to change captions on multimedia that doesn't belong to them
 class GenericMediaUpdate(generics.GenericAPIView, mixins.UpdateModelMixin):
     def patch(self, request, *args, **kwargs):
@@ -119,8 +115,3 @@ class GenericMediaUpdate(generics.GenericAPIView, mixins.UpdateModelMixin):
 class PhotoUpdate(GenericMediaUpdate):
     queryset = Photo.objects.all().filter(UPDATE_FILTER)
     serializer_class = serializers.PhotoInfoSerializer
-
-
-class AudioUpdate(GenericMediaUpdate):
-    queryset = Audio.objects.all().filter(UPDATE_FILTER)
-    serializer_class = serializers.AudioInfoSerializer

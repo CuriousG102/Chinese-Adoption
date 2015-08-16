@@ -3,7 +3,7 @@ from django.utils.safestring import mark_safe
 
 from .backends import detect_backend, UnknownBackendException, \
     VideoDoesntExistException
-from .fields import EmbedVideoField
+from .fields import EmbedVideoField, EmbedBackendField
 
 
 class AdminVideoWidget(forms.TextInput):
@@ -76,7 +76,7 @@ class AdminVideoMixin(object):
         """
         :type db_field: str
         """
-        if isinstance(db_field, EmbedVideoField):
+        if isinstance(db_field, EmbedVideoField) or isinstance(db_field, EmbedBackendField):
             return db_field.formfield(widget=AdminVideoWidget)
 
         return super(AdminVideoMixin, self) \
