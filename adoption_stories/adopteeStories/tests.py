@@ -1,12 +1,15 @@
+from django.core.files.uploadedfile import SimpleUploadedFile
 import io
 from PIL import Image
-from adopteeStories.models import Adoptee, StoryTeller, RelationshipCategory, Photo
+from adopteeStories.models import Adoptee, StoryTeller, RelationshipCategory, Photo, Video, Audio
 from django.core.urlresolvers import reverse
 from django.test import TestCase, Client
+
 
 # Create your tests here.
 
 # TODO: Clean up redundancy in these tests by abstracting behavior in rest tests
+# TODO: Clean up redundancy by abstracting dummy value generation
 
 class AdopteeSearchTestCase(TestCase):
     def setUp(self):
@@ -394,3 +397,178 @@ class PhotoFileUploadTestCase(TestCase):
         self.assertEqual(len(qs), 0)
 
         # TODO: Test validation with a file that is too large
+
+
+class PhotoUpdateTestCase(TestCase):
+    UPLOAD_VIEW_NAME = 'photoUpdate'
+
+    def setUp(self):
+        self.c = Client()
+        nonEdgeSizeImage = Image.new('RGB', (int(600 * 1.5), int(400 * 1.5)), (255, 255, 255))
+        self.photo = Photo()
+        self.photo.photo_file = SimpleUploadedFile('myTestImage.jpg',
+                                                   content=nonEdgeSizeImage.tobytes(),
+                                                   content_type="image/jpeg")
+        self.photo.save()
+
+        relationship = RelationshipCategory(approved=True)
+        relationship.save()
+
+        adoptee = Adoptee(english_name='Madeline Jing-Mei',
+                          pinyin_name='Jǐngměi',
+                          chinese_name='景美')
+        adoptee.save()
+
+        prototypical_storyteller_kw_args = {'story_text': 'bs',
+                                            'email': 'bs@example.com',
+                                            'approved': True,
+                                            'relationship_to_story': relationship,
+                                            'related_adoptee': adoptee,
+                                            }
+
+        self.storyteller = StoryTeller(**prototypical_storyteller_kw_args)
+        self.storyteller.save()
+
+    def test_photo_can_be_updated(self):
+        update_json = '{{"english_caption": "a lovely walk in the park",' \
+                      '  "chinese_caption": "景美景美景美景美景美景美景美",' \
+                      '  "story_teller": {0.id}}}'.format(self.storyteller)
+        url = reverse(self.UPLOAD_VIEW_NAME, args=[self.photo.id])
+        response = self.c.patch(url,
+                                data=update_json,
+                                content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        expected_response = '{{"english_caption": "a lovely walk in the park",' \
+                            '  "chinese_caption": "景美景美景美景美景美景美景美",' \
+                            '  "story_teller": {0.id},' \
+                            '  "id": {1.id}}}'.format(self.storyteller,
+                                                      Photo.objects.all()[0])
+        self.assertJSONEqual(response.content.decode('utf-8'),
+                             expected_response)
+
+
+# TODO: Make a parent class for VideoCreateTestCase and AudioCreateTestCase, because they're literally just copy paste with a few changed variables
+class VideoCreateTestCase(TestCase):
+    VALID_YOUTUBE_URLS = ["https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                          ]
+    INVALID_YOUTUBE_URLS = [
+        # "https://www.youtube.com/watch?v=dQw4w9W,b",  #TODO: Add validation against youtube rest endpoint
+        "https://www.soundcloud.com/watch?v=dQw4w9WgXcQ"]
+    VIDEO_CREATE_URL = reverse('videoCreate')
+
+    def setUp(self):
+        self.c = Client()
+
+        relationship = RelationshipCategory(approved=True)
+        relationship.save()
+
+        adoptee = Adoptee(english_name='Madeline Jing-Mei',
+                          pinyin_name='Jǐngměi',
+                          chinese_name='景美')
+        adoptee.save()
+
+        prototypical_storyteller_kw_args = {'story_text': 'bs',
+                                            'email': 'bs@example.com',
+                                            'approved': True,
+                                            'relationship_to_story': relationship,
+                                            'related_adoptee': adoptee,
+                                            }
+
+        self.storyteller = StoryTeller(**prototypical_storyteller_kw_args)
+        self.storyteller.save()
+
+    def test_create_valid_video(self):
+        for video_url in self.VALID_YOUTUBE_URLS:
+            post_json = '{{"english_caption": "a lovely walk in the park",' \
+                        '  "chinese_caption": "景美景美景美景美景美景美景美",' \
+                        '  "story_teller": {0.id},' \
+                        '  "video": "{1}"}}'.format(self.storyteller,
+                                                    video_url)
+
+            response = self.c.post(self.VIDEO_CREATE_URL,
+                                   data=post_json,
+                                   content_type='application/json')
+            self.assertEqual(response.status_code, 201)
+            queryset = Video.objects.all()
+            self.assertEqual(len(queryset), 1)
+            self.assertJSONEqual(response.content.decode('utf-8'),
+                                 '{{"id":{0.id}}}'.format(queryset[0]))
+            queryset.delete()
+
+    def test_create_invalid_video(self):
+        for video_url in self.INVALID_YOUTUBE_URLS:
+            post_json = '{{"english_caption": "a lovely walk in the park",' \
+                        '  "chinese_caption": "景美景美景美景美景美景美景美",' \
+                        '  "story_teller": {0.id},' \
+                        '  "video": "{1}"}}'.format(self.storyteller,
+                                                    video_url)
+
+            response = self.c.post(self.VIDEO_CREATE_URL,
+                                   data=post_json,
+                                   content_type='application/json')
+            self.assertEqual(response.status_code, 400)
+            queryset = Video.objects.all()
+            self.assertEqual(len(queryset), 0)
+
+
+class AudioCreateTestCase(TestCase):
+    VALID_SOUNDCLOUD_URLS = ["https://soundcloud.com/andreasedstr-m/rick-astley-never-gonna-give",
+                             ]
+    INVALID_SOUNDCLOUD_URLS = ["https://www.youtube.com/watch?v=dQw4w9W,b",
+                               "https://www.soundcloud.com/watch?v=dQw4w9WgXcQ",
+                               "https://soundcloud.com/andreasedstr-m/rick-astley-never-gonna-g"]
+    AUDIO_CREATE_URL = reverse('audioCreate')
+
+    def setUp(self):
+        self.c = Client()
+
+        relationship = RelationshipCategory(approved=True)
+        relationship.save()
+
+        adoptee = Adoptee(english_name='Madeline Jing-Mei',
+                          pinyin_name='Jǐngměi',
+                          chinese_name='景美')
+        adoptee.save()
+
+        prototypical_storyteller_kw_args = {'story_text': 'bs',
+                                            'email': 'bs@example.com',
+                                            'approved': True,
+                                            'relationship_to_story': relationship,
+                                            'related_adoptee': adoptee,
+                                            }
+
+        self.storyteller = StoryTeller(**prototypical_storyteller_kw_args)
+        self.storyteller.save()
+
+    def test_create_valid_video(self):
+        for video_url in self.VALID_SOUNDCLOUD_URLS:
+            post_json = '{{"english_caption": "a lovely walk in the park",' \
+                        '  "chinese_caption": "景美景美景美景美景美景美景美",' \
+                        '  "story_teller": {0.id},' \
+                        '  "audio": "{1}"}}'.format(self.storyteller,
+                                                    video_url)
+
+            response = self.c.post(self.AUDIO_CREATE_URL,
+                                   data=post_json,
+                                   content_type='application/json')
+            self.assertEqual(response.status_code, 201)
+            queryset = Audio.objects.all()
+            self.assertEqual(len(queryset), 1)
+            self.assertJSONEqual(response.content.decode('utf-8'),
+                                 '{{"id":{0.id}}}'.format(queryset[0]))
+            queryset.delete()
+
+    def test_create_invalid_video(self):
+        for video_url in self.INVALID_SOUNDCLOUD_URLS:
+            post_json = '{{"english_caption": "a lovely walk in the park",' \
+                        '  "chinese_caption": "景美景美景美景美景美景美景美",' \
+                        '  "story_teller": {0.id},' \
+                        '  "video": "{1}"}}'.format(self.storyteller,
+                                                    video_url)
+
+            response = self.c.post(self.AUDIO_CREATE_URL,
+                                   data=post_json,
+                                   content_type='application/json')
+            self.assertEqual(response.status_code, 400)
+            queryset = Video.objects.all()
+            self.assertEqual(len(queryset), 0)

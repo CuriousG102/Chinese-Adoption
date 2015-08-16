@@ -9,7 +9,6 @@ urlpatterns = [
         name="adopteeCreate"),
     url(r'^storytellerCreate/$', views.StoryTellerCreate.as_view(),
         name="storytellerCreate"),
-
     url(r'^adoptee/$', views.AdopteeList.as_view(),
         name="adopteeList"),
     url(r'^search/adoptee/$', views.AdopteeSearch.as_view(),
@@ -18,7 +17,7 @@ urlpatterns = [
         name="categoryListAndCreate"),
     url(r'^photoUpload/$', views.PhotoFileCreate.as_view(),
         name="photoCreate"),
-    url(r'^photoUpdate/$', views.PhotoUpdate.as_view(),
+    url(r'^photoUpdate/(?P<pk>[0-9]+)/$', views.PhotoUpdate.as_view(),
         name="photoUpdate"),
     url(r'^audio/$', views.AudioCreate.as_view(),
         name="audioCreate"),

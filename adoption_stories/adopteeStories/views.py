@@ -108,7 +108,6 @@ class PhotoFileCreate(GenericUpload):
 
 # TODO: Patch vulnerability where this clearly allows people to change captions on multimedia that doesn't belong to them
 class GenericMediaUpdate(generics.GenericAPIView, mixins.UpdateModelMixin):
-    lookup_url_kwarg = 'id'
 
     def patch(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
