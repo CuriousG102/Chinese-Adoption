@@ -144,7 +144,7 @@ class PhotoFileSerializer(serializers.Serializer):
         return Photo.objects.create(**validated_data)
 
 
-MULTIMEDIA_FIELDS = ('english_caption', 'chinese_caption', 'story_teller',)
+MULTIMEDIA_FIELDS = ('english_caption', 'chinese_caption', 'story_teller', 'id')
 
 
 class PhotoInfoSerializer(serializers.ModelSerializer):
