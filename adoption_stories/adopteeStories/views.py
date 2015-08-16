@@ -113,6 +113,7 @@ class GenericMediaUpdate(generics.GenericAPIView, mixins.UpdateModelMixin):
         return self.partial_update(request, *args, **kwargs)
 
 
+# TODO: Add backend validation on multimedia creation to restrict it to one per person
 class PhotoUpdate(GenericMediaUpdate):
     queryset = Photo.objects.all().filter(UPDATE_FILTER)
     serializer_class = serializers.PhotoInfoSerializer
