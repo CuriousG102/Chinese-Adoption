@@ -161,7 +161,7 @@ class AudioSerializer(serializers.ModelSerializer):
         fields = MULTIMEDIA_FIELDS + ('audio',)
 
 
-class YoutubeSerializer(serializers.ModelSerializer):
+class VideoSerializer(serializers.ModelSerializer):
     video = YoutubeField()
 
     class Meta:
