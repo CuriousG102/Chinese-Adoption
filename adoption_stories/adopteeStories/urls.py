@@ -17,5 +17,11 @@ urlpatterns = [
     url(r'^category/$', views.CategoryListAndCreate.as_view(),
         name="categoryListAndCreate"),
     url(r'^photoUpload/$', views.PhotoFileCreate.as_view(),
-        name="photoCreate")
+        name="photoCreate"),
+    url(r'^photoUpdate/$', views.PhotoUpdate.as_view(),
+        name="photoUpdate"),
+    url(r'^audio/$', views.AudioCreate.as_view(),
+        name="audioCreate"),
+    url(r'^video/$', views.VideoCreate.as_view(),
+        name="videoCreate"),
 ]
