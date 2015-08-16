@@ -115,7 +115,7 @@ if DEBUG:
     # Uploaded files
 
     MEDIA_URL = '/media/'
-    MEDIA_ROOT = '/media'
+    MEDIA_ROOT = 'media/'
 
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
