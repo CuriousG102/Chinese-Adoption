@@ -6,6 +6,8 @@ from django.utils.translation import ugettext_lazy as _
 from embed_video.fields import EmbedYoutubeField, EmbedSoundcloudField
 
 
+# TODO: Add __str__ methods for all these models
+
 class Adoptee(models.Model):
     # english_name must have a value || (pinyin_name && chinese_name)
     # must have a value implemented form level
@@ -27,7 +29,7 @@ class Adoptee(models.Model):
 
     # TODO: front_story is restricted to story tellers tied to the current adoptee in custom form logic
     # Translators: Name of a field in the admin page
-    front_story = models.ForeignKey('StoryTeller', null=True, verbose_name=_('Front Story'))
+    front_story = models.ForeignKey('StoryTeller', null=True, verbose_name=_('Front Story'), blank=True)
     # Translators: Name of a field in the admin page
     created = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
     # Translators: Name of a field in the admin page
@@ -82,7 +84,7 @@ class Audio(MultimediaItem):
 
 class Video(MultimediaItem):
     # Translators: name of field in the admin page
-    video = EmbedYoutubeField(verbose_name=_('Youtube Soundcloud Embed'))
+    video = EmbedYoutubeField(verbose_name=_('Video Youtube Embed'))
 
     class Meta(MultimediaItem.Meta):
         abstract = False
