@@ -185,7 +185,13 @@ class AdopteeGetTestCase(TestCase):
                      '  "english_name": null,' \
                      '  "chinese_name": null,' \
                      '  "pinyin_name": null,' \
-                     '  "relationship_to_story": {}}}' \
+                     '  "relationship_to_story": {},' \
+                     '  "media": {{' \
+                     '            "audio": [],' \
+                     '            "photo": [],' \
+                     '            "video": []' \
+                     '}}' \
+                     '}}' \
             .format(relationship_json)
 
         m_jing_mei_json = '{{"english_name": "{0.english_name}",' \

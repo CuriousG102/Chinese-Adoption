@@ -8,9 +8,26 @@ from rest_framework import serializers
 
 
 class PhotoLinkSerializer(serializers.ModelSerializer):
+    photo_file = serializers.SerializerMethodField('get_photo_link')
+
+    def get_photo_link(self, instance):
+        return instance.photo_file.url
+
     class Meta:
         model = Photo
         fields = ('photo_file',)
+
+
+class AudioLinkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Audio
+        fields = ('audio',)
+
+
+class VideoLinkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Video
+        fields = ('video',)
 
 
 class StoryTextSerializer(serializers.ModelSerializer):
@@ -53,14 +70,6 @@ class StoryBasicsSerializer(serializers.ModelSerializer):
         fields = ('story_text', 'english_name', 'chinese_name', 'pinyin_name',)
 
 
-# TODO: Add media to story
-class StorySerializer(StoryBasicsSerializer):
-    relationship_to_story = RelationshipSerializer(many=False)
-
-    class Meta(StoryBasicsSerializer.Meta):
-        fields = StoryBasicsSerializer.Meta.fields + ('relationship_to_story',)
-
-
 class StoryCreationSerializer(StoryBasicsSerializer):
     class Meta(StoryBasicsSerializer.Meta):
         fields = StoryBasicsSerializer.Meta.fields + ('relationship_to_story',
@@ -73,9 +82,8 @@ class AdopteeDetailSerializer(AdopteeBasicsSerializer):
 
     def get_ordered_stories(self, instance):
         ordered_stories = StoryTeller.objects.all() \
-            .filter(related_adoptee=instance.id) \
+            .filter(related_adoptee=instance) \
             .filter(approved=True) \
-            .filter(relationship_to_story__approved=True) \
             .order_by('-updated', '-created')
         return StorySerializer(ordered_stories, many=True).data
 
@@ -167,3 +175,31 @@ class VideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video
         fields = MULTIMEDIA_FIELDS + ('video',)
+
+
+class StorySerializer(StoryBasicsSerializer):
+    relationship_to_story = RelationshipSerializer(many=False)
+    media = serializers.SerializerMethodField('get_media_field')
+
+    def get_media_field(self, instance):
+        querysets = {"audio": Audio.objects.all(),
+                     "video": Video.objects.all(),
+                     "photo": Photo.objects.all()}
+
+        queryset_serializers = {"audio": AudioLinkSerializer,
+                                "video": VideoLinkSerializer,
+                                "photo": PhotoLinkSerializer}
+
+        response = {}
+
+        for label, queryset in querysets.items():
+            queryset = queryset.filter(story_teller=instance) \
+                .filter(approved=True)
+            response[label] = queryset_serializers[label](queryset,
+                                                          many=True).data
+
+        return response
+
+    class Meta(StoryBasicsSerializer.Meta):
+        fields = StoryBasicsSerializer.Meta.fields + ('relationship_to_story',
+                                                      'media')
