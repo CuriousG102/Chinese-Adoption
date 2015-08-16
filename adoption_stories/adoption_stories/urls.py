@@ -16,10 +16,17 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.conf import settings
+from django.views.i18n import javascript_catalog
+
+js_info_dict = {
+    'packages': ('your.app.package',),
+}
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^api/v1/', include('adopteeStories.urls'))
+    url(r'^api/v1/', include('adopteeStories.urls')),
+    url(r'^jsi18n/$', javascript_catalog, js_info_dict),
+    url(r'', include('pages.urls'))
 ]
 
 if settings.DEBUG:

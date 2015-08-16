@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     'rest_framework',
     'adopteeStories',
     'embed_video',
+    'pages',
 )
 
 MIDDLEWARE_CLASSES = (
