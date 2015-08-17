@@ -169,21 +169,31 @@ var StoryTeller = React.createClass({
     }
 });
 
+var paginator_ajax_in_progress = false;
+
 var PaginationSection = React.createClass({
     addItems: function () {
-        if (this.state.next_url) { // if there's no next_url there's nothing left to add
+        if (this.state.next_url
+            && !paginator_ajax_in_progress) { // if there's no next_url there's nothing left to add
+            // paginator_ajax_in_progress keeps us from triggering
+            // the same ajax request a billion times as a user scrolls
+            paginator_ajax_in_progress = true;
             $.ajax({
                 url: this.state.next_url,
                 dataType: "json",
                 success: function (data) {
                     this.setState({
-                        items: this.state.items.concat(data.results.map(this.props.make_element)),
+                        items: this.state.items.concat(data.results.map(function (currentValue, index, array) {
+                            return this.props.make_element(currentValue);
+                        }, this)),
                         next_url: data.next,
-                        monitor_div: data.results[data.results.length - 1]
+                        monitor_div: React.findDOMNode(this.state.items[this.state.items.length - 1])
                     });
+                    paginator_ajax_in_progress = false;
                 }.bind(this),
                 error: function (xhr, status, err) {
                     console.error(this.props.url, status, err.toString());
+                    paginator_ajax_in_progress = false;
                 }.bind(this)
             });
         }
@@ -229,6 +239,24 @@ var PaginationSection = React.createClass({
     }
 });
 
+var StoryCard = React.createClass({
+    render: function () {
+        stuff_to_add = [];
+        stuff_to_add.push(<Adoptee english_name={this.props.english_name}
+                                   chinese_name={this.props.chinese_name}
+                                   pinyin_name={this.props.pinyin_name}></Adoptee>);
+
+        if (this.props.photo_front_story) stuff_to_add.push(<img src={this.props.photo_front_story}></img>);
+        stuff_to_add.push(<p>{this.props.front_story.story_text}</p>);
+
+        // TODO: Add link to modal
+        return (
+            <div>
+                {stuff_to_add}
+            </div>
+        );
+    }
+});
 
 var FrontPage = React.createClass({
     render: function () {
@@ -242,11 +270,29 @@ var FrontPage = React.createClass({
         var about_handle_click = function () {
             alert("About Clicked!")
         };
+
+        var story_card_maker = function (adoptee_list_json) {
+            return (
+                <StoryCard english_name={adoptee_list_json.english_name}
+                           chinese_name={adoptee_list_json.chinese_name}
+                           pinyin_name={adoptee_list_json.pinyin_name}
+                           id={adoptee_list_json.id}
+                           photo_front_story={adoptee_list_json.photo_front_story}
+                           front_story={adoptee_list_json.front_story}
+                    />
+            )
+        };
+
+        var paginator = <PaginationSection
+            make_element={story_card_maker}
+            initial_url={ADOPTEE_LIST_ENDPOINT}></PaginationSection>;
+
         return (
             <div>
                 <HeaderStaticSection title={title} summary={summary}/>
                 <Button text={submit} handle_click={submit_handle_click}/>
                 <Button text={about} handle_click={about_handle_click}/>
+                {paginator}
             </div>
         );
     }

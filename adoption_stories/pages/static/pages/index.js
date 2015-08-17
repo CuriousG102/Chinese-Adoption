@@ -169,21 +169,31 @@ var StoryTeller = React.createClass({displayName: "StoryTeller",
     }
 });
 
+var paginator_ajax_in_progress = false;
+
 var PaginationSection = React.createClass({displayName: "PaginationSection",
     addItems: function () {
-        if (this.state.next_url) { // if there's no next_url there's nothing left to add
+        if (this.state.next_url
+            && !paginator_ajax_in_progress) { // if there's no next_url there's nothing left to add
+            // paginator_ajax_in_progress keeps us from triggering
+            // the same ajax request a billion times as a user scrolls
+            paginator_ajax_in_progress = true;
             $.ajax({
                 url: this.state.next_url,
                 dataType: "json",
                 success: function (data) {
                     this.setState({
-                        items: this.state.items.concat(data.results.map(this.props.make_element))
-                            .push(this.state.monitor_div),
-                        next_url: data.next
+                        items: this.state.items.concat(data.results.map(function (currentValue, index, array) {
+                            return this.props.make_element(currentValue);
+                        }, this)),
+                        next_url: data.next,
+                        monitor_div: React.findDOMNode(this.state.items[this.state.items.length - 1])
                     });
+                    paginator_ajax_in_progress = false;
                 }.bind(this),
                 error: function (xhr, status, err) {
                     console.error(this.props.url, status, err.toString());
+                    paginator_ajax_in_progress = false;
                 }.bind(this)
             });
         }
@@ -191,7 +201,7 @@ var PaginationSection = React.createClass({displayName: "PaginationSection",
     getInitialState: function () {
         return {
             items: [], next_url: this.props.initial_url,
-            monitor_div: React.createElement("div", {class: "monitorDiv"}, "Monitor Div")
+            monitor_div: null
         };
     },
     componentDidMount: function () {
@@ -200,6 +210,8 @@ var PaginationSection = React.createClass({displayName: "PaginationSection",
     },
     onChange: function () { // http://stackoverflow.com/questions/123999/how-to-tell-if-a-dom-element-is-visible-in-the-current-viewport/7557433#7557433
         var el = this.state.monitor_div;
+
+        if (!el) return; // there are no divs in the paginator
 
         //special bonus for those using jQuery
         if (typeof jQuery === "function" && el instanceof jQuery) {
@@ -227,6 +239,24 @@ var PaginationSection = React.createClass({displayName: "PaginationSection",
     }
 });
 
+var StoryCard = React.createClass({displayName: "StoryCard",
+    render: function () {
+        stuff_to_add = [];
+        stuff_to_add.push(React.createElement(Adoptee, {english_name: this.props.english_name, 
+                                   chinese_name: this.props.chinese_name, 
+                                   pinyin_name: this.props.pinyin_name}));
+
+        if (this.props.photo_front_story) stuff_to_add.push(React.createElement("img", {src: this.props.photo_front_story}));
+        stuff_to_add.push(React.createElement("p", null, this.props.front_story.story_text));
+
+        // TODO: Add link to modal
+        return (
+            React.createElement("div", null, 
+                stuff_to_add
+            )
+        );
+    }
+});
 
 var FrontPage = React.createClass({displayName: "FrontPage",
     render: function () {
@@ -240,11 +270,29 @@ var FrontPage = React.createClass({displayName: "FrontPage",
         var about_handle_click = function () {
             alert("About Clicked!")
         };
+
+        var story_card_maker = function (adoptee_list_json) {
+            return (
+                React.createElement(StoryCard, {english_name: adoptee_list_json.english_name, 
+                           chinese_name: adoptee_list_json.chinese_name, 
+                           pinyin_name: adoptee_list_json.pinyin_name, 
+                           id: adoptee_list_json.id, 
+                           photo_front_story: adoptee_list_json.photo_front_story, 
+                           front_story: adoptee_list_json.front_story}
+                    )
+            )
+        };
+
+        var paginator = React.createElement(PaginationSection, {
+            make_element: story_card_maker, 
+            initial_url: ADOPTEE_LIST_ENDPOINT});
+
         return (
             React.createElement("div", null, 
                 React.createElement(HeaderStaticSection, {title: title, summary: summary}), 
                 React.createElement(Button, {text: submit, handle_click: submit_handle_click}), 
-                React.createElement(Button, {text: about, handle_click: about_handle_click})
+                React.createElement(Button, {text: about, handle_click: about_handle_click}), 
+                paginator
             )
         );
     }
