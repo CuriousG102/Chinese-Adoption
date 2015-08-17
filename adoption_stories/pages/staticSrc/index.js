@@ -171,25 +171,59 @@ var StoryTeller = React.createClass({
 
 var PaginationSection = React.createClass({
     addItems: function () {
-        $.ajax({
-            url: this.state.next_url,
-            dataType: "json",
-            success: function (data) {
-                this.setState({
-                    items: this.state.items.concat(data.results.map(this.props.make_element)),
-                    next_url: data.next
-                });
-            }.bind(this),
-            error: function (xhr, status, err) {
-                console.error(this.props.url, status, err.toString());
-            }.bind(this)
-        });
+        if (this.state.next_url) { // if there's no next_url there's nothing left to add
+            $.ajax({
+                url: this.state.next_url,
+                dataType: "json",
+                success: function (data) {
+                    this.setState({
+                        items: this.state.items.concat(data.results.map(this.props.make_element))
+                            .push(this.state.monitor_div),
+                        next_url: data.next
+                    });
+                }.bind(this),
+                error: function (xhr, status, err) {
+                    console.error(this.props.url, status, err.toString());
+                }.bind(this)
+            });
+        }
     },
     getInitialState: function () {
-        return {items: [], next_url: this.props.initial_url};
+        return {
+            items: [], next_url: this.props.initial_url,
+            monitor_div: <div class="monitorDiv">Monitor Div</div>
+        };
     },
     componentDidMount: function () {
         addItems();
+        $(window).on('DOMContentLoaded load resize scroll', this.onChange);
+    },
+    onChange: function () { // http://stackoverflow.com/questions/123999/how-to-tell-if-a-dom-element-is-visible-in-the-current-viewport/7557433#7557433
+        var el = this.state.monitor_div;
+
+        //special bonus for those using jQuery
+        if (typeof jQuery === "function" && el instanceof jQuery) {
+            el = el[0];
+        }
+
+        var rect = el.getBoundingClientRect();
+
+        var monitor_div_is_visible = (
+            rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && /*or $(window).height() */
+            rect.right <= (window.innerWidth || document.documentElement.clientWidth) /*or $(window).width() */
+        );
+
+        if (monitor_div_is_visible) this.addItems();
+    },
+    render: function () {
+        var class_string = this.props.class_string ? this.props.class_string : "";
+        return (
+            <div className={class_string}>
+                {this.state.items}
+            </div>
+        );
     }
 });
 
