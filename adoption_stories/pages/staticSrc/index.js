@@ -177,9 +177,9 @@ var PaginationSection = React.createClass({
                 dataType: "json",
                 success: function (data) {
                     this.setState({
-                        items: this.state.items.concat(data.results.map(this.props.make_element))
-                            .push(this.state.monitor_div),
-                        next_url: data.next
+                        items: this.state.items.concat(data.results.map(this.props.make_element)),
+                        next_url: data.next,
+                        monitor_div: data.results[data.results.length - 1]
                     });
                 }.bind(this),
                 error: function (xhr, status, err) {
@@ -191,7 +191,7 @@ var PaginationSection = React.createClass({
     getInitialState: function () {
         return {
             items: [], next_url: this.props.initial_url,
-            monitor_div: <div class="monitorDiv">Monitor Div</div>
+            monitor_div: null
         };
     },
     componentDidMount: function () {
@@ -200,6 +200,8 @@ var PaginationSection = React.createClass({
     },
     onChange: function () { // http://stackoverflow.com/questions/123999/how-to-tell-if-a-dom-element-is-visible-in-the-current-viewport/7557433#7557433
         var el = this.state.monitor_div;
+
+        if (!el) return; // there are no divs in the paginator
 
         //special bonus for those using jQuery
         if (typeof jQuery === "function" && el instanceof jQuery) {
