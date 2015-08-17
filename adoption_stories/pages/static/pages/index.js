@@ -3,8 +3,8 @@ var HeaderStaticSection = React.createClass({displayName: "HeaderStaticSection",
     render: function () {
         var header_styles = this.props.header_styles ? this.props.header_styles : {};
         var summary_styles = this.props.summary_styles ? this.props.summary_styles : {};
-        var Header_Tag = this.props.Header_Tag ? this.props.Header_Tag : "h1";
-        var Summary_Tag = this.props.Summary_Tag ? this.props.Summary_Tag : "p";
+        var Header_Tag = this.props.header_tag ? this.props.header_tag : "h1";
+        var Summary_Tag = this.props.summary_tag ? this.props.summary_tag : "p";
         return (
             React.createElement("div", {class: "headerStatic"}, 
                 React.createElement(Header_Tag, {style: header_styles}, this.props.title), 
@@ -27,63 +27,87 @@ var Button = React.createClass({displayName: "Button",
     }
 });
 
+var NameHeader = React.createClass({displayName: "NameHeader",
+    render: function () {
+        var stuff_to_add = [];
+        var order_of_headers;
+        if (language === ENGLISH)
+            order_of_headers = [this.props.english_name, this.props.chinese_name,
+                this.props.pinyin_name];
+        else
+            order_of_headers = [this.props.chinese_name, this.props.english_name];
+
+        var i = 0;
+        var Header_Tag = this.props.header_tag;
+        for (; i < order_of_headers.length; i++) {
+            var header = order_of_headers[i];
+            if (header) {
+                stuff_to_add.push(React.createElement(Header_Tag, null, header));
+                i++;
+                break;
+            }
+        }
+
+        var sub_headers = [];
+        for (; i < order_of_headers.length; i++) {
+            var sub_header = order_of_headers[i];
+            if (sub_header) sub_headers.push(sub_header);
+        }
+
+        if (sub_headers.length > 0) {
+            var Sub_Header_Tag = this.props.sub_header_tag;
+            if (sub_headers.length > 1) sub_headers = sub_headers.join(" ");
+            else sub_headers = sub_headers[0];
+            stuff_to_add.push(React.createElement(Sub_Header_Tag, null, sub_headers));
+        }
+
+        return (
+            React.createElement("div", null, 
+                stuff_to_add
+            )
+        );
+    }
+});
+
 var Adoptee = React.createClass({displayName: "Adoptee",
     render: function () {
-        var primary_name = language === ENGLISH ? this.props.english_name : this.props.chinese_name;
-        var secondary_name = language === ENGLISH ? [this.props.chinese_name, this.props.pinyin_name].join(" ")
-            : this.props.english_name;
-
-        var class_string;
         var Primary_Name_Tag;
         var Secondary_Name_Tag;
 
         if (this.props.photo) { // we render very differently with photo
-            class_string = this.props.class_string ? this.props.class_string : "adopteeListingName";
-            Primary_Name_Tag = this.props.Primary_Name_Tag ? this.props.Primary_Name_Tag : "h3";
-            Secondary_Name_Tag = this.props.Secondary_Name_Tag ? this.props.Secondary_Name_Tag : "h4";
+            var class_string = this.props.class_string ? this.props.class_string : "adopteeListingName";
+            Primary_Name_Tag = this.props.primary_name_tag ? this.props.primary_name_tag : "h3";
+            Secondary_Name_Tag = this.props.secondary_name_tag ? this.props.secondary_name_tag : "h4";
 
             return (
                 React.createElement("div", {className: class_string}, 
-                    React.createElement("div", null, 
-                        React.createElement(Primary_Name_Tag, null, primary_name), 
-                        React.createElement(Secondary_Name_Tag, null, secondary_name)
-                    ), 
+                    React.createElement(NameHeader, {english_name: this.props.english_name, 
+                                chinese_name: this.props.chinese_name, 
+                                pinyin_name: this.props.pinyin_name, 
+                                header_tag: Primary_Name_Tag, 
+                                sub_header_tag: Secondary_Name_Tag}), 
                     React.createElement("div", null, 
                         React.createElement("img", {src: this.props.photo})
                     )
                 )
             );
         } else {
-            Primary_Name_Tag = this.props.Primary_Name_Tag ? this.props.Primary_Name_Tag : "h2";
-            Secondary_Name_Tag = this.props.Secondary_Name_Tag ? this.props.Secondary_Name_Tag : "h3";
+            Primary_Name_Tag = this.props.primary_name_tag ? this.props.primary_name_tag : "h2";
+            Secondary_Name_Tag = this.props.secondary_name_tag ? this.props.secondary_name_tag : "h3";
 
             return (
-                React.createElement("div", null, 
-                    React.createElement(Primary_Name_Tag, null, primary_name), 
-                    React.createElement(Secondary_Name_Tag, null, secondary_name)
-                )
+                React.createElement(NameHeader, {english_name: this.props.english_name, 
+                            chinese_name: this.props.chinese_name, 
+                            pinyin_name: this.props.pinyin_name, 
+                            header_tag: Primary_Name_Tag, 
+                            sub_header_tag: Secondary_Name_Tag})
             )
         }
     }
 });
 
-// TODO: Finish up this here
-var StoryTeller = React.createClass({displayName: "StoryTeller",
-    render: function () {
-        stuffToAdd = [];
-        if (language === ENGLISH) {
-            if (this.props.english_name) stuffToAdd.push(React.createElement("h3", null, this.props.english_name));
-            if (this.props.chinese_name && this.props.pinyin_name) {
-                var concatenated = [this.props.chinese_name,
-                    this.props.pinyin_name].join(" ");
-                stuffToAdd.push(React.createElement("h4", null, concatenated))
-            } else {
 
-            }
 
-        }
-    }
-});
 
 var FrontPage = React.createClass({displayName: "FrontPage",
     render: function () {
