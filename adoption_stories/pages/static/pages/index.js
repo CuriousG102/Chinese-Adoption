@@ -39,10 +39,11 @@ var NameHeader = React.createClass({displayName: "NameHeader",
 
         var i = 0;
         var Header_Tag = this.props.header_tag;
+        var header_class_string = this.props.header_class_string ? this.props.header_class_string : "";
         for (; i < order_of_headers.length; i++) {
             var header = order_of_headers[i];
             if (header) {
-                stuff_to_add.push(React.createElement(Header_Tag, null, header));
+                stuff_to_add.push(React.createElement(Header_Tag, {class_name: header_class_string}, header));
                 i++;
                 break;
             }
@@ -56,9 +57,10 @@ var NameHeader = React.createClass({displayName: "NameHeader",
 
         if (sub_headers.length > 0) {
             var Sub_Header_Tag = this.props.sub_header_tag;
+            var sub_header_class_string = this.props.sub_header_class_string ? this.props.sub_header_class_string : "";
             if (sub_headers.length > 1) sub_headers = sub_headers.join(" ");
             else sub_headers = sub_headers[0];
-            stuff_to_add.push(React.createElement(Sub_Header_Tag, null, sub_headers));
+            stuff_to_add.push(React.createElement(Sub_Header_Tag, {className: sub_header_class_string}, sub_headers));
         }
 
         return (
@@ -101,12 +103,95 @@ var Adoptee = React.createClass({displayName: "Adoptee",
                             pinyin_name: this.props.pinyin_name, 
                             header_tag: Primary_Name_Tag, 
                             sub_header_tag: Secondary_Name_Tag})
-            )
+            );
         }
     }
 });
 
+var RelationshipHeader = React.createClass({displayName: "RelationshipHeader",
+    render: function () {
+        var header_order; // preferred header from most to least preferred
+        if (language === ENGLISH) header_order = [this.props.english_name,
+            this.props.chinese_name];
+        else                      header_order = [this.props.chinese_name,
+            this.props.english_name];
 
+        var header;
+        for (var i = 0; i < header_order.length; i++) {
+            if (header_order[i]) {
+                var header_text = header_order[i];
+                header = React.createElement("h4", null, header_text);
+                break;
+            }
+        }
+
+
+        return (
+            React.createElement("div", {className: "relationshipHeader"}, header)
+        );
+    }
+});
+
+var Media = React.createClass({displayName: "Media",
+    render: function () {
+        return (
+            React.createElement("div", null, 
+                React.createElement("h2", null, "Media not yet implemented :-/")
+            )
+        );
+    }
+});
+
+var StoryTeller = React.createClass({displayName: "StoryTeller",
+    render: function () {
+        return (
+            React.createElement("div", {className: "storyTeller"}, 
+                React.createElement(NameHeader, {english_name: this.props.english_name, 
+                            chinese_name: this.props.chinese_name, 
+                            pinyin_name: this.props.pinyin_name, 
+                            header_tag: "h3", 
+                            sub_header_tag: "h4"}), 
+                React.createElement(RelationshipHeader, {english_name: this.props.relationship_to_story.english_name, 
+                                    chinese_name: this.props.relationship_to_story.chinese_name}
+                ), 
+
+                React.createElement("div", {className: "media"}, 
+                    React.createElement(Media, {media: this.props.media}), 
+
+                    React.createElement("div", null, 
+                        React.createElement("p", null, 
+                            this.props.story_text
+                        )
+                    )
+                )
+            )
+        );
+    }
+});
+
+var PaginationSection = React.createClass({displayName: "PaginationSection",
+    addItems: function () {
+        $.ajax({
+            url: this.state.next_url,
+            dataType: "json",
+            success: function (data) {
+                this.setState({
+                    items: this.state.items.concat(data.results.map(this.props.make_element)),
+                    next_url: data.next
+                });
+            }.bind(this),
+            error: function (xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        });
+    },
+    getInitialState: function () {
+        return {items: [], next_url: this.props.initial_url};
+    },
+    componentDidMount: function () {
+        addItems();
+    }
+});
 
 
 var FrontPage = React.createClass({displayName: "FrontPage",

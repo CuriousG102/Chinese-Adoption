@@ -39,10 +39,11 @@ var NameHeader = React.createClass({
 
         var i = 0;
         var Header_Tag = this.props.header_tag;
+        var header_class_string = this.props.header_class_string ? this.props.header_class_string : "";
         for (; i < order_of_headers.length; i++) {
             var header = order_of_headers[i];
             if (header) {
-                stuff_to_add.push(<Header_Tag>{header}</Header_Tag>);
+                stuff_to_add.push(<Header_Tag class_name={header_class_string}>{header}</Header_Tag>);
                 i++;
                 break;
             }
@@ -56,9 +57,10 @@ var NameHeader = React.createClass({
 
         if (sub_headers.length > 0) {
             var Sub_Header_Tag = this.props.sub_header_tag;
+            var sub_header_class_string = this.props.sub_header_class_string ? this.props.sub_header_class_string : "";
             if (sub_headers.length > 1) sub_headers = sub_headers.join(" ");
             else sub_headers = sub_headers[0];
-            stuff_to_add.push(<Sub_Header_Tag>{sub_headers}</Sub_Header_Tag>);
+            stuff_to_add.push(<Sub_Header_Tag className={sub_header_class_string}>{sub_headers}</Sub_Header_Tag>);
         }
 
         return (
@@ -101,12 +103,95 @@ var Adoptee = React.createClass({
                             pinyin_name={this.props.pinyin_name}
                             header_tag={Primary_Name_Tag}
                             sub_header_tag={Secondary_Name_Tag}></NameHeader>
-            )
+            );
         }
     }
 });
 
+var RelationshipHeader = React.createClass({
+    render: function () {
+        var header_order; // preferred header from most to least preferred
+        if (language === ENGLISH) header_order = [this.props.english_name,
+            this.props.chinese_name];
+        else                      header_order = [this.props.chinese_name,
+            this.props.english_name];
 
+        var header;
+        for (var i = 0; i < header_order.length; i++) {
+            if (header_order[i]) {
+                var header_text = header_order[i];
+                header = <h4>{header_text}</h4>;
+                break;
+            }
+        }
+
+
+        return (
+            <div className="relationshipHeader">{header}</div>
+        );
+    }
+});
+
+var Media = React.createClass({
+    render: function () {
+        return (
+            <div>
+                <h2>Media not yet implemented :-/</h2>
+            </div>
+        );
+    }
+});
+
+var StoryTeller = React.createClass({
+    render: function () {
+        return (
+            <div className="storyTeller">
+                <NameHeader english_name={this.props.english_name}
+                            chinese_name={this.props.chinese_name}
+                            pinyin_name={this.props.pinyin_name}
+                            header_tag="h3"
+                            sub_header_tag="h4"></NameHeader>
+                <RelationshipHeader english_name={this.props.relationship_to_story.english_name}
+                                    chinese_name={this.props.relationship_to_story.chinese_name}>
+                </RelationshipHeader>
+
+                <div className="media">
+                    <Media media={this.props.media}></Media>
+
+                    <div>
+                        <p>
+                            {this.props.story_text}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+});
+
+var PaginationSection = React.createClass({
+    addItems: function () {
+        $.ajax({
+            url: this.state.next_url,
+            dataType: "json",
+            success: function (data) {
+                this.setState({
+                    items: this.state.items.concat(data.results.map(this.props.make_element)),
+                    next_url: data.next
+                });
+            }.bind(this),
+            error: function (xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        });
+    },
+    getInitialState: function () {
+        return {items: [], next_url: this.props.initial_url};
+    },
+    componentDidMount: function () {
+        addItems();
+    }
+});
 
 
 var FrontPage = React.createClass({
