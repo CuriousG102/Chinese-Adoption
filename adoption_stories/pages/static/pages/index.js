@@ -1,3 +1,5 @@
+var Modal = ReactModal;
+
 // TODO: Comb through this and do a better job of account for possible null values
 var HeaderStaticSection = React.createClass({displayName: "HeaderStaticSection",
     render: function () {
@@ -6,7 +8,7 @@ var HeaderStaticSection = React.createClass({displayName: "HeaderStaticSection",
         var Header_Tag = this.props.header_tag ? this.props.header_tag : "h1";
         var Summary_Tag = this.props.summary_tag ? this.props.summary_tag : "p";
         return (
-            React.createElement("div", {class: "headerStatic"}, 
+            React.createElement("div", {className: "headerStatic"}, 
                 React.createElement(Header_Tag, {style: header_styles}, this.props.title), 
                 React.createElement(Summary_Tag, {style: summary_styles}, this.props.summary)
             )
@@ -117,7 +119,7 @@ var RelationshipHeader = React.createClass({displayName: "RelationshipHeader",
         else                      header_order = [this.props.chinese_name,
             this.props.english_name];
 
-        var header;
+        var header = "";
         for (var i = 0; i < header_order.length; i++) {
             if (header_order[i]) {
                 var header_text = header_order[i];
@@ -145,6 +147,8 @@ var Media = React.createClass({displayName: "Media",
 
 var StoryTeller = React.createClass({displayName: "StoryTeller",
     render: function () {
+        var story_text = this.props.story_text ? this.props.story_text
+            : "";
         return (
             React.createElement("div", {className: "storyTeller"}, 
                 React.createElement(NameHeader, {english_name: this.props.english_name, 
@@ -157,12 +161,11 @@ var StoryTeller = React.createClass({displayName: "StoryTeller",
                 ), 
 
                 React.createElement("div", {className: "media"}, 
-                    React.createElement(Media, {media: this.props.media}), 
-
-                    React.createElement("div", null, 
-                        React.createElement("p", null, 
-                            this.props.story_text
-                        )
+                    React.createElement(Media, {media: this.props.media})
+                ), 
+                React.createElement("div", null, 
+                    React.createElement("p", null, 
+                        story_text
                     )
                 )
             )
@@ -243,7 +246,7 @@ var PaginationSection = React.createClass({displayName: "PaginationSection",
 
 var StoryCard = React.createClass({displayName: "StoryCard",
     render: function () {
-        stuff_to_add = [];
+        var stuff_to_add = [];
         stuff_to_add.push(React.createElement(Adoptee, {english_name: this.props.english_name, 
                                    chinese_name: this.props.chinese_name, 
                                    pinyin_name: this.props.pinyin_name}));
@@ -251,10 +254,36 @@ var StoryCard = React.createClass({displayName: "StoryCard",
         if (this.props.photo_front_story) stuff_to_add.push(React.createElement("img", {src: this.props.photo_front_story}));
         stuff_to_add.push(React.createElement("p", null, this.props.front_story.story_text));
 
-        // TODO: Add link to modal
+        var detail_params = {
+            id: this.props.id
+        };
+
+        var detail_name_order = language === ENGLISH ? [this.props.english_name, this.props.pinyin_name, this.props.chinese_name]
+            : [this.props.chinese_name, this.props.english_name, this.props.pinyin_name];
+
+        var name_for_link = null;
+        for (var i = 0; i < detail_name_order.length; i++) {
+            if (detail_name_order[i]) {
+                name_for_link = detail_name_order[i];
+                break;
+            }
+        }
+
+        var link_text;
+
+        if (name_for_link) {
+            link_text = gettext("More about %(name)");
+            link_text = interpolate(link_text, {name: name_for_link}, true);
+        } else {
+            link_text = gettext("More about this person");
+        }
+
         return (
             React.createElement("div", null, 
-                stuff_to_add
+                stuff_to_add, 
+                React.createElement(Link, {to: "adoptee", params: detail_params}, 
+                    link_text
+                )
             )
         );
     }
@@ -293,18 +322,115 @@ var FrontPage = React.createClass({displayName: "FrontPage",
             make_element: story_card_maker, 
             initial_url: ADOPTEE_LIST_ENDPOINT});
 
+        var RouteHandler = ReactRouter.RouteHandler;
+
         return (
-            React.createElement("div", null, 
+            React.createElement("div", {className: "container"}, 
                 React.createElement(HeaderStaticSection, {title: title, summary: summary}), 
                 React.createElement(Button, {text: submit, handle_click: submit_handle_click}), 
                 React.createElement(Button, {text: about, handle_click: about_handle_click}), 
-                paginator
+                paginator, 
+                React.createElement(RouteHandler, null)
             )
         );
     }
 });
 
+var BootstrapModal = React.createClass({displayName: "BootstrapModal",
+    mixins: [ReactRouter.Navigation],
+    handleModalCloseRequest: function () {
+        this.transitionTo("/");
+    },
+    render: function () {
+        return (
+            React.createElement(Modal, {
+                isOpen: true, 
+                className: "Modal__Bootstrap modal-dialog", 
+                onRequestClose: this.handleModalCloseRequest
+                }, 
+                React.createElement("div", {className: "modal-content"}, 
+                    React.createElement("div", {className: "container-fluid"}, 
+                        React.createElement("div", {className: "row"}, 
+                            React.createElement("div", {className: "col-md-12"}, 
+                                React.createElement("span", {className: "glyphicon glyphicon-remove-circle", "aria-hidden": "true"})
+                            )
+                        ), 
+                        this.props.children
+                    )
+                )
+            )
+        );
+    }
+});
 
-React.render(React.createElement(FrontPage, null),
-    document.getElementById('root'));
+var AdopteeDetail = React.createClass({displayName: "AdopteeDetail",
+    componentDidMount: function () {
+        $.ajax({
+            url: ADOPTEE_DETAIL_ENDPOINT.replace("999",
+                this.props.params.id.toString()),
+            dataType: "json",
+            success: function (data) {
+                this.setState({
+                    english_name: data.english_name,
+                    pinyin_name: data.pinyin_name,
+                    chinese_name: data.chinese_name,
+                    stories: data.stories
+                })
+            }.bind(this),
+            error: function (xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        });
+    },
+    getInitialState: function () {
+        return {
+            english_name: null,
+            chinese_name: null,
+            pinyin_name: null,
+            stories: []
+        }
+    },
+    render: function () {
+        var story_components = [];
+        for (var i = 0; i < this.state.stories.length; i++) {
+            var story = this.state.stories[i];
+            story_components.push(
+                React.createElement(StoryTeller, {english_name: story.english_name, 
+                             chinese_name: story.chinese_name, 
+                             pinyin_name: story.pinyin_name, 
+                             relationship: story.relationship_to_story, 
+                             media: story.media, 
+                             story_text: story.story_text}
+                    )
+            )
+        }
+        return (
+            React.createElement(BootstrapModal, null, 
+                React.createElement(Adoptee, {
+                    english_name: this.state.english_name, 
+                    chinese_name: this.state.chinese_name, 
+                    pinyin_name: this.state.pinyin_name}
+                    )
+            )
+        );
+    }
+});
+
+var Route = ReactRouter.Route;
+
+var routes = (
+    React.createElement(Route, {handler: FrontPage}, 
+        React.createElement(Route, {name: "adoptee", path: "adoptee/:id", handler: AdopteeDetail}), 
+        React.createElement(Route, {name: "submit", path: "submit", handler: ModalWrapper}), 
+        React.createElement(Route, {name: "about", path: "about", handler: ModalWrapper})
+    )
+);
+
+var appElement = document.getElementById('root');
+Modal.setAppElement(appElement);
+Modal.injectCSS();
+
+ReactRouter.run(routes, ReactRouter.HashLocation, (FrontPage) => {
+    React.render(React.createElement(FrontPage, null), appElement);
+});
 React.initializeTouchEvents(true);

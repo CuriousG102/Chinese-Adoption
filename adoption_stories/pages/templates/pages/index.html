@@ -4,12 +4,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-  {# Translators: The title of the site that shows up in the top of a browser or in a tag #}
+  {# Translators: The title of the site that shows up in the top of a browser or in a tab #}
   <title>{% trans "Chinese-American" %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8"/>
+  <!-- TODO: Add shims for legacy browsers -->
   <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-  <script src="http://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.js"></script>
+  <!-- TODO: Minify all this react stuff before hitting production -->
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/react-modal/0.3.0/react-modal.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/react-router/0.13.3/ReactRouter.js"></script>
   <script type="text/javascript" src="{% url 'django.views.i18n.javascript_catalog' %}"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
   <script>
@@ -19,8 +22,9 @@
     // var language = "{{ LANGUAGE_CODE }}";
     var language = "en";
     var ENGLISH = "en";
-    var ADOPTEE_LIST_ENDPOINT = "{% url "adopteeList" %}"
-    
+    var ADOPTEE_LIST_ENDPOINT = "{% url "adopteeList" %}";
+    var ADOPTEE_DETAIL_ENDPOINT = "{% url "adopteeDetail" 999 %}";
+
   </script>
 </head>
 <body>

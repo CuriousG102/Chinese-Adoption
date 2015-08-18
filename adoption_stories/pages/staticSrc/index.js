@@ -1,3 +1,5 @@
+var Modal = ReactModal;
+
 // TODO: Comb through this and do a better job of account for possible null values
 var HeaderStaticSection = React.createClass({
     render: function () {
@@ -6,7 +8,7 @@ var HeaderStaticSection = React.createClass({
         var Header_Tag = this.props.header_tag ? this.props.header_tag : "h1";
         var Summary_Tag = this.props.summary_tag ? this.props.summary_tag : "p";
         return (
-            <div class="headerStatic">
+            <div className="headerStatic">
                 <Header_Tag style={header_styles}>{this.props.title}</Header_Tag>
                 <Summary_Tag style={summary_styles}>{this.props.summary}</Summary_Tag>
             </div>
@@ -117,7 +119,7 @@ var RelationshipHeader = React.createClass({
         else                      header_order = [this.props.chinese_name,
             this.props.english_name];
 
-        var header;
+        var header = "";
         for (var i = 0; i < header_order.length; i++) {
             if (header_order[i]) {
                 var header_text = header_order[i];
@@ -145,6 +147,8 @@ var Media = React.createClass({
 
 var StoryTeller = React.createClass({
     render: function () {
+        var story_text = this.props.story_text ? this.props.story_text
+            : "";
         return (
             <div className="storyTeller">
                 <NameHeader english_name={this.props.english_name}
@@ -158,12 +162,11 @@ var StoryTeller = React.createClass({
 
                 <div className="media">
                     <Media media={this.props.media}></Media>
-
-                    <div>
-                        <p>
-                            {this.props.story_text}
-                        </p>
-                    </div>
+                </div>
+                <div>
+                    <p>
+                        {story_text}
+                    </p>
                 </div>
             </div>
         );
@@ -243,7 +246,7 @@ var PaginationSection = React.createClass({
 
 var StoryCard = React.createClass({
     render: function () {
-        stuff_to_add = [];
+        var stuff_to_add = [];
         stuff_to_add.push(<Adoptee english_name={this.props.english_name}
                                    chinese_name={this.props.chinese_name}
                                    pinyin_name={this.props.pinyin_name}></Adoptee>);
@@ -251,10 +254,36 @@ var StoryCard = React.createClass({
         if (this.props.photo_front_story) stuff_to_add.push(<img src={this.props.photo_front_story}></img>);
         stuff_to_add.push(<p>{this.props.front_story.story_text}</p>);
 
-        // TODO: Add link to modal
+        var detail_params = {
+            id: this.props.id
+        };
+
+        var detail_name_order = language === ENGLISH ? [this.props.english_name, this.props.pinyin_name, this.props.chinese_name]
+            : [this.props.chinese_name, this.props.english_name, this.props.pinyin_name];
+
+        var name_for_link = null;
+        for (var i = 0; i < detail_name_order.length; i++) {
+            if (detail_name_order[i]) {
+                name_for_link = detail_name_order[i];
+                break;
+            }
+        }
+
+        var link_text;
+
+        if (name_for_link) {
+            link_text = gettext("More about %(name)");
+            link_text = interpolate(link_text, {name: name_for_link}, true);
+        } else {
+            link_text = gettext("More about this person");
+        }
+
         return (
             <div>
                 {stuff_to_add}
+                <Link to="adoptee" params={detail_params}>
+                    {link_text}
+                </Link>
             </div>
         );
     }
@@ -293,18 +322,115 @@ var FrontPage = React.createClass({
             make_element={story_card_maker}
             initial_url={ADOPTEE_LIST_ENDPOINT}></PaginationSection>;
 
+        var RouteHandler = ReactRouter.RouteHandler;
+
         return (
-            <div>
+            <div className="container">
                 <HeaderStaticSection title={title} summary={summary}/>
                 <Button text={submit} handle_click={submit_handle_click}/>
                 <Button text={about} handle_click={about_handle_click}/>
                 {paginator}
+                <RouteHandler/>
             </div>
         );
     }
 });
 
+var BootstrapModal = React.createClass({
+    mixins: [ReactRouter.Navigation],
+    handleModalCloseRequest: function () {
+        this.transitionTo("/");
+    },
+    render: function () {
+        return (
+            <Modal
+                isOpen={true}
+                className="Modal__Bootstrap modal-dialog"
+                onRequestClose={this.handleModalCloseRequest}
+                >
+                <div className="modal-content">
+                    <div className="container-fluid">
+                        <div className="row">
+                            <div className="col-md-12">
+                                <span className="glyphicon glyphicon-remove-circle" aria-hidden="true"></span>
+                            </div>
+                        </div>
+                        {this.props.children}
+                    </div>
+                </div>
+            </Modal>
+        );
+    }
+});
 
-React.render(<FrontPage />,
-    document.getElementById('root'));
+var AdopteeDetail = React.createClass({
+    componentDidMount: function () {
+        $.ajax({
+            url: ADOPTEE_DETAIL_ENDPOINT.replace("999",
+                this.props.params.id.toString()),
+            dataType: "json",
+            success: function (data) {
+                this.setState({
+                    english_name: data.english_name,
+                    pinyin_name: data.pinyin_name,
+                    chinese_name: data.chinese_name,
+                    stories: data.stories
+                })
+            }.bind(this),
+            error: function (xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        });
+    },
+    getInitialState: function () {
+        return {
+            english_name: null,
+            chinese_name: null,
+            pinyin_name: null,
+            stories: []
+        }
+    },
+    render: function () {
+        var story_components = [];
+        for (var i = 0; i < this.state.stories.length; i++) {
+            var story = this.state.stories[i];
+            story_components.push(
+                <StoryTeller english_name={story.english_name}
+                             chinese_name={story.chinese_name}
+                             pinyin_name={story.pinyin_name}
+                             relationship={story.relationship_to_story}
+                             media={story.media}
+                             story_text={story.story_text}
+                    />
+            )
+        }
+        return (
+            <BootstrapModal>
+                <Adoptee
+                    english_name={this.state.english_name}
+                    chinese_name={this.state.chinese_name}
+                    pinyin_name={this.state.pinyin_name}
+                    />
+            </BootstrapModal>
+        );
+    }
+});
+
+var Route = ReactRouter.Route;
+
+var routes = (
+    <Route handler={FrontPage}>
+        <Route name="adoptee" path="adoptee/:id" handler={AdopteeDetail}/>
+        <Route name="submit" path="submit" handler={ModalWrapper}/>
+        <Route name="about" path="about" handler={ModalWrapper}/>
+    </Route>
+);
+
+var appElement = document.getElementById('root');
+Modal.setAppElement(appElement);
+Modal.injectCSS();
+
+ReactRouter.run(routes, ReactRouter.HashLocation, (FrontPage) => {
+    React.render(<FrontPage/>, appElement);
+});
 React.initializeTouchEvents(true);
