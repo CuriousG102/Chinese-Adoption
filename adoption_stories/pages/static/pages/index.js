@@ -416,13 +416,25 @@ var AdopteeDetail = React.createClass({displayName: "AdopteeDetail",
     }
 });
 
+var AboutView = React.createClass({displayName: "AboutView",
+    render: function () {
+        return (
+            React.createElement("div", {className: "row"}, 
+                React.createElement("div", {className: "col-md-12"}, 
+                    "// about text and a couple of images"
+                )
+            )
+        )
+    }
+});
+
 var Route = ReactRouter.Route;
 
 var routes = (
     React.createElement(Route, {handler: FrontPage}, 
         React.createElement(Route, {name: "adoptee", path: "adoptee/:id", handler: AdopteeDetail}), 
         React.createElement(Route, {name: "submit", path: "submit", handler: ModalWrapper}), 
-        React.createElement(Route, {name: "about", path: "about", handler: ModalWrapper})
+        React.createElement(Route, {name: "about", path: "about", handler: AboutView})
     )
 );
 

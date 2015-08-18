@@ -416,13 +416,25 @@ var AdopteeDetail = React.createClass({
     }
 });
 
+var AboutView = React.createClass({
+    render: function () {
+        return (
+            <div className="row">
+                <div className="col-md-12">
+                    // about text and a couple of images
+                </div>
+            </div>
+        )
+    }
+});
+
 var Route = ReactRouter.Route;
 
 var routes = (
     <Route handler={FrontPage}>
         <Route name="adoptee" path="adoptee/:id" handler={AdopteeDetail}/>
         <Route name="submit" path="submit" handler={ModalWrapper}/>
-        <Route name="about" path="about" handler={ModalWrapper}/>
+        <Route name="about" path="about" handler={AboutView}/>
     </Route>
 );
 
