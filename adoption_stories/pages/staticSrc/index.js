@@ -88,6 +88,7 @@ var Adoptee = React.createClass({
                                 pinyin_name={this.props.pinyin_name}
                                 header_tag={Primary_Name_Tag}
                                 sub_header_tag={Secondary_Name_Tag}></NameHeader>
+
                     <div>
                         <img src={this.props.photo}/>
                     </div>
@@ -184,10 +185,13 @@ var PaginationSection = React.createClass({
                 success: function (data) {
                     this.setState({
                         items: this.state.items.concat(data.results.map(function (currentValue, index, array) {
-                            return this.props.make_element(currentValue);
+                            var element_making_details = this.props.make_element(currentValue);
+                            var Component = element_making_details.component;
+                            var props = element_making_details.props;
+                            if (index + 1 === array.length) props["ref"] = "monitor_div";
+                            return <Component {... props} />
                         }, this)),
-                        next_url: data.next,
-                        monitor_div: React.findDOMNode(this.state.items[this.state.items.length - 1])
+                        next_url: data.next
                     });
                     paginator_ajax_in_progress = false;
                 }.bind(this),
@@ -200,18 +204,16 @@ var PaginationSection = React.createClass({
     },
     getInitialState: function () {
         return {
-            items: [], next_url: this.props.initial_url,
-            monitor_div: null
+            items: [], next_url: this.props.initial_url
         };
     },
     componentDidMount: function () {
-        addItems();
+        this.addItems();
         $(window).on('DOMContentLoaded load resize scroll', this.onChange);
     },
     onChange: function () { // http://stackoverflow.com/questions/123999/how-to-tell-if-a-dom-element-is-visible-in-the-current-viewport/7557433#7557433
-        var el = this.state.monitor_div;
-
-        if (!el) return; // there are no divs in the paginator
+        if (!this.refs.monitor_div) return; // there are no divs in the paginator
+        var el = React.findDOMNode(this.refs.monitor_div);
 
         //special bonus for those using jQuery
         if (typeof jQuery === "function" && el instanceof jQuery) {
@@ -264,22 +266,26 @@ var FrontPage = React.createClass({
         var summary = gettext("From 1999 to 2013, 71,632 adoptions of Chinese children by American families were reported to the U.S. Department of State. There are many narratives around these adoptions, but this site is a place for those most intimately involved in the process to tell their own stories");
         var submit = gettext("Share Your Story");
         var submit_handle_click = function () {
-            alert("Submit Clicked!")
+            alert("Submit Clicked!");
         };
         var about = gettext("Who We Are");
         var about_handle_click = function () {
-            alert("About Clicked!")
+            alert("About Clicked!");
         };
 
         var story_card_maker = function (adoptee_list_json) {
             return (
-                <StoryCard english_name={adoptee_list_json.english_name}
-                           chinese_name={adoptee_list_json.chinese_name}
-                           pinyin_name={adoptee_list_json.pinyin_name}
-                           id={adoptee_list_json.id}
-                           photo_front_story={adoptee_list_json.photo_front_story}
-                           front_story={adoptee_list_json.front_story}
-                    />
+            {
+                "component": StoryCard,
+                "props": {
+                    "english_name": adoptee_list_json.english_name,
+                    "chinese_name": adoptee_list_json.chinese_name,
+                    "pinyin_name": adoptee_list_json.pinyin_name,
+                    "id": adoptee_list_json.id,
+                    "photo_front_story": adoptee_list_json.photo_front_story,
+                    "front_story": adoptee_list_json.front_story
+                }
+            }
             )
         };
 
@@ -298,5 +304,7 @@ var FrontPage = React.createClass({
     }
 });
 
+
 React.render(<FrontPage />,
     document.getElementById('root'));
+React.initializeTouchEvents(true);

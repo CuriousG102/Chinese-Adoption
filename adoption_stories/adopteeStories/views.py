@@ -28,7 +28,8 @@ from rest_framework import mixins
 # that approving a storyteller means associated content will be out there with
 # that storyteller if it isn't media. This allows granularity in making one-off
 # exceptions for relationship categories without bloating the selector as well.
-ADOPTEE_FILTERS_Q_OBJECTS = [Q(stories__approved=True)]
+ADOPTEE_FILTERS_Q_OBJECTS = [Q(stories__approved=True),
+                             ]
 ADOPTEE_FILTER = Q()
 
 for q_object in ADOPTEE_FILTERS_Q_OBJECTS:
@@ -62,7 +63,7 @@ class AdopteeSearch(generics.ListAPIView):
 
 
 class AdopteeList(generics.ListAPIView):
-    queryset = Adoptee.objects.all().filter(ADOPTEE_FILTER)
+    queryset = Adoptee.objects.all().filter(ADOPTEE_FILTER).filter(front_story__isnull=False)
     serializer_class = serializers.AdopteeListSerializer
 
 

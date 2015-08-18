@@ -149,10 +149,18 @@ class AdopteeGetTestCase(TestCase):
         self.adoptee_list_url = reverse('adopteeList')
 
     def test_adoptee_list_shows_approved_adoptees(self):
+        """
+        Adoptee list endpoint shows adoptees with approved storytellers
+        """
         for storyteller in enumerate(self.storytellers):
             if storyteller[0] % 2 == 1:
                 storyteller[1].approved = False
                 storyteller[1].save()
+
+        for i, adoptee in enumerate(self.adoptees):
+            if i % 2 == 0:
+                adoptee.front_story = self.storytellers[i]
+                adoptee.save()
 
         response = self.c.get(self.adoptee_list_url)
 
@@ -172,6 +180,38 @@ class AdopteeGetTestCase(TestCase):
             .format(lola_json, m_jing_mei_json)
         self.assertJSONEqual(response.content.decode('utf-8'),
                              expected_response)
+
+    def test_adoptee_list_doesnt_show_adoptees_without_front_story(self):
+        """
+        If the administrator has not assigned adoptees a story, they should not
+        show up in the list endpoint
+        """
+        for storyteller in enumerate(self.storytellers):
+            if storyteller[0] % 2 == 1:
+                storyteller[1].approved = False
+                storyteller[1].save()
+
+        for adoptee in self.adoptees:
+            adoptee.front_story = None
+            adoptee.save()
+
+        self.adoptees[2].front_story = self.storytellers[2]
+        self.adoptees[2].save()
+
+        response = self.c.get(self.adoptee_list_url)
+
+        lola_json = '{{"english_name": null,' \
+                    ' "pinyin_name": "{0.pinyin_name}",' \
+                    ' "chinese_name": "{0.chinese_name}",' \
+                    ' "id": {0.id},' \
+                    ' "photo_front_story": null,' \
+                    ' "front_story": {{"story_text": "bs"}} }}'.format(self.adoptees[2])
+        expected_response = '{{"next":null,"previous":null,"results":[{0}]}}' \
+            .format(lola_json)
+        self.assertJSONEqual(response.content.decode('utf-8'),
+                             expected_response)
+
+
 
     def test_adoptee_detail_get_formats_correctly(self):
         """
