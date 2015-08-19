@@ -86,11 +86,13 @@ var Adoptee = React.createClass({displayName: "Adoptee",
             Secondary_Name_Tag = this.props.secondary_name_tag ? this.props.secondary_name_tag : "h3";
 
             return (
-                React.createElement(NameHeader, {english_name: this.props.english_name, 
-                            chinese_name: this.props.chinese_name, 
-                            pinyin_name: this.props.pinyin_name, 
-                            header_tag: Primary_Name_Tag, 
-                            sub_header_tag: Secondary_Name_Tag})
+                React.createElement("div", {className: "adopteeName"}, 
+                    React.createElement(NameHeader, {english_name: this.props.english_name, 
+                                chinese_name: this.props.chinese_name, 
+                                pinyin_name: this.props.pinyin_name, 
+                                header_tag: Primary_Name_Tag, 
+                                sub_header_tag: Secondary_Name_Tag})
+                )
             );
         }
     }
@@ -121,11 +123,46 @@ var RelationshipHeader = React.createClass({displayName: "RelationshipHeader",
 });
 
 var Media = React.createClass({displayName: "Media",
+    getInitialState: function () {
+        return {embed_shizzle: {__html: ""}};
+    },
+    componentDidMount: function () {
+        if (this.props.media.audio.length > 0) {
+            var audio_url = this.props.media.audio[0].audio;
+            $.ajax({
+                url: "http://soundcloud.com/oembed",
+                dataType: "json",
+                data: {
+                    format: "json",
+                    url: audio_url,
+                    maxheight: 81
+                },
+                success: function (data) {
+                    this.setState({
+                        embed_shizzle: {
+                            __html: data.html
+                        }
+                    });
+                }.bind(this),
+                error: function (xhr, status, err) {
+                    console.error(audio_url, status, err.toString());
+                }.bind(this)
+            });
+        } else if (this.props.media.video.length > 0) {
+            var video_iframe_url = this.props.media.video[0].iframe_url;
+            var embed_code = '<iframe width="100%" height="315" src="" frameborder="0" allowfullscreen></iframe>'
+                .replace('src=""', 'src="' + video_iframe_url + '"');
+            this.setState({
+                embed_shizzle: {
+                    __html: embed_code
+                }
+            });
+        }
+    },
     render: function () {
         return (
-            React.createElement("div", null, 
-                React.createElement("h2", null, "Media not yet implemented :-/")
-            )
+            React.createElement("div", {className: "media-embed", 
+                 dangerouslySetInnerHTML: this.state.embed_shizzle})
         );
     }
 });
@@ -145,9 +182,7 @@ var StoryTeller = React.createClass({displayName: "StoryTeller",
                                     chinese_name: this.props.relationship_to_story.chinese_name}
                 ), 
 
-                React.createElement("div", {className: "media"}, 
-                    React.createElement(Media, {media: this.props.media})
-                ), 
+                React.createElement(Media, {media: this.props.media}), 
                 React.createElement("div", null, 
                     React.createElement("p", null, 
                         story_text
@@ -259,7 +294,9 @@ var StoryCard = React.createClass({displayName: "StoryCard",
                                    pinyin_name: this.props.pinyin_name}));
 
         if (this.props.photo_front_story) stuff_to_add.push(React.createElement("img", {src: this.props.photo_front_story.photo_file}));
-        stuff_to_add.push(React.createElement("p", null, this.props.front_story.story_text));
+        stuff_to_add.push(React.createElement("div", {className: "story-container"}, 
+            React.createElement("p", {className: "story-text"}, this.props.front_story.story_text)
+        ));
 
         var detail_name_order = language === ENGLISH ? [this.props.english_name, this.props.pinyin_name, this.props.chinese_name]
             : [this.props.chinese_name, this.props.english_name, this.props.pinyin_name];
@@ -287,7 +324,7 @@ var StoryCard = React.createClass({displayName: "StoryCard",
         return (
             React.createElement("div", {className: class_string}, 
                 stuff_to_add, 
-                React.createElement("a", {href: link}, 
+                React.createElement("a", {href: link, className: "detail-link"}, 
                     link_text
                 )
             )
@@ -401,14 +438,16 @@ var BootstrapModal = React.createClass({displayName: "BootstrapModal",
         return (
             React.createElement(Modal, {
                 isOpen: true, 
-                className: "Modal__Bootstrap modal-dialog", 
+                className: "Modal__Bootstrap modal-lg", 
                 onRequestClose: this.handleModalCloseRequest
                 }, 
                 React.createElement("div", {className: "modal-content"}, 
                     React.createElement("div", {className: "container-fluid"}, 
-                        React.createElement("div", {className: "row"}, 
-                            React.createElement("div", {className: "col-md-12"}, 
-                                React.createElement("span", {className: "glyphicon glyphicon-remove-circle", "aria-hidden": "true"})
+                        React.createElement("div", {className: "row", id: "close-row"}, 
+                            React.createElement("div", {className: "col-md-11"}), 
+                            React.createElement("div", {className: "col-md-1"}, 
+                                React.createElement("span", {className: "glyphicon glyphicon-remove-circle", "aria-hidden": "true", 
+                                      onClick: this.handleModalCloseRequest})
                             )
                         ), 
                         this.props.children
@@ -451,22 +490,31 @@ var AdopteeDetail = React.createClass({displayName: "AdopteeDetail",
         for (var i = 0; i < this.state.stories.length; i++) {
             var story = this.state.stories[i];
             story_components.push(
-                React.createElement(StoryTeller, {english_name: story.english_name, 
-                             chinese_name: story.chinese_name, 
-                             pinyin_name: story.pinyin_name, 
-                             relationship: story.relationship_to_story, 
-                             media: story.media, 
-                             story_text: story.story_text}
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-md-12"}, 
+                        React.createElement(StoryTeller, {english_name: story.english_name, 
+                                     chinese_name: story.chinese_name, 
+                                     pinyin_name: story.pinyin_name, 
+                                     relationship_to_story: story.relationship_to_story, 
+                                     media: story.media, 
+                                     story_text: story.story_text}
+                            )
                     )
+                )
             )
         }
         return (
             React.createElement(BootstrapModal, null, 
-                React.createElement(Adoptee, {
-                    english_name: this.state.english_name, 
-                    chinese_name: this.state.chinese_name, 
-                    pinyin_name: this.state.pinyin_name}
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-md-12"}, 
+                        React.createElement(Adoptee, {
+                            english_name: this.state.english_name, 
+                            chinese_name: this.state.chinese_name, 
+                            pinyin_name: this.state.pinyin_name}
+                            )
                     )
+                ), 
+                story_components
             )
         );
     }

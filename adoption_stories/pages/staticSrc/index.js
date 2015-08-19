@@ -86,11 +86,13 @@ var Adoptee = React.createClass({
             Secondary_Name_Tag = this.props.secondary_name_tag ? this.props.secondary_name_tag : "h3";
 
             return (
-                <NameHeader english_name={this.props.english_name}
-                            chinese_name={this.props.chinese_name}
-                            pinyin_name={this.props.pinyin_name}
-                            header_tag={Primary_Name_Tag}
-                            sub_header_tag={Secondary_Name_Tag}></NameHeader>
+                <div className="adopteeName">
+                    <NameHeader english_name={this.props.english_name}
+                                chinese_name={this.props.chinese_name}
+                                pinyin_name={this.props.pinyin_name}
+                                header_tag={Primary_Name_Tag}
+                                sub_header_tag={Secondary_Name_Tag}></NameHeader>
+                </div>
             );
         }
     }
@@ -121,11 +123,46 @@ var RelationshipHeader = React.createClass({
 });
 
 var Media = React.createClass({
+    getInitialState: function () {
+        return {embed_shizzle: {__html: ""}};
+    },
+    componentDidMount: function () {
+        if (this.props.media.audio.length > 0) {
+            var audio_url = this.props.media.audio[0].audio;
+            $.ajax({
+                url: "http://soundcloud.com/oembed",
+                dataType: "json",
+                data: {
+                    format: "json",
+                    url: audio_url,
+                    maxheight: 81
+                },
+                success: function (data) {
+                    this.setState({
+                        embed_shizzle: {
+                            __html: data.html
+                        }
+                    });
+                }.bind(this),
+                error: function (xhr, status, err) {
+                    console.error(audio_url, status, err.toString());
+                }.bind(this)
+            });
+        } else if (this.props.media.video.length > 0) {
+            var video_iframe_url = this.props.media.video[0].iframe_url;
+            var embed_code = '<iframe width="100%" height="315" src="" frameborder="0" allowfullscreen></iframe>'
+                .replace('src=""', 'src="' + video_iframe_url + '"');
+            this.setState({
+                embed_shizzle: {
+                    __html: embed_code
+                }
+            });
+        }
+    },
     render: function () {
         return (
-            <div>
-                <h2>Media not yet implemented :-/</h2>
-            </div>
+            <div className="media-embed"
+                 dangerouslySetInnerHTML={this.state.embed_shizzle}/>
         );
     }
 });
@@ -145,9 +182,7 @@ var StoryTeller = React.createClass({
                                     chinese_name={this.props.relationship_to_story.chinese_name}>
                 </RelationshipHeader>
 
-                <div className="media">
-                    <Media media={this.props.media}></Media>
-                </div>
+                <Media media={this.props.media}></Media>
                 <div>
                     <p>
                         {story_text}
@@ -259,7 +294,9 @@ var StoryCard = React.createClass({
                                    pinyin_name={this.props.pinyin_name}></Adoptee>);
 
         if (this.props.photo_front_story) stuff_to_add.push(<img src={this.props.photo_front_story.photo_file}></img>);
-        stuff_to_add.push(<p>{this.props.front_story.story_text}</p>);
+        stuff_to_add.push(<div className="story-container">
+            <p className="story-text">{this.props.front_story.story_text}</p>
+        </div>);
 
         var detail_name_order = language === ENGLISH ? [this.props.english_name, this.props.pinyin_name, this.props.chinese_name]
             : [this.props.chinese_name, this.props.english_name, this.props.pinyin_name];
@@ -287,7 +324,7 @@ var StoryCard = React.createClass({
         return (
             <div className={class_string}>
                 {stuff_to_add}
-                <a href={link}>
+                <a href={link} className="detail-link">
                     {link_text}
                 </a>
             </div>
@@ -401,14 +438,16 @@ var BootstrapModal = React.createClass({
         return (
             <Modal
                 isOpen={true}
-                className="Modal__Bootstrap modal-dialog"
+                className="Modal__Bootstrap modal-lg"
                 onRequestClose={this.handleModalCloseRequest}
                 >
                 <div className="modal-content">
                     <div className="container-fluid">
-                        <div className="row">
-                            <div className="col-md-12">
-                                <span className="glyphicon glyphicon-remove-circle" aria-hidden="true"></span>
+                        <div className="row" id="close-row">
+                            <div className="col-md-11"/>
+                            <div className="col-md-1">
+                                <span className="glyphicon glyphicon-remove-circle" aria-hidden="true"
+                                      onClick={this.handleModalCloseRequest}></span>
                             </div>
                         </div>
                         {this.props.children}
@@ -451,22 +490,31 @@ var AdopteeDetail = React.createClass({
         for (var i = 0; i < this.state.stories.length; i++) {
             var story = this.state.stories[i];
             story_components.push(
-                <StoryTeller english_name={story.english_name}
-                             chinese_name={story.chinese_name}
-                             pinyin_name={story.pinyin_name}
-                             relationship={story.relationship_to_story}
-                             media={story.media}
-                             story_text={story.story_text}
-                    />
+                <div className="row">
+                    <div className="col-md-12">
+                        <StoryTeller english_name={story.english_name}
+                                     chinese_name={story.chinese_name}
+                                     pinyin_name={story.pinyin_name}
+                                     relationship_to_story={story.relationship_to_story}
+                                     media={story.media}
+                                     story_text={story.story_text}
+                            />
+                    </div>
+                </div>
             )
         }
         return (
             <BootstrapModal>
-                <Adoptee
-                    english_name={this.state.english_name}
-                    chinese_name={this.state.chinese_name}
-                    pinyin_name={this.state.pinyin_name}
-                    />
+                <div className="row">
+                    <div className="col-md-12">
+                        <Adoptee
+                            english_name={this.state.english_name}
+                            chinese_name={this.state.chinese_name}
+                            pinyin_name={this.state.pinyin_name}
+                            />
+                    </div>
+                </div>
+                {story_components}
             </BootstrapModal>
         );
     }

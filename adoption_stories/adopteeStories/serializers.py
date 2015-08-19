@@ -4,6 +4,7 @@ from adopteeStories.models import Adoptee, Photo, StoryTeller, RelationshipCateg
 from django.conf import settings
 from django import forms
 from django.utils.translation import ugettext_lazy as _
+from embed_video.backends import YoutubeBackend
 from rest_framework import serializers
 
 
@@ -161,6 +162,11 @@ class PhotoInfoSerializer(serializers.ModelSerializer):
         fields = MULTIMEDIA_FIELDS
 
 
+class PhotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Photo
+        fields = MULTIMEDIA_FIELDS + ('photo_file',)
+
 class AudioSerializer(serializers.ModelSerializer):
     audio = SoundcloudField()
 
@@ -171,10 +177,15 @@ class AudioSerializer(serializers.ModelSerializer):
 
 class VideoSerializer(serializers.ModelSerializer):
     video = YoutubeField()
+    iframe_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Video
-        fields = MULTIMEDIA_FIELDS + ('video',)
+        fields = MULTIMEDIA_FIELDS + ('video', 'iframe_url')
+
+    def get_iframe_url(self, instance):
+        backend = YoutubeBackend(instance.video)
+        return backend.url
 
 
 class StorySerializer(StoryBasicsSerializer):
@@ -189,9 +200,9 @@ class StorySerializer(StoryBasicsSerializer):
                      "photo": Photo.objects.all().filter(story_teller=instance)
                          .filter(approved=True)}
 
-        queryset_serializers = {"audio": AudioLinkSerializer,
-                                "video": VideoLinkSerializer,
-                                "photo": PhotoLinkSerializer}
+        queryset_serializers = {"audio": AudioSerializer,
+                                "video": VideoSerializer,
+                                "photo": PhotoSerializer}
 
         response = {}
 
