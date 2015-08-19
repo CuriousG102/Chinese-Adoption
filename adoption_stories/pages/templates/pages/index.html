@@ -5,6 +5,8 @@
 <html>
 <head>
   {# Translators: The title of the site that shows up in the top of a browser or in a tab #}
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>{% trans "Chinese-American" %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8"/>
   <!-- TODO: Add shims for legacy browsers -->
@@ -15,6 +17,7 @@
   <script src="http://cdnjs.cloudflare.com/ajax/libs/react-router/0.13.3/ReactRouter.js"></script>
   <script type="text/javascript" src="{% url 'django.views.i18n.javascript_catalog' %}"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{% static "pages/index.css" %}">
   <script>
     {% get_current_language as LANGUAGE_CODE %}
     // code below not yet enabled because we do not yet have translation files and I am not yet ready to write tests

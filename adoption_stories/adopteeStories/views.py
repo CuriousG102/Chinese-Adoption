@@ -62,6 +62,7 @@ class AdopteeSearch(generics.ListAPIView):
         return Adoptee.objects.all().filter(query & ADOPTEE_FILTER)
 
 
+# TODO: Fix up this endpoint to list adoptees who only have at least one story in a person's chosen language
 class AdopteeList(generics.ListAPIView):
     queryset = Adoptee.objects.all().filter(ADOPTEE_FILTER).filter(front_story__isnull=False)
     serializer_class = serializers.AdopteeListSerializer

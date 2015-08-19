@@ -1,21 +1,5 @@
 var Modal = ReactModal;
 
-// TODO: Comb through this and do a better job of account for possible null values
-var HeaderStaticSection = React.createClass({
-    render: function () {
-        var header_styles = this.props.header_styles ? this.props.header_styles : {};
-        var summary_styles = this.props.summary_styles ? this.props.summary_styles : {};
-        var Header_Tag = this.props.header_tag ? this.props.header_tag : "h1";
-        var Summary_Tag = this.props.summary_tag ? this.props.summary_tag : "p";
-        return (
-            <div className="headerStatic">
-                <Header_Tag style={header_styles}>{this.props.title}</Header_Tag>
-                <Summary_Tag style={summary_styles}>{this.props.summary}</Summary_Tag>
-            </div>
-        );
-    }
-});
-
 var Button = React.createClass({
     render: function () {
         var class_string = this.props.class_string ? this.props.class_string : "btn btn-primary btn-lg active";
@@ -25,7 +9,8 @@ var Button = React.createClass({
         return (
             <button type={type_string} style={styles} className={class_string} onClick={this.props.handle_click}>
                 {this.props.text}
-            </button>)
+            </button>
+        );
     }
 });
 
@@ -191,7 +176,6 @@ var PaginationSection = React.createClass({
                             var element_making_details = this.props.make_element(currentValue);
                             var Component = element_making_details.component;
                             var props = element_making_details.props;
-                            if (index + 1 === array.length) props["ref"] = "monitor_div";
                             return <Component {... props} />
                         }, this)),
                         next_url: data.next
@@ -216,7 +200,10 @@ var PaginationSection = React.createClass({
     },
     onChange: function () { // http://stackoverflow.com/questions/123999/how-to-tell-if-a-dom-element-is-visible-in-the-current-viewport/7557433#7557433
         if (!this.refs.monitor_div) return; // there are no divs in the paginator
-        var el = React.findDOMNode(this.refs.monitor_div);
+        var domNode = React.findDOMNode(this.refs.monitor_div);
+        var el = $(domNode);
+        el = el.children();
+        el = el.last();
 
         //special bonus for those using jQuery
         if (typeof jQuery === "function" && el instanceof jQuery) {
@@ -225,20 +212,40 @@ var PaginationSection = React.createClass({
 
         var rect = el.getBoundingClientRect();
 
+        // once the top-left corner of the dom is out of view this will actually be false,
+        // but I think that should be ok for our purposes. As long as this fires once when they scroll past it,
+        // we're fine
+        var divY1 = rect.top;
+        var divY2 = rect.top + rect.height;
+        var windowY1 = 0;
+        var windowY2 = $(window).height();
+
+        // test to see if monitor_div is within or higher than the vertical range of the window
+        // we actually don't care if it's visible, we just care that the user is out of content
         var monitor_div_is_visible = (
-            rect.top >= 0 &&
-            rect.left >= 0 &&
-            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && /*or $(window).height() */
-            rect.right <= (window.innerWidth || document.documentElement.clientWidth) /*or $(window).width() */
+            (divY1 < windowY1) || (divY1 <= windowY2 && divY2 >= windowY1)
         );
 
-        if (monitor_div_is_visible) this.addItems();
+        if (monitor_div_is_visible) {
+            console.log("fire");
+            this.addItems();
+        }
     },
     render: function () {
+        // We can run into problems that aren't solvable
+        // in the process of updating state while keeping this component reusable.
+        // The specific case that caused me to introduce this
+        // solution was when I needed paginated items in a specific bootstrap grid
+        var items_as_rendered;
+        if (this.props.items_prerender_processor)
+            items_as_rendered = this.props.items_prerender_processor(this.state.items);
+        else
+            items_as_rendered = this.state.items;
+
         var class_string = this.props.class_string ? this.props.class_string : "";
         return (
-            <div className={class_string}>
-                {this.state.items}
+            <div className={class_string} ref="monitor_div">
+                {items_as_rendered}
             </div>
         );
     }
@@ -251,12 +258,8 @@ var StoryCard = React.createClass({
                                    chinese_name={this.props.chinese_name}
                                    pinyin_name={this.props.pinyin_name}></Adoptee>);
 
-        if (this.props.photo_front_story) stuff_to_add.push(<img src={this.props.photo_front_story}></img>);
+        if (this.props.photo_front_story) stuff_to_add.push(<img src={this.props.photo_front_story.photo_file}></img>);
         stuff_to_add.push(<p>{this.props.front_story.story_text}</p>);
-
-        var detail_params = {
-            id: this.props.id
-        };
 
         var detail_name_order = language === ENGLISH ? [this.props.english_name, this.props.pinyin_name, this.props.chinese_name]
             : [this.props.chinese_name, this.props.english_name, this.props.pinyin_name];
@@ -272,35 +275,39 @@ var StoryCard = React.createClass({
         var link_text;
 
         if (name_for_link) {
-            link_text = gettext("More about %(name)");
-            link_text = interpolate(link_text, {name: name_for_link}, true);
+            link_text = gettext("More about %s");
+            link_text = interpolate(link_text, [name_for_link]);
         } else {
             link_text = gettext("More about this person");
         }
+        var link = "/#/adoptee/" + this.props.id.toString();
+
+        var class_string = this.props.className ? this.props.className : "";
 
         return (
-            <div>
+            <div className={class_string}>
                 {stuff_to_add}
-                <Link to="adoptee" params={detail_params}>
+                <a href={link}>
                     {link_text}
-                </Link>
+                </a>
             </div>
         );
     }
 });
 
 var FrontPage = React.createClass({
+    mixins: [ReactRouter.Navigation],
     render: function () {
-        var title = gettext("Chinese American");
+        var title = gettext("Chinese-American");
         var summary = gettext("From 1999 to 2013, 71,632 adoptions of Chinese children by American families were reported to the U.S. Department of State. There are many narratives around these adoptions, but this site is a place for those most intimately involved in the process to tell their own stories");
         var submit = gettext("Share Your Story");
         var submit_handle_click = function () {
-            alert("Submit Clicked!");
-        };
+            this.transitionTo("submit");
+        }.bind(this);
         var about = gettext("Who We Are");
         var about_handle_click = function () {
-            alert("About Clicked!");
-        };
+            this.transitionTo("about");
+        }.bind(this);
 
         var story_card_maker = function (adoptee_list_json) {
             return (
@@ -312,23 +319,72 @@ var FrontPage = React.createClass({
                     "pinyin_name": adoptee_list_json.pinyin_name,
                     "id": adoptee_list_json.id,
                     "photo_front_story": adoptee_list_json.photo_front_story,
-                    "front_story": adoptee_list_json.front_story
+                    "front_story": adoptee_list_json.front_story,
+                    "key": adoptee_list_json.id,
                 }
             }
             )
         };
 
+        var items_prerender_processor = function (items) {
+            var items_to_return = [];
+            // put three items in each row with widths of 6, 3, 3
+            //                                            3, 6, 3
+            //                                            3, 3, 6 etc.
+            var columned_items_for_rows = [];
+            var ITEMS_IN_A_ROW = 3;
+            for (var i = 0; i < items.length; i++) {
+                var row = (i / ITEMS_IN_A_ROW) % ITEMS_IN_A_ROW; // so, 0th, 1st, and 2nd rows
+                var col = i % ITEMS_IN_A_ROW;
+                var item = items[i];
+                if (row === col)
+                    columned_items_for_rows.push(
+                        React.cloneElement(item, {"className": "col-md-6 story-card"})
+                    );
+                else
+                    columned_items_for_rows.push(
+                        React.cloneElement(item, {"className": "col-md-3 story-card"})
+                    );
+            }
+
+            for (var i = 0; i < columned_items_for_rows.length; i += ITEMS_IN_A_ROW) {
+                var end_slice_index = i + ITEMS_IN_A_ROW > columned_items_for_rows.length ?
+                    columned_items_for_rows.length
+                    : i + ITEMS_IN_A_ROW;
+                var row_items = columned_items_for_rows.slice(i, end_slice_index);
+                items_to_return.push(
+                    <div className="row">
+                        {row_items}
+                    </div>
+                );
+            }
+
+            return items_to_return;
+        };
+
         var paginator = <PaginationSection
             make_element={story_card_maker}
-            initial_url={ADOPTEE_LIST_ENDPOINT}></PaginationSection>;
+            initial_url={ADOPTEE_LIST_ENDPOINT}
+            items_prerender_processor={items_prerender_processor}></PaginationSection>;
 
         var RouteHandler = ReactRouter.RouteHandler;
 
         return (
             <div className="container">
-                <HeaderStaticSection title={title} summary={summary}/>
-                <Button text={submit} handle_click={submit_handle_click}/>
-                <Button text={about} handle_click={about_handle_click}/>
+                <div className="row">
+                    <div className="col-md-12">
+                        <h1 id="front-page-header">{title}</h1>
+                    </div>
+                </div>
+                <div className="row" id="header-bottom-row">
+                    <div className="col-md-7">
+                        <p>{summary}</p>
+                    </div>
+                    <div className="col-md-5">
+                        <Button text={submit} handle_click={submit_handle_click}/>
+                        <Button text={about} handle_click={about_handle_click}/>
+                    </div>
+                </div>
                 {paginator}
                 <RouteHandler/>
             </div>
@@ -419,12 +475,28 @@ var AdopteeDetail = React.createClass({
 var AboutView = React.createClass({
     render: function () {
         return (
-            <div className="row">
-                <div className="col-md-12">
-                    // about text and a couple of images
+            <BootstrapModal>
+                <div className="row">
+                    <div className="col-md-12">
+                        // about text and a couple of images
+                    </div>
                 </div>
-            </div>
-        )
+            </BootstrapModal>
+        );
+    }
+});
+
+var Submit = React.createClass({
+    render: function () {
+        return (
+            <BootstrapModal>
+                <div className="row">
+                    <div className="col-md-12">
+                        Submit Form
+                    </div>
+                </div>
+            </BootstrapModal>
+        );
     }
 });
 
@@ -433,7 +505,7 @@ var Route = ReactRouter.Route;
 var routes = (
     <Route handler={FrontPage}>
         <Route name="adoptee" path="adoptee/:id" handler={AdopteeDetail}/>
-        <Route name="submit" path="submit" handler={ModalWrapper}/>
+        <Route name="submit" path="submit" handler={Submit}/>
         <Route name="about" path="about" handler={AboutView}/>
     </Route>
 );
