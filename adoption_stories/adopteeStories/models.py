@@ -43,6 +43,10 @@ class Adoptee(models.Model):
         # Translators: Name of a field in the admin page
         verbose_name_plural = _('Adoptees')
 
+    def __str__(self):
+        return " ".join([self.english_name,
+                         self.chinese_name,
+                         self.pinyin_name])
 
 class MultimediaItem(models.Model):
     # english_caption || chinese_caption must have a value implemented
@@ -68,6 +72,9 @@ class MultimediaItem(models.Model):
         abstract = True
         # TODO: Change to descending order
         ordering = ['created']
+
+    def __str__(self):
+        return str(self.story_teller) + str(self.created)
 
 
 class Audio(MultimediaItem):
@@ -111,9 +118,11 @@ class RelationshipCategory(models.Model):
     # but to publish both must have a value or all stories with an untranslated
     # category must only show up english side/chinese side
     # Translators: Name of a field in the admin page
-    english_name = models.CharField(max_length=30, null=True, verbose_name=_('English Name'))
+    english_name = models.CharField(max_length=30, null=True, verbose_name=_('English Name'),
+                                    blank=True)
     # Translators: Name of a field in the admin page
-    chinese_name = models.CharField(max_length=30, null=True, verbose_name=_('Chinese Name'))
+    chinese_name = models.CharField(max_length=30, null=True, verbose_name=_('Chinese Name'),
+                                    blank=True)
 
     # Translators: Name of a field in the admin page
     approved = models.BooleanField(default=False, verbose_name=_('Approved'))
@@ -130,13 +139,16 @@ class RelationshipCategory(models.Model):
         # Translators: Name of a field in the admin page
         verbose_name_plural = _('Relationship Categories')
 
+    def __str__(self):
+        return " ".join([self.english_name,
+                         self.chinese_name])
+
 
 class StoryTeller(models.Model):
-    category_is_approved = {'approved': True}
     relationship_to_story = models.ForeignKey('RelationshipCategory',
-                                              limit_choices_to=category_is_approved,
                                               # Translators: Name of a field in the admin page
                                               verbose_name=_('Relationship to Story'))
+    # TODO: Fix the fact that I'm only allowing story_text in one version where there should be two language versions
     # Translators: Name of a field in the admin page
     story_text = models.TextField(verbose_name=_('Story Text'))
     # Translators: Name of a field in the admin page
@@ -151,13 +163,16 @@ class StoryTeller(models.Model):
     # must have a value implemented form level
     english_name = models.CharField(max_length=150, null=True,
                                     # Translators: Name of a field in the admin page
-                                    verbose_name=_('English Name'))
+                                    verbose_name=_('English Name'),
+                                    blank=True)
     chinese_name = models.CharField(max_length=50, null=True,
                                     # Translators: Name of a field in the admin page
-                                    verbose_name=_('Chinese Name'))
+                                    verbose_name=_('Chinese Name'),
+                                    blank=True)
     pinyin_name = models.CharField(max_length=150, null=True,
                                    # Translators: Name of a field in the admin page
-                                   verbose_name=_('Pinyin Name'))
+                                   verbose_name=_('Pinyin Name'),
+                                   blank=True)
     created = models.DateTimeField(auto_now_add=True,
                                    # Translators: Name of a field in the admin page
                                    verbose_name=_('Created At'))
@@ -172,3 +187,8 @@ class StoryTeller(models.Model):
         verbose_name = _('Story Teller')
         # Translators: Name of a field in the admin page
         verbose_name_plural = _('Story Tellers')
+
+    def __str__(self):
+        return " ".join([self.english_name,
+                         self.chinese_name,
+                         self.pinyin_name])
