@@ -182,9 +182,12 @@ class StorySerializer(StoryBasicsSerializer):
     media = serializers.SerializerMethodField('get_media_field')
 
     def get_media_field(self, instance):
-        querysets = {"audio": Audio.objects.all(),
-                     "video": Video.objects.all(),
-                     "photo": Photo.objects.all()}
+        querysets = {"audio": Audio.objects.all().filter(story_teller=instance)
+            .filter(approved=True),
+                     "video": Video.objects.all().filter(story_teller=instance)
+                         .filter(approved=True),
+                     "photo": Photo.objects.all().filter(story_teller=instance)
+                         .filter(approved=True)}
 
         queryset_serializers = {"audio": AudioLinkSerializer,
                                 "video": VideoLinkSerializer,
