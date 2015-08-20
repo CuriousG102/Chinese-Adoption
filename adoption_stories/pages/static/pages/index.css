@@ -75,6 +75,11 @@ p {
     margin-right: auto;
 }
 
+.media-container .media-caption {
+    float: right;
+
+}
+
 #close-row .glyphicon-remove-circle {
     position: absolute;
     top: 10px;
@@ -104,8 +109,15 @@ p {
     font-style: italic;
 }
 
-.media-embed {
+.media-container {
     float: right;
     margin: 10px;
     width: 60%;
+    max-height: 400px;
+    overflow: hidden;
+}
+
+.media-container img {
+    float: right;
+    max-height: 350px;
 }

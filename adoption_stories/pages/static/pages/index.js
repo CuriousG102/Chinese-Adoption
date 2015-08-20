@@ -1,3 +1,7 @@
+// To my successor: Pro-tip; When you're editing this file, super handy to use
+//                  the command jsx --watch staticSrc/ static/pages from the
+//                  pages directory and leave it running
+
 var Modal = ReactModal;
 
 var Button = React.createClass({displayName: "Button",
@@ -124,11 +128,24 @@ var RelationshipHeader = React.createClass({displayName: "RelationshipHeader",
 
 var Media = React.createClass({displayName: "Media",
     getInitialState: function () {
-        return {embed_shizzle: {__html: ""}};
+        return {
+            embed_shizzle: {__html: ""}, isInnerHTML: true,
+            caption: "", style_overrides: null
+        };
+    },
+    getCaption: function (media_item) {
+        var caption_preference = language === ENGLISH ? [media_item.english_caption, media_item.chinese_caption]
+            : [media_item.chinese_caption, media_item.english_caption];
+        for (var i = 0; i < caption_preference.length; i++) {
+            if (caption_preference[i]) return caption_preference[i];
+        }
+
+        return "";
     },
     componentDidMount: function () {
         if (this.props.media.audio.length > 0) {
-            var audio_url = this.props.media.audio[0].audio;
+            var audio = this.props.media.audio[0];
+            var audio_url = audio.audio;
             $.ajax({
                 url: "http://soundcloud.com/oembed",
                 dataType: "json",
@@ -141,7 +158,10 @@ var Media = React.createClass({displayName: "Media",
                     this.setState({
                         embed_shizzle: {
                             __html: data.html
-                        }
+                        },
+                        isInnerHTML: true,
+                        caption: this.getCaption(audio),
+                        style_overrides: null
                     });
                 }.bind(this),
                 error: function (xhr, status, err) {
@@ -149,21 +169,61 @@ var Media = React.createClass({displayName: "Media",
                 }.bind(this)
             });
         } else if (this.props.media.video.length > 0) {
-            var video_iframe_url = this.props.media.video[0].iframe_url;
-            var embed_code = '<iframe width="100%" height="315" src="" frameborder="0" allowfullscreen></iframe>'
-                .replace('src=""', 'src="' + video_iframe_url + '"');
+            var video = this.props.media.video[0];
+            var video_iframe_url = video.iframe_url;
+            var embed_code = React.createElement("iframe", {width: "100%", height: "315", src: video_iframe_url, frameborder: "0", 
+                                     allowfullscreen: true});
             this.setState({
-                embed_shizzle: {
-                    __html: embed_code
-                }
+                embed_shizzle: embed_code,
+                isInnerHTML: false,
+                caption: this.getCaption(video),
+                style_overrides: null
+            });
+        } else if (this.props.media.photo.length > 0) {
+            var photo = this.props.media.photo[0];
+            var photo_url = photo.photo_file;
+            var special_style = {
+                "max-width": "60%",
+                "width": "unset"
+            };
+            var embed_code = React.createElement("img", {src: photo_url});
+            this.setState({
+                embed_shizzle: embed_code,
+                isInnerHTML: false,
+                caption: this.getCaption(photo),
+                style_overrides: special_style
             });
         }
     },
     render: function () {
-        return (
-            React.createElement("div", {className: "media-embed", 
-                 dangerouslySetInnerHTML: this.state.embed_shizzle})
-        );
+        var content;
+        if (this.state.isInnerHTML)
+            content =
+                React.createElement("div", null, 
+                    React.createElement("div", {className: "media-embed", 
+                         dangerouslySetInnerHTML: this.state.embed_shizzle}), 
+                    React.createElement("div", {className: "media-caption"}, 
+                        React.createElement("p", null, 
+                            this.state.caption
+                        )
+                    )
+                );
+        else
+            content =
+                React.createElement("div", null, 
+                    React.createElement("div", {className: "media-embed"}, 
+                        this.state.embed_shizzle
+                    ), 
+                    React.createElement("div", {className: "media-caption"}, 
+                        React.createElement("p", null, 
+                            this.state.caption
+                        )
+                    )
+                );
+
+        return this.state.style_overrides ?
+            React.createElement("div", {className: "media-container", style: this.state.style_overrides}, content)
+            : React.createElement("div", {className: "media-container"}, content)
     }
 });
 
@@ -183,6 +243,7 @@ var StoryTeller = React.createClass({displayName: "StoryTeller",
                 ), 
 
                 React.createElement(Media, {media: this.props.media}), 
+
                 React.createElement("div", null, 
                     React.createElement("p", null, 
                         story_text
@@ -262,7 +323,6 @@ var PaginationSection = React.createClass({displayName: "PaginationSection",
         );
 
         if (monitor_div_is_visible) {
-            console.log("fire");
             this.addItems();
         }
     },
