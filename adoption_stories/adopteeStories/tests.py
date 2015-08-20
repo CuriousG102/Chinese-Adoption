@@ -562,7 +562,8 @@ class AudioCreateTestCase(TestCase):
                              ]
     INVALID_SOUNDCLOUD_URLS = ["https://www.youtube.com/watch?v=dQw4w9W,b",
                                "https://www.soundcloud.com/watch?v=dQw4w9WgXcQ",
-                               "https://soundcloud.com/andreasedstr-m/rick-astley-never-gonna-g"]
+                               "https://soundcloud.com/andreasedstr-m/rick-astley-never-gonna-g",
+                               "https://soundcloud.com/helterskelter-beatles-c"]
     AUDIO_CREATE_URL = reverse('audioCreate')
 
     def setUp(self):
