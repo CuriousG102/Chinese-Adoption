@@ -85,6 +85,7 @@ p {
     top: 10px;
     right: 10px;
     font-size: 1.8em;
+    z-index: 999999;
 }
 
 #close-row .glyphicon-remove-circle:hover {
