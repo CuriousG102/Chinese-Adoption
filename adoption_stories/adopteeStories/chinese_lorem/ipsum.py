@@ -54,7 +54,7 @@ class GabbleLorem(BaseLorem):
         self.character_list = range(0x4e00, 0x9fa5)
 
     def gen_character(self):
-        return str(random.choice(self.character_list))
+        return chr(random.choice(self.character_list))
 
     def gen_word(self):
         number = random.choice([2, 3, 4])
@@ -70,12 +70,12 @@ def _get_content(number, generator_method, isMeaning, separator):
     return separator.join([generator_method() for i in range(number)])
 
 
-def get_sentences(number, isMeaning=False):  # isMeaning modified to be false for performance reasons
+def get_sentences(number, isMeaning=False):
     sentences = _get_content(number, 'gen_sentence', isMeaning, PUNC_LIST[0])
     return sentences[:-1] + PUNC_LIST[1]
 
 
-def get_paragraphs(number, isMeaning=False):  # isMeaning modified to be false for performance reasons
+def get_paragraphs(number, isMeaning=False):
     return _get_content(number, 'gen_paragraph', isMeaning, '\n')
 
 

@@ -14,6 +14,20 @@ from adopteeStories.models import Adoptee, Audio, Video, Photo, RelationshipCate
 from .chinese_lorem import ipsum as chinese_lorem
 
 
+class LoremIpsumProxy():
+    """
+    Hacky way to account for the fact that our english lorem ipsum returns lists rather than strings
+    """
+
+    def __init__(self):
+        self.loremipsum = loremipsum
+
+    def get_sentences(self, amount, start_with_lorem=False):
+        return ' '.join(loremipsum.get_sentences(amount, start_with_lorem))
+
+    def get_paragraphs(self, amount, start_with_lorem=False):
+        return '\n'.join(loremipsum.get_paragraphs(amount, start_with_lorem))
+
 def generate_test_content():
     STORYTELLER_NAMES = (('Karen', 'Wilbanks'), ('Josh', 'Duggar'), ('Brandon', 'Mond'),
                          ('Jena', 'Heath', '姓名', 'xing-ming'))
@@ -45,7 +59,7 @@ def generate_test_content():
     NUMBER_OF_PARAGRAPHS_IN_A_STORY = (4, 14)  # it's a range [min, max)
 
     def set_other_media_fields(media_item, storyteller):
-        media_item.english_caption = loremipsum.get_sentences(random.randrange(*NUMBER_OF_CAPTION_SENTENCES))
+        media_item.english_caption = LoremIpsumProxy().get_sentences(random.randrange(*NUMBER_OF_CAPTION_SENTENCES))
         media_item.chinese_caption = chinese_lorem.get_sentences(random.randrange(*NUMBER_OF_CAPTION_SENTENCES))
         media_item.approved = True
         media_item.story_teller = storyteller
@@ -102,7 +116,7 @@ def generate_test_content():
                 chinese_name = None
                 pinyin_name = None
 
-            story_text = random.choice([loremipsum.get_paragraphs,
+            story_text = random.choice([LoremIpsumProxy().get_paragraphs,
                                         chinese_lorem.get_paragraphs])(number_of_paragraphs)
 
             storyteller = StoryTeller \
