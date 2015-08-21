@@ -31,8 +31,8 @@ p {
 }
 
 #header-bottom-row button {
-    margin-top: 16px;
     margin-left: 4px;
+    margin-bottom: 16px;
 }
 
 .story-card h2, .story-card h3 {

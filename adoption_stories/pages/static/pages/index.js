@@ -418,6 +418,7 @@ var FrontPage = React.createClass({displayName: "FrontPage",
                     "photo_front_story": adoptee_list_json.photo_front_story,
                     "front_story": adoptee_list_json.front_story,
                     "key": adoptee_list_json.id,
+                    "className": "story-card"
                 }
             }
             )
@@ -436,11 +437,11 @@ var FrontPage = React.createClass({displayName: "FrontPage",
                 var item = items[i];
                 if (row === col)
                     columned_items_for_rows.push(
-                        React.cloneElement(item, {"className": "col-md-6 story-card"})
+                        React.createElement("div", {className: "col-md-6"}, item)
                     );
                 else
                     columned_items_for_rows.push(
-                        React.cloneElement(item, {"className": "col-md-3 story-card"})
+                        React.createElement("div", {className: "col-md-3"}, item)
                     );
             }
 
