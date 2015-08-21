@@ -31,11 +31,11 @@ class VideoLinkSerializer(serializers.ModelSerializer):
         fields = ('video',)
 
 
-class StoryTextSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = StoryTeller
-        fields = ('story_text',)
+class StoryTextSerializer(serializers.Serializer):
+    story_text = serializers.SerializerMethodField()
 
+    def get_story_text(self, instance):
+        return '<br>'.join([line for line in instance.story_text.split('\n')])
 
 class AdopteeBasicsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -66,12 +66,20 @@ class RelationshipSerializer(serializers.ModelSerializer):
 
 
 class StoryBasicsSerializer(serializers.ModelSerializer):
+    story_text = serializers.SerializerMethodField()
+
+    def get_story_text(self, instance):
+        return '<br>'.join([line for line in instance.story_text.split('\n')])
+
     class Meta:
         model = StoryTeller
         fields = ('story_text', 'english_name', 'chinese_name', 'pinyin_name',)
 
 
 class StoryCreationSerializer(StoryBasicsSerializer):
+    story_text = serializers.CharField(allow_blank=False,
+                                       trim_whitespace=True)
+
     class Meta(StoryBasicsSerializer.Meta):
         fields = StoryBasicsSerializer.Meta.fields + ('relationship_to_story',
                                                       'email',

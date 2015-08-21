@@ -431,7 +431,7 @@ var FrontPage = React.createClass({displayName: "FrontPage",
             var columned_items_for_rows = [];
             var ITEMS_IN_A_ROW = 3;
             for (var i = 0; i < items.length; i++) {
-                var row = (i / ITEMS_IN_A_ROW) % ITEMS_IN_A_ROW; // so, 0th, 1st, and 2nd rows
+                var row = Math.floor(i / ITEMS_IN_A_ROW) % ITEMS_IN_A_ROW; // so, 0th, 1st, and 2nd rows
                 var col = i % ITEMS_IN_A_ROW;
                 var item = items[i];
                 if (row === col)

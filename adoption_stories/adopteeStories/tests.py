@@ -130,7 +130,7 @@ class AdopteeGetTestCase(TestCase):
         self.relationship = RelationshipCategory(approved=True)
         self.relationship.save()
 
-        prototypical_storyteller_kw_args = {'story_text': 'bs',
+        prototypical_storyteller_kw_args = {'story_text': 'bs\nbs',
                                             'email': 'bs@example.com',
                                             'approved': True,
                                             'relationship_to_story': self.relationship,
@@ -169,13 +169,13 @@ class AdopteeGetTestCase(TestCase):
                           ' "chinese_name": "{0.chinese_name}",' \
                           ' "id": {0.id},' \
                           ' "photo_front_story": null,' \
-                          ' "front_story": {{"story_text": "bs"}} }}'.format(self.adoptees[0])
+                          ' "front_story": {{"story_text": "bs<br>bs"}} }}'.format(self.adoptees[0])
         lola_json = '{{"english_name": null,' \
                     ' "pinyin_name": "{0.pinyin_name}",' \
                     ' "chinese_name": "{0.chinese_name}",' \
                     ' "id": {0.id},' \
                     ' "photo_front_story": null,' \
-                    ' "front_story": {{"story_text": "bs"}} }}'.format(self.adoptees[2])
+                    ' "front_story": {{"story_text": "bs<br>bs"}} }}'.format(self.adoptees[2])
         expected_response = '{{"next":null,"previous":null,"results":[{0}, {1}]}}' \
             .format(lola_json, m_jing_mei_json)
         self.assertJSONEqual(response.content.decode('utf-8'),
@@ -205,7 +205,7 @@ class AdopteeGetTestCase(TestCase):
                     ' "chinese_name": "{0.chinese_name}",' \
                     ' "id": {0.id},' \
                     ' "photo_front_story": null,' \
-                    ' "front_story": {{"story_text": "bs"}} }}'.format(self.adoptees[2])
+                    ' "front_story": {{"story_text": "bs<br>bs"}} }}'.format(self.adoptees[2])
         expected_response = '{{"next":null,"previous":null,"results":[{0}]}}' \
             .format(lola_json)
         self.assertJSONEqual(response.content.decode('utf-8'),
@@ -221,7 +221,7 @@ class AdopteeGetTestCase(TestCase):
                             '  "chinese_name": null,' \
                             '  "id": {0.id}}}'.format(self.relationship)
 
-        story_json = '{{"story_text": "bs",' \
+        story_json = '{{"story_text": "bs<br>bs",' \
                      '  "english_name": null,' \
                      '  "chinese_name": null,' \
                      '  "pinyin_name": null,' \

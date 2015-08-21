@@ -51,10 +51,9 @@ class MeaningLorem(BaseLorem):
 class GabbleLorem(BaseLorem):
     def __init__(self):
         BaseLorem.__init__(self)
-        self.character_list = range(0x4e00, 0x9fa5)
 
     def gen_character(self):
-        return chr(random.choice(self.character_list))
+        return chr(random.randrange(0x4e00, 0x9fa5))
 
     def gen_word(self):
         number = random.choice([2, 3, 4])
