@@ -227,10 +227,18 @@ var Media = React.createClass({displayName: "Media",
     }
 });
 
+var processStoryText = function (story_text) {
+    story_text = story_text.split("<br>");
+    for (var i = 0; i < story_text.length; i++) {
+        story_text[i] = React.createElement("p", null, story_text[i])
+    }
+    return story_text
+};
+
 var StoryTeller = React.createClass({displayName: "StoryTeller",
     render: function () {
-        var story_text = this.props.story_text ? this.props.story_text
-            : "";
+        var story_text = this.props.story_text ? processStoryText(this.props.story_text)
+            : React.createElement("p", null);
         return (
             React.createElement("div", {className: "storyTeller"}, 
                 React.createElement(NameHeader, {english_name: this.props.english_name, 
@@ -245,9 +253,7 @@ var StoryTeller = React.createClass({displayName: "StoryTeller",
                 React.createElement(Media, {media: this.props.media}), 
 
                 React.createElement("div", null, 
-                    React.createElement("p", null, 
-                        story_text
-                    )
+                    story_text
                 )
             )
         );
@@ -354,8 +360,9 @@ var StoryCard = React.createClass({displayName: "StoryCard",
                                    pinyin_name: this.props.pinyin_name}));
 
         if (this.props.photo_front_story) stuff_to_add.push(React.createElement("img", {src: this.props.photo_front_story.photo_file}));
+        var story_text = processStoryText(this.props.front_story.story_text);
         stuff_to_add.push(React.createElement("div", {className: "story-container"}, 
-            React.createElement("p", {className: "story-text"}, this.props.front_story.story_text)
+            React.createElement("p", {className: "story-text"}, story_text)
         ));
 
         var detail_name_order = language === ENGLISH ? [this.props.english_name, this.props.pinyin_name, this.props.chinese_name]

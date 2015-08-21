@@ -227,10 +227,18 @@ var Media = React.createClass({
     }
 });
 
+var processStoryText = function (story_text) {
+    story_text = story_text.split("<br>");
+    for (var i = 0; i < story_text.length; i++) {
+        story_text[i] = <p>{story_text[i]}</p>
+    }
+    return story_text
+};
+
 var StoryTeller = React.createClass({
     render: function () {
-        var story_text = this.props.story_text ? this.props.story_text
-            : "";
+        var story_text = this.props.story_text ? processStoryText(this.props.story_text)
+            : <p></p>;
         return (
             <div className="storyTeller">
                 <NameHeader english_name={this.props.english_name}
@@ -245,9 +253,7 @@ var StoryTeller = React.createClass({
                 <Media media={this.props.media}></Media>
 
                 <div>
-                    <p>
-                        {story_text}
-                    </p>
+                    {story_text}
                 </div>
             </div>
         );
@@ -354,8 +360,9 @@ var StoryCard = React.createClass({
                                    pinyin_name={this.props.pinyin_name}></Adoptee>);
 
         if (this.props.photo_front_story) stuff_to_add.push(<img src={this.props.photo_front_story.photo_file}></img>);
+        var story_text = processStoryText(this.props.front_story.story_text);
         stuff_to_add.push(<div className="story-container">
-            <p className="story-text">{this.props.front_story.story_text}</p>
+            <p className="story-text">{story_text}</p>
         </div>);
 
         var detail_name_order = language === ENGLISH ? [this.props.english_name, this.props.pinyin_name, this.props.chinese_name]
