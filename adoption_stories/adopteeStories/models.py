@@ -44,9 +44,15 @@ class Adoptee(models.Model):
         verbose_name_plural = _('Adoptees')
 
     def __str__(self):
-        return " ".join([self.english_name,
-                         self.chinese_name,
-                         self.pinyin_name])
+        to_string_stuff = [self.english_name, self.chinese_name, self.pinyin_name]
+        string = []
+        for field in to_string_stuff:
+            if field is not None:
+                string.append(field)
+        string = " ".join(["Adoptee:", " ".join(string)])
+
+        return string
+
 
 class MultimediaItem(models.Model):
     # english_caption || chinese_caption must have a value implemented
@@ -100,6 +106,7 @@ class Video(MultimediaItem):
         # Translators: Name of a field in the admin page
         verbose_name_plural = _('Video items')
 
+
 class Photo(MultimediaItem):
     # file size and type checking added on form level
 
@@ -112,6 +119,7 @@ class Photo(MultimediaItem):
         verbose_name = _('Photo')
         # Translators: Name of a field in the admin page
         verbose_name_plural = _('Photos')
+
 
 class RelationshipCategory(models.Model):
     # english_name must have a value || chinese name must have a value at first
@@ -140,8 +148,14 @@ class RelationshipCategory(models.Model):
         verbose_name_plural = _('Relationship Categories')
 
     def __str__(self):
-        return " ".join([self.english_name,
-                         self.chinese_name])
+        to_string_stuff = [self.english_name, self.chinese_name]
+        string = []
+        for field in to_string_stuff:
+            if field is not None:
+                string.append(field)
+        string = " ".join(["Relationship:", " ".join(string)])
+
+        return string
 
 
 class StoryTeller(models.Model):
@@ -189,6 +203,11 @@ class StoryTeller(models.Model):
         verbose_name_plural = _('Story Tellers')
 
     def __str__(self):
-        return " ".join([self.english_name,
-                         self.chinese_name,
-                         self.pinyin_name])
+        to_string_stuff = [self.english_name, self.chinese_name, self.pinyin_name]
+        string = []
+        for field in to_string_stuff:
+            if field is not None:
+                string.append(field)
+        string = " ".join(["Adoptee:", " ".join(string)])
+
+        return string
