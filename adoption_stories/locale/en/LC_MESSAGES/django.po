@@ -1,0 +1,214 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-08-21 19:28-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Translators: Title of the admin page
+#: adopteeStories/apps.py:9
+msgid "Adoptee Stories"
+msgstr ""
+
+#: adopteeStories/custom_rest_fields.py:17
+msgid "A multimedia item matching the url could not be found. Does one exist?"
+msgstr ""
+
+#: adopteeStories/custom_rest_fields.py:22
+msgid "Provided url is invalid"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:16 adopteeStories/models.py:129
+#: adopteeStories/models.py:180
+msgid "English Name"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:19 adopteeStories/models.py:188
+msgid "Pinyin Name"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:22 adopteeStories/models.py:132
+#: adopteeStories/models.py:184
+msgid "Chinese Name"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:28
+msgid "Photo Front Story"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:32
+msgid "Front Story"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#. Translators: Name of a field in the admin pages
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:34 adopteeStories/models.py:73
+#: adopteeStories/models.py:139 adopteeStories/models.py:192
+msgid "Created At"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:36 adopteeStories/models.py:75
+#: adopteeStories/models.py:142 adopteeStories/models.py:195
+msgid "Updated At"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:42
+msgid "Adoptee"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:44
+msgid "Adoptees"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:62
+msgid "English Caption"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:65
+msgid "Chinese Caption"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:68 adopteeStories/models.py:136
+#: adopteeStories/models.py:171
+msgid "Approved"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:70 adopteeStories/models.py:201
+msgid "Story Teller"
+msgstr ""
+
+#. Translators: name of field in the admin page
+#: adopteeStories/models.py:88
+msgid "Audio Soundcloud Embed"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:93
+msgid "Audio item"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:95
+msgid "Audio items"
+msgstr ""
+
+#. Translators: name of field in the admin page
+#: adopteeStories/models.py:100
+msgid "Video Youtube Embed"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:105
+msgid "Video item"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:107
+msgid "Video items"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:114
+msgid "Photo File"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:119
+msgid "Photo"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:121
+msgid "Photos"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:146
+msgid "Relationship Category"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:148
+msgid "Relationship Categories"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:164
+msgid "Relationship to Story"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:167
+msgid "Story Text"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:169
+msgid "Email"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:174
+msgid "Related Adoptee"
+msgstr ""
+
+#. Translators: Name of a field in the admin page
+#: adopteeStories/models.py:203
+msgid "Story Tellers"
+msgstr ""
+
+#. Translators: Error message for people who try to bypass image upload restrictions
+#: adopteeStories/serializers.py:130
+msgid "Image is too large"
+msgstr ""
+
+#. Translators: Error message when image is too small
+#: adopteeStories/serializers.py:138
+msgid "Image does not meet minimum width and height requirements"
+msgstr ""
+
+#. Translators: Error message when image is not one of the allowed formats
+#: adopteeStories/serializers.py:145
+msgid "Image does not meet formatting requirements"
+msgstr ""
+
+#: adoption_stories/settings.py:138
+msgid "Chinese American"
+msgstr ""
+
+#: embed_video/fields.py:66 embed_video/fields.py:88
+msgid "URL could not be recognized."
+msgstr ""
+
+#: embed_video/fields.py:68 embed_video/fields.py:92
+msgid "ID of this video could not be recognized."
+msgstr ""
+
+#: pages/templates/pages/index.html:10
+msgid "Chinese-American"
+msgstr ""

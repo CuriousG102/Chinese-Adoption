@@ -19,7 +19,7 @@ from django.conf import settings
 from django.views.i18n import javascript_catalog
 
 js_info_dict = {
-    'packages': ('your.app.package',),
+    'packages': ('pages',),
 }
 
 urlpatterns = [

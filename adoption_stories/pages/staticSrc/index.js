@@ -379,6 +379,7 @@ var StoryCard = React.createClass({
         var link_text;
 
         if (name_for_link) {
+            // Translators: %s marks the place where a person's name should be inserted. The webpage prefers the name in the viewer's language first and then uses other names if that one is not available
             link_text = gettext("More about %s");
             link_text = interpolate(link_text, [name_for_link]);
         } else {
@@ -402,12 +403,16 @@ var StoryCard = React.createClass({
 var FrontPage = React.createClass({
     mixins: [ReactRouter.Navigation],
     render: function () {
+        // Translators: Title for the site
         var title = gettext("Chinese-American");
+        // Translators: Summary of the site
         var summary = gettext("From 1999 to 2013, 71,632 adoptions of Chinese children by American families were reported to the U.S. Department of State. There are many narratives around these adoptions, but this site is a place for those most intimately involved in the process to tell their own stories");
+        // Translators: Button label
         var submit = gettext("Share Your Story");
         var submit_handle_click = function () {
             this.transitionTo("submit");
         }.bind(this);
+        // Translators: Button label
         var about = gettext("Who We Are");
         var about_handle_click = function () {
             this.transitionTo("about");
@@ -608,7 +613,7 @@ var Submit = React.createClass({
             <BootstrapModal>
                 <div className="row">
                     <div className="col-md-12">
-                        Submit Form
+                        Submit
                     </div>
                 </div>
             </BootstrapModal>
