@@ -54,8 +54,9 @@ var NameHeader = React.createClass({displayName: "NameHeader",
             stuff_to_add.push(React.createElement(Sub_Header_Tag, {className: sub_header_class_string}, sub_headers));
         }
 
+        var class_string = this.props.class_string ? this.props.class_string : "";
         return (
-            React.createElement("div", null, 
+            React.createElement("div", {className: class_string}, 
                 stuff_to_add
             )
         );
@@ -630,37 +631,188 @@ var debounce = function (func, wait, immediate) {
     };
 };
 
+var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
+    render: function () {
+        return (
+            React.createElement("div", null, 
+                "You see nothing, nothing!"
+            )
+        );
+    }
+});
+
+var AdopteeSearchListing = React.createClass({displayName: "AdopteeSearchListing",
+    handleClick: function (event) {
+        // Translators: which adoptee someone has selected to add to
+        var text = gettext("Selected: %s");
+        var names = [this.props.english_name, this.props.chinese_name, this.props.pinyin_name];
+        var names_text = [];
+        for (var i = 0; i < names.length; i++) {
+            if (names[i])
+                names_text.push(names[i]);
+        }
+        names_text = names_text.join(" ");
+        text = interpolate(text, names_text);
+        this.props.select_adoptee(this.props.id, text);
+    },
+    render: function () {
+        var photo = this.props.photo ? React.createElement("img", {src: this.props.photo}) : [];
+        return (
+            React.createElement("div", {className: "adopteeListing", onClick: this.handleClick}, 
+                React.createElement(NameHeader, {header_tag: "h3", 
+                            sub_header_tag: "h4", 
+                            class_string: "adopteeListingName", 
+                            english_name: this.props.english_name, 
+                            chinese_name: this.props.chinese_name, 
+                            pinyin_name: this.props.pinyin_name}), 
+
+                React.createElement("div", {className: "adopteeListingPhoto"}, 
+                    photo
+                )
+            )
+        );
+    }
+});
+
+var createAdopteeForm = React.createClass({displayName: "createAdopteeForm",
+    getInitialState: function () {
+        return {
+            // Translators: Part of the adoptee creation form
+            english_name: gettext("English Name"),
+            english_name_valid: false,
+            // Translators: Part of the adoptee creation form
+            pinyin_name: gettext("Pinyin Name"),
+            pinyin_name_valid: false,
+            // Translators: Part of the adoptee creation form
+            chinese_name: gettext("Chinese Name"),
+            chinese_name_valid: false
+        }
+    },
+    englishInputChange: function (event) {
+        this.setState({english_name: event.target.value, english_name_valid: true});
+    },
+    pinyinInputChange: function (event) {
+        this.setState({pinyin_name: event.target.value, pinyin_name_valid: true});
+    },
+    chineseInputChange: function (event) {
+        this.setState({chinese_name: event.target.value, chinese_name_valid: true});
+    },
+    continueForward() {
+        // TODO: Make this block duplicate posts
+        var get_name_value = function (name, valid) {
+            if (valid && name)
+                return name;
+
+            return null;
+        };
+
+        if (this.state.english_name_valid ||
+            this.state.pinyin_name_valid ||
+            this.state.chinese_name_valid) {
+            $.ajax({
+                url: ADOPTEE_CREATE_ENDPOINT,
+                type: 'POST',
+                dataType: "json",
+                data: JSON.stringify({
+                    english_name: get_name_value(this.state.english_name,
+                        this.state.english_name_valid),
+                    chinese_name: get_name_value(this.state.chinese_name,
+                        this.state.chinese_name_valid),
+                    pinyin_name: get_name_value(this.state.pinyin_name,
+                        this.state.pinyin_name_valid)
+                }),
+                success: function (data) {
+                    this.props.transition(React.createElement(EnterStoryForm, {adoptee_id: data.id}))
+                }.bind(this),
+                error: function (xhr, status, err) {
+                    console.error(ADOPTEE_CREATE_ENDPOINT, status, err.toString());
+                }.bind(this)
+            })
+        }
+    },
+    render: function () {
+        var what_is_name = gettext("What is the name of the adoptee connected to your story?");
+        return (
+            React.createElement("div", {className: "personCreatorContainer"}, 
+                React.createElement("h4", null, what_is_name), 
+                React.createElement("input", {className: "nameCreationInput", 
+                       value: this.state.english_name, 
+                       onChange: this.englishInputChange}), 
+                React.createElement("input", {className: "nameCreationInput", 
+                       value: this.state.pinyin_name, 
+                       onChange: this.pinyinInputChange}), 
+                React.createElement("input", {className: "nameCreationInput", 
+                       value: this.state.chinese_name, 
+                       onChange: this.chineseInputChange})
+            )
+        );
+    }
+});
 
 var AddToAdopteeForm = React.createClass({displayName: "AddToAdopteeForm",
     getInitialState: function () {
         return {
-            value: 'Name',
-            matching_adoptees: React.createElement(PaginationSection, {
-                make_element: story_card_maker, 
-                initial_url: ADOPTEE_SEARCH_ENDPOINT, 
-                items_prerender_processor: items_prerender_processor})
+            value: gettext('Name'),
+            search_url: ADOPTEE_SEARCH_ENDPOINT
+            + "? "
+            + $.param({q: ""}),
+            selected_adoptee: null
         };
     },
     handleChange: function (event) {
-        this.setState({value: event.target.value}, this.getAdoptees);
+        this.setState({
+            value: event.target.value,
+            selected_adoptee: null
+        }, this.getAdoptees);
     },
     getAdoptees: debounce(function () {
-        $.ajax({
-            url: ADOPTEE_SEARCH_ENDPOINT,
-            dataType: "json",
-            data: {
-                q: this.state.value
-            },
-            success: function (data) {
-                this.setState({
-                    matching_adoptees: data
-                });
-            }.bind(this),
-            error: function (xhr, status, err) {
-                console.error(url + "q: " + q, status, err.toString());
-            }.bind(this)
+        this.setState({
+            search_url: ADOPTEE_SEARCH_ENDPOINT
+            + "?"
+            + $.param({q: this.state.value})
         });
     }, 250),
+    selectAdoptee: function (id, text) {
+        this.setState({
+            selected_adoptee: id,
+            value: text
+        });
+    },
+    continueForward () {
+        if (this.state.selected_adoptee) {
+            this.props.transition(React.createElement(EnterStoryForm, {adoptee_id: this.state.selected_adoptee}))
+        }
+    },
+    render: function () {
+        var search_result_maker = function (search_result_json) {
+            return {
+                "component": AdopteeSearchListing,
+                "english_name": search_result_json.english_name,
+                "chinese_name": search_result_json.chinese_name,
+                "pinyin_name": search_result_json.pinyin_name,
+                "photo": search_result_json.photo_front_story,
+                "id": search_result_json.id,
+                "select_adoptee": this.selectAdoptee
+            };
+        }.bind(this);
+        var matching_adoptees = React.createElement(PaginationSection, {make_element: search_result_maker, 
+                                                   initial_url: this.state.search_url, 
+                                                   class_string: "adopteeListingDropdown"});
+        var what_is_name = gettext("What is the name of the adoptee connected to your story?");
+        return (
+            React.createElement("div", {className: "row"}, 
+                React.createElement("div", {className: "col-md-12"}, 
+                    React.createElement("div", {id: "personPickerContainer"}, 
+                        React.createElement("h4", null, what_is_name), 
+                        React.createElement("input", {type: "text", 
+                               value: this.state.value, 
+                               onChange: this.handleChange}), 
+                        matching_adoptees
+                    )
+                )
+            )
+        );
+    }
 });
 
 var ProvideForm = React.createClass({displayName: "ProvideForm",
@@ -681,7 +833,6 @@ var ProvideForm = React.createClass({displayName: "ProvideForm",
     },
     render: function () {
         var other_content_question = gettext("Does the adoptee in your story have other content on this site?");
-        var what_is_name = gettext("What is the name of the adoptee connected to your story?");
         var no = gettext("No");
         var yes = gettext("Yes");
         var form = this.state.other_content ? React.createElement(AddToAdopteeForm, {active_button_class: this.props.active_button_class, 
