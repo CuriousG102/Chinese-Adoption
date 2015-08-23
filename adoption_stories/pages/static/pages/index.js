@@ -607,17 +607,189 @@ var AboutView = React.createClass({displayName: "AboutView",
     }
 });
 
-var Submit = React.createClass({displayName: "Submit",
+var AddToAdopteeForm = React.createClass({displayName: "AddToAdopteeForm",
+    getInitialState: function () {
+        return {value: 'Hello!'};
+    },
+
+});
+
+var ProvideForm = React.createClass({displayName: "ProvideForm",
+    getInitialState: function () {
+        return {other_content: true}
+    },
+    noOtherContent: function () {
+        this.hasOtherContent(false);
+    },
+    otherContent: function () {
+        this.hasOtherContent(true);
+    },
+    hasOtherContent(has_content) {
+        this.setState({other_content: has_content});
+    },
+    continueForward() {
+        this.refs.form.continueForward();
+    },
     render: function () {
+        var other_content_question = gettext("Does the adoptee in your story have other content on this site?");
+        var what_is_name = gettext("What is the name of the adoptee connected to your story?");
+        var no = gettext("No");
+        var yes = gettext("Yes");
+        var form = this.state.other_content ? React.createElement(AddToAdopteeForm, {active_button_class: this.props.active_button_class, 
+                                                                inactive_button_class: this.props.inactive_button_class, 
+                                                                transition: this.props.transition, 
+                                                                ref: "form"})
+            : React.createElement(CreateAdopteeForm, {active_button_class: this.props.active_button_class, 
+                                 inactive_button_class: this.props.inactive_button_class, 
+                                 transition: this.props.transition, 
+                                 ref: "form"});
+        var no_other_content_class = this.state.other_content ? this.props.inactive_button_class
+            : this.props.active_button_class;
+        var other_content_class = this.state.other_content ? this.props.active_button_class
+            : this.props.inactive_button_class;
+
+        return (
+            React.createElement("div", null, 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-md-12"}, 
+                        React.createElement("h4", null, other_content_question)
+                    )
+                ), 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-md-12"}, 
+                        React.createElement("button", {id: "hasNoOtherContentButton", 
+                                className: no_other_content_class, 
+                                onClick: this.noOtherContent}, 
+                            no
+                        ), 
+                        React.createElement("button", {id: "hasOtherContentButton", 
+                                className: other_content_class, 
+                                onClick: this.otherContent}, 
+                            yes
+                        )
+                    )
+                ), 
+                form
+            )
+        );
+    }
+});
+
+var SubmitStart = React.createClass({displayName: "SubmitStart",
+    getInitialState: function () {
+        return {provide_own_story: true}
+    },
+    contact: function () {
+        this.willBeContacted(true);
+    },
+    provide: function () {
+        this.willBeContacted(false);
+    },
+    willBeContacted: function (beContacted) {
+        this.setState({
+            provide_own_story: !beContacted
+        });
+    },
+    continueForward: function () {
+        this.refs.form.continueForward();
+    },
+    render: function () {
+        // Translators: Prompt for story submission
+        var how_tell_story = gettext("How would you like to tell your story?");
+        // Translators: Option for story submission: Opposing option is 'Provide my own story'
+        var be_contacted = gettext("Be contacted");
+        // Translators: Option for story submission: Opposing option is 'Be contacted'
+        var provide_my_own = gettext("Provide my own story");
+        // Translators: Prompt for story submission
+
+        var be_contacted_button_class = this.state.provide_own_story ? this.props.inactive_button_class
+            : this.props.active_button_class;
+        var provide_your_own_button_class = this.state.provide_own_story ? this.props.active_button_class
+            : this.props.inactive_button_class;
+        var form = this.state.provide_my_own_story ? React.createElement(ProvideForm, {active_button_class: this.props.active_button_class, 
+                                                                  inactive_button_class: this.props.inactive_button_class, 
+                                                                  transition: this.props.transition, 
+                                                                  ref: "form"})
+            : React.createElement(ContactForm, {active_button_class: this.props.active_button_class, 
+                           inactive_button_class: this.props.inactive_button_class, 
+                           transition: this.props.transition, 
+                           ref: "form"});
+
+        return (
+            React.createElement("div", null, 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-md-12"}, 
+                        React.createElement("h4", null, how_tell_story)
+                    )
+                ), 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-md-12"}, 
+                        React.createElement("button", {id: "beContactedButton", 
+                                className: be_contacted_button_class, 
+                                onClick: this.contact}, 
+                            be_contacted
+                        ), 
+                        React.createElement("button", {id: "provideStoryButton", 
+                                className: provide_your_own_button_class, 
+                                onClick: this.provide}, 
+                            provide_my_own
+                        )
+                    )
+                ), 
+                form
+            )
+        );
+    }
+});
+
+var SubmitPrompt = React.createClass({displayName: "SubmitPrompt",
+    getInitialState: function () {
+        return {
+            content: React.createElement(SubmitStart, {active_button_class: this.props.active_button_class, 
+                                  inactive_button_class: this.props.inactive_button_class, 
+                                  transition: this.transition, 
+                                  ref: "content"})
+        }
+    },
+    getDefaultProps: function () {
+        return {
+            active_button_class: "btn btn-primary btn-lg active-form-selector",
+            inactive_button_class: "btn btn-default btn-lg active-form-selector"
+        }
+    },
+    transition: function (content) {
+        this.setState({
+            content: content
+        });
+    },
+    childContinue: function () {
+        this.refs.content.continueForward();
+    },
+    render: function () {
+        // Translators: Title of the modal for someone submitting a story to the site
+        var tell_your_story = gettext("Tell Your Story");
+
+        // Translators: Continue button on story submission modal
+        var continue_text = gettext("Continue");
         return (
             React.createElement(BootstrapModal, null, 
                 React.createElement("div", {className: "row"}, 
-                    React.createElement("div", {className: "col-md-12"},
-                        "Submit"
+                    React.createElement("div", {className: "col-md-12"}, 
+                        React.createElement("h2", null, tell_your_story)
+                    )
+                ), 
+                this.state.content, 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-md-12"}, 
+                        React.createElement("button", {id: "continueButton", 
+                                className: this.props.active_button_class, 
+                                onClick: this.childContinue}, 
+                            continue_text
+                        )
                     )
                 )
             )
-        );
+        )
     }
 });
 
@@ -626,7 +798,7 @@ var Route = ReactRouter.Route;
 var routes = (
     React.createElement(Route, {handler: FrontPage}, 
         React.createElement(Route, {name: "adoptee", path: "adoptee/:id", handler: AdopteeDetail}), 
-        React.createElement(Route, {name: "submit", path: "submit", handler: Submit}), 
+        React.createElement(Route, {name: "submit", path: "submit", handler: SubmitPrompt}), 
         React.createElement(Route, {name: "about", path: "about", handler: AboutView})
     )
 );

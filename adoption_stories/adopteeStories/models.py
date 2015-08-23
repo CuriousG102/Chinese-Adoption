@@ -6,8 +6,6 @@ from django.utils.translation import ugettext_lazy as _
 from embed_video.fields import EmbedYoutubeField, EmbedSoundcloudField
 
 
-# TODO: Add __str__ methods for all these models
-
 class Adoptee(models.Model):
     # english_name must have a value || (pinyin_name && chinese_name)
     # must have a value implemented form level

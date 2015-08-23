@@ -607,17 +607,189 @@ var AboutView = React.createClass({
     }
 });
 
-var Submit = React.createClass({
+var AddToAdopteeForm = React.createClass({
+    getInitialState: function () {
+        return {value: 'Hello!'};
+    },
+
+});
+
+var ProvideForm = React.createClass({
+    getInitialState: function () {
+        return {other_content: true}
+    },
+    noOtherContent: function () {
+        this.hasOtherContent(false);
+    },
+    otherContent: function () {
+        this.hasOtherContent(true);
+    },
+    hasOtherContent(has_content) {
+        this.setState({other_content: has_content});
+    },
+    continueForward() {
+        this.refs.form.continueForward();
+    },
     render: function () {
+        var other_content_question = gettext("Does the adoptee in your story have other content on this site?");
+        var what_is_name = gettext("What is the name of the adoptee connected to your story?");
+        var no = gettext("No");
+        var yes = gettext("Yes");
+        var form = this.state.other_content ? <AddToAdopteeForm active_button_class={this.props.active_button_class}
+                                                                inactive_button_class={this.props.inactive_button_class}
+                                                                transition={this.props.transition}
+                                                                ref="form"/>
+            : <CreateAdopteeForm active_button_class={this.props.active_button_class}
+                                 inactive_button_class={this.props.inactive_button_class}
+                                 transition={this.props.transition}
+                                 ref="form"/>;
+        var no_other_content_class = this.state.other_content ? this.props.inactive_button_class
+            : this.props.active_button_class;
+        var other_content_class = this.state.other_content ? this.props.active_button_class
+            : this.props.inactive_button_class;
+
+        return (
+            <div>
+                <div className="row">
+                    <div className="col-md-12">
+                        <h4>{other_content_question}</h4>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-md-12">
+                        <button id="hasNoOtherContentButton"
+                                className={no_other_content_class}
+                                onClick={this.noOtherContent}>
+                            {no}
+                        </button>
+                        <button id="hasOtherContentButton"
+                                className={other_content_class}
+                                onClick={this.otherContent}>
+                            {yes}
+                        </button>
+                    </div>
+                </div>
+                {form}
+            </div>
+        );
+    }
+});
+
+var SubmitStart = React.createClass({
+    getInitialState: function () {
+        return {provide_own_story: true}
+    },
+    contact: function () {
+        this.willBeContacted(true);
+    },
+    provide: function () {
+        this.willBeContacted(false);
+    },
+    willBeContacted: function (beContacted) {
+        this.setState({
+            provide_own_story: !beContacted
+        });
+    },
+    continueForward: function () {
+        this.refs.form.continueForward();
+    },
+    render: function () {
+        // Translators: Prompt for story submission
+        var how_tell_story = gettext("How would you like to tell your story?");
+        // Translators: Option for story submission: Opposing option is 'Provide my own story'
+        var be_contacted = gettext("Be contacted");
+        // Translators: Option for story submission: Opposing option is 'Be contacted'
+        var provide_my_own = gettext("Provide my own story");
+        // Translators: Prompt for story submission
+
+        var be_contacted_button_class = this.state.provide_own_story ? this.props.inactive_button_class
+            : this.props.active_button_class;
+        var provide_your_own_button_class = this.state.provide_own_story ? this.props.active_button_class
+            : this.props.inactive_button_class;
+        var form = this.state.provide_my_own_story ? <ProvideForm active_button_class={this.props.active_button_class}
+                                                                  inactive_button_class={this.props.inactive_button_class}
+                                                                  transition={this.props.transition}
+                                                                  ref="form"/>
+            : <ContactForm active_button_class={this.props.active_button_class}
+                           inactive_button_class={this.props.inactive_button_class}
+                           transition={this.props.transition}
+                           ref="form"/>;
+
+        return (
+            <div>
+                <div className="row">
+                    <div className="col-md-12">
+                        <h4>{how_tell_story}</h4>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-md-12">
+                        <button id="beContactedButton"
+                                className={be_contacted_button_class}
+                                onClick={this.contact}>
+                            {be_contacted}
+                        </button>
+                        <button id="provideStoryButton"
+                                className={provide_your_own_button_class}
+                                onClick={this.provide}>
+                            {provide_my_own}
+                        </button>
+                    </div>
+                </div>
+                {form}
+            </div>
+        );
+    }
+});
+
+var SubmitPrompt = React.createClass({
+    getInitialState: function () {
+        return {
+            content: <SubmitStart active_button_class={this.props.active_button_class}
+                                  inactive_button_class={this.props.inactive_button_class}
+                                  transition={this.transition}
+                                  ref="content"/>
+        }
+    },
+    getDefaultProps: function () {
+        return {
+            active_button_class: "btn btn-primary btn-lg active-form-selector",
+            inactive_button_class: "btn btn-default btn-lg active-form-selector"
+        }
+    },
+    transition: function (content) {
+        this.setState({
+            content: content
+        });
+    },
+    childContinue: function () {
+        this.refs.content.continueForward();
+    },
+    render: function () {
+        // Translators: Title of the modal for someone submitting a story to the site
+        var tell_your_story = gettext("Tell Your Story");
+
+        // Translators: Continue button on story submission modal
+        var continue_text = gettext("Continue");
         return (
             <BootstrapModal>
                 <div className="row">
                     <div className="col-md-12">
-                        Submit
+                        <h2>{tell_your_story}</h2>
+                    </div>
+                </div>
+                {this.state.content}
+                <div className="row">
+                    <div className="col-md-12">
+                        <button id="continueButton"
+                                className={this.props.active_button_class}
+                                onClick={this.childContinue}>
+                            {continue_text}
+                        </button>
                     </div>
                 </div>
             </BootstrapModal>
-        );
+        )
     }
 });
 
@@ -626,7 +798,7 @@ var Route = ReactRouter.Route;
 var routes = (
     <Route handler={FrontPage}>
         <Route name="adoptee" path="adoptee/:id" handler={AdopteeDetail}/>
-        <Route name="submit" path="submit" handler={Submit}/>
+        <Route name="submit" path="submit" handler={SubmitPrompt}/>
         <Route name="about" path="about" handler={AboutView}/>
     </Route>
 );
