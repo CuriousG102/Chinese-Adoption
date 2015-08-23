@@ -607,11 +607,60 @@ var AboutView = React.createClass({
     }
 });
 
+// For debouncing certain ajax requests
+// It fulfills the last function call and throws out the rest
+// http://davidwalsh.name/javascript-debounce-function
+
+// Returns a function, that, as long as it continues to be invoked, will not
+// be triggered. The function will be called after it stops being called for
+// N milliseconds. If `immediate` is passed, trigger the function on the
+// leading edge, instead of the trailing.
+var debounce = function (func, wait, immediate) {
+    var timeout;
+    return function () {
+        var context = this, args = arguments;
+        var later = function () {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        var callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+    };
+};
+
+
 var AddToAdopteeForm = React.createClass({
     getInitialState: function () {
-        return {value: 'Hello!'};
+        return {
+            value: 'Name',
+            matching_adoptees: <PaginationSection
+                make_element={story_card_maker}
+                initial_url={ADOPTEE_SEARCH_ENDPOINT}
+                items_prerender_processor={items_prerender_processor}/>
+        };
     },
-
+    handleChange: function (event) {
+        this.setState({value: event.target.value}, this.getAdoptees);
+    },
+    getAdoptees: debounce(function () {
+        $.ajax({
+            url: ADOPTEE_SEARCH_ENDPOINT,
+            dataType: "json",
+            data: {
+                q: this.state.value
+            },
+            success: function (data) {
+                this.setState({
+                    matching_adoptees: data
+                });
+            }.bind(this),
+            error: function (xhr, status, err) {
+                console.error(url + "q: " + q, status, err.toString());
+            }.bind(this)
+        });
+    }, 250),
 });
 
 var ProvideForm = React.createClass({
