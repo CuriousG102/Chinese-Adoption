@@ -34,8 +34,7 @@ class Adoptee(models.Model):
     updated = models.DateTimeField(auto_now=True, verbose_name=_('Updated At'))
 
     class Meta:
-        # TODO: Change to descending order
-        ordering = ['created']
+        ordering = ['-created']
         # Translators: Name of a field in the admin page
         verbose_name = _('Adoptee')
         # Translators: Name of a field in the admin page
@@ -74,8 +73,7 @@ class MultimediaItem(models.Model):
 
     class Meta:
         abstract = True
-        # TODO: Change to descending order
-        ordering = ['created']
+        ordering = ['-created']
 
     def __str__(self):
         return str(self.story_teller) + str(self.created)
@@ -138,8 +136,11 @@ class RelationshipCategory(models.Model):
     # Translators: Name of a field in the admin page
     updated = models.DateTimeField(auto_now=True,
                                    verbose_name=_('Updated At'))
+    # Translators: Label for the number determining the order of the relationship category for admins
+    order = models.IntegerField(null=True, blank=True, verbose_name=_('Position of relationship category'))
 
     class Meta:
+        ordering = ['order']
         # Translators: Name of a field in the admin page
         verbose_name = _('Relationship Category')
         # Translators: Name of a field in the admin page
@@ -161,6 +162,7 @@ class StoryTeller(models.Model):
                                               # Translators: Name of a field in the admin page
                                               verbose_name=_('Relationship to Story'))
     # TODO: Fix the fact that I'm only allowing story_text in one version where there should be two language versions
+    # TODO: Figure out if the above should actually be considered desirable
     # Translators: Name of a field in the admin page
     story_text = models.TextField(verbose_name=_('Story Text'))
     # Translators: Name of a field in the admin page
@@ -193,8 +195,7 @@ class StoryTeller(models.Model):
                                    verbose_name=_('Updated At'))
 
     class Meta:
-        # TODO: Change to descending order
-        ordering = ['created']
+        ordering = ['-created']
         # Translators: Name of a field in the admin page
         verbose_name = _('Story Teller')
         # Translators: Name of a field in the admin page
