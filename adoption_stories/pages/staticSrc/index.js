@@ -722,7 +722,8 @@ var createAdopteeForm = React.createClass({
                         this.state.pinyin_name_valid)
                 }),
                 success: function (data) {
-                    this.props.transition(<EnterStoryForm adoptee_id={data.id}/>)
+                    this.props.transition(<EnterStoryForm adoptee_id={data.id}
+                                                          ref="content"/>)
                 }.bind(this),
                 error: function (xhr, status, err) {
                     console.error(ADOPTEE_CREATE_ENDPOINT, status, err.toString());
@@ -780,7 +781,8 @@ var AddToAdopteeForm = React.createClass({
     },
     continueForward () {
         if (this.state.selected_adoptee) {
-            this.props.transition(<EnterStoryForm adoptee_id={this.state.selected_adoptee}/>)
+            this.props.transition(<EnterStoryForm adoptee_id={this.state.selected_adoptee}
+                                                  ref="content"/>)
         }
     },
     render: function () {
@@ -870,6 +872,51 @@ var ProvideForm = React.createClass({
                     </div>
                 </div>
                 {form}
+            </div>
+        );
+    }
+});
+
+var ThanksForContacting = React.createClass({
+    render: function () {
+        var thank_you = gettext("Thank you for your contact information. We " +
+            "will be in touch with you shortly.");
+        return <h4>{thank_you}</h4>
+    }
+});
+
+var ContactForm = React.createClass({
+    handleChange: function (event) {
+        this.setState({
+            value: event.target.value
+        })
+    },
+    continueForward: function () {
+        // http://stackoverflow.com/questions/46155/validate-email-address-in-javascript
+        var validateEmail = function (email) {
+            var re = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+            return re.test(email);
+        };
+        if (validateEmail(this.state.value)) {
+            // TODO: Make an endpoint we can submit contact requests to
+            this.props.transition(<ThanksForContacting
+                ref="content"/>)
+        }
+    },
+    render: function () {
+        var submit = gettext("Submit");
+        return (
+            <div className="row">
+                <div className="col-md-12">
+                    <input id="emailInput"
+                           value={this.state.value}
+                           onChange={this.handleChange}/>
+                    <button id="emailButton"
+                            className="btn btn-primary active"
+                            onClick={this.continueForward}>
+                        {submit}
+                    </button>
+                </div>
             </div>
         );
     }

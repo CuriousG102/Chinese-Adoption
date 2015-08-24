@@ -722,7 +722,8 @@ var createAdopteeForm = React.createClass({displayName: "createAdopteeForm",
                         this.state.pinyin_name_valid)
                 }),
                 success: function (data) {
-                    this.props.transition(React.createElement(EnterStoryForm, {adoptee_id: data.id}))
+                    this.props.transition(React.createElement(EnterStoryForm, {adoptee_id: data.id, 
+                                                          ref: "content"}))
                 }.bind(this),
                 error: function (xhr, status, err) {
                     console.error(ADOPTEE_CREATE_ENDPOINT, status, err.toString());
@@ -780,7 +781,8 @@ var AddToAdopteeForm = React.createClass({displayName: "AddToAdopteeForm",
     },
     continueForward () {
         if (this.state.selected_adoptee) {
-            this.props.transition(React.createElement(EnterStoryForm, {adoptee_id: this.state.selected_adoptee}))
+            this.props.transition(React.createElement(EnterStoryForm, {adoptee_id: this.state.selected_adoptee, 
+                                                  ref: "content"}))
         }
     },
     render: function () {
@@ -870,6 +872,51 @@ var ProvideForm = React.createClass({displayName: "ProvideForm",
                     )
                 ), 
                 form
+            )
+        );
+    }
+});
+
+var ThanksForContacting = React.createClass({displayName: "ThanksForContacting",
+    render: function () {
+        var thank_you = gettext("Thank you for your contact information. We " +
+            "will be in touch with you shortly.");
+        return React.createElement("h4", null, thank_you)
+    }
+});
+
+var ContactForm = React.createClass({displayName: "ContactForm",
+    handleChange: function (event) {
+        this.setState({
+            value: event.target.value
+        })
+    },
+    continueForward: function () {
+        // http://stackoverflow.com/questions/46155/validate-email-address-in-javascript
+        var validateEmail = function (email) {
+            var re = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+            return re.test(email);
+        };
+        if (validateEmail(this.state.value)) {
+            // TODO: Make an endpoint we can submit contact requests to
+            this.props.transition(React.createElement(ThanksForContacting, {
+                ref: "content"}))
+        }
+    },
+    render: function () {
+        var submit = gettext("Submit");
+        return (
+            React.createElement("div", {className: "row"}, 
+                React.createElement("div", {className: "col-md-12"}, 
+                    React.createElement("input", {id: "emailInput", 
+                           value: this.state.value, 
+                           onChange: this.handleChange}), 
+                    React.createElement("button", {id: "emailButton", 
+                            className: "btn btn-primary active", 
+                            onClick: this.continueForward}, 
+                        submit
+                    )
+                )
             )
         );
     }
