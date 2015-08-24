@@ -62,7 +62,6 @@ class AdopteeSearch(generics.ListAPIView):
         return Adoptee.objects.all().filter(query & ADOPTEE_FILTER).distinct()
 
 
-# TODO: Fix up this endpoint to list adoptees who only have at least one story in a person's chosen language
 class AdopteeList(generics.ListAPIView):
     queryset = Adoptee.objects.all().filter(ADOPTEE_FILTER) \
         .filter(front_story__isnull=False).distinct()
@@ -111,7 +110,6 @@ class PhotoFileCreate(GenericUpload):
 
 # TODO: Patch vulnerability where this clearly allows people to change captions on multimedia that doesn't belong to them
 class GenericMediaUpdate(generics.GenericAPIView, mixins.UpdateModelMixin):
-
     def patch(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
 

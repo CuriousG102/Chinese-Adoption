@@ -19,15 +19,15 @@ class Adoptee(models.Model):
                                     # Translators: Name of a field in the admin page
                                     db_index=True, verbose_name=_('Chinese Name'))
 
-    # TODO: photo_front_story is restricted to photos tied to a story teller tied to the current adoptee in custom form logic
-    # TODO: Layers of prevention around admin selecting non-approved content for front_story
+    # Ticket here: https://code.djangoproject.com/ticket/25306#ticket
     photo_front_story = models.ForeignKey('Photo', null=True, blank=True,
                                           # Translators: Name of a field in the admin page
-                                          verbose_name=_('Photo Front Story'))
+                                          verbose_name=_('Photo Front Story'),
+                                          limit_choices_to={'approved': True})
 
-    # TODO: front_story is restricted to story tellers tied to the current adoptee in custom form logic
     # Translators: Name of a field in the admin page
-    front_story = models.ForeignKey('StoryTeller', null=True, verbose_name=_('Front Story'), blank=True)
+    front_story = models.ForeignKey('StoryTeller', null=True, verbose_name=_('Front Story'), blank=True,
+                                    limit_choices_to={'approved': True})
     # Translators: Name of a field in the admin page
     created = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
     # Translators: Name of a field in the admin page
@@ -161,8 +161,7 @@ class StoryTeller(models.Model):
     relationship_to_story = models.ForeignKey('RelationshipCategory',
                                               # Translators: Name of a field in the admin page
                                               verbose_name=_('Relationship to Story'))
-    # TODO: Fix the fact that I'm only allowing story_text in one version where there should be two language versions
-    # TODO: Figure out if the above should actually be considered desirable
+    # One version of story text because I don't want adoptee's stories to be different between who is viewing it
     # Translators: Name of a field in the admin page
     story_text = models.TextField(verbose_name=_('Story Text'))
     # Translators: Name of a field in the admin page
@@ -207,6 +206,6 @@ class StoryTeller(models.Model):
         for field in to_string_stuff:
             if field is not None:
                 string.append(field)
-        string = " ".join(["Adoptee:", " ".join(string)])
+        string = " ".join(["Storyteller:", " ".join(string)])
 
         return string

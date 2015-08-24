@@ -107,7 +107,6 @@ class RestrictedDjangoImageField(forms.ImageField):
         Uses PIL validation and also ensures that the file is above a minimum height and width
         """
 
-        # TODO: Use getattr instead
         d_config = default_settings.ADOPTEE_STORIES_CONFIG
         min_width, min_height, formats, max_size = d_config['MIN_WIDTH'], d_config['MIN_HEIGHT'], d_config['FORMATS'], \
                                                    d_config['IMAGE_MAX_SIZE']
