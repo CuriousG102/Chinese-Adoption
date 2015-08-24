@@ -886,6 +886,9 @@ var ThanksForContacting = React.createClass({
 });
 
 var ContactForm = React.createClass({
+    getInitialState: function () {
+        return {value: gettext("Please enter your email")};
+    },
     handleChange: function (event) {
         this.setState({
             value: event.target.value
