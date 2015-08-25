@@ -674,7 +674,7 @@ var AdopteeSearchListing = React.createClass({
     }
 });
 
-var createAdopteeForm = React.createClass({
+var CreateAdopteeForm = React.createClass({
     getInitialState: function () {
         return {
             // Translators: Part of the adoptee creation form
@@ -722,8 +722,10 @@ var createAdopteeForm = React.createClass({
                         this.state.pinyin_name_valid)
                 }),
                 success: function (data) {
-                    this.props.transition(<EnterStoryForm adoptee_id={data.id}
-                                                          ref="content"/>)
+                    this.props.transition({
+                        tag: EnterStoryForm,
+                        props: {adoptee_id: data.id}
+                    });
                 }.bind(this),
                 error: function (xhr, status, err) {
                     console.error(ADOPTEE_CREATE_ENDPOINT, status, err.toString());
@@ -755,7 +757,7 @@ var AddToAdopteeForm = React.createClass({
         return {
             value: gettext('Name'),
             search_url: ADOPTEE_SEARCH_ENDPOINT
-            + "? "
+            + "?"
             + $.param({q: ""}),
             selected_adoptee: null
         };
@@ -781,20 +783,25 @@ var AddToAdopteeForm = React.createClass({
     },
     continueForward () {
         if (this.state.selected_adoptee) {
-            this.props.transition(<EnterStoryForm adoptee_id={this.state.selected_adoptee}
-                                                  ref="content"/>)
+            this.props.transition({
+                tag: EnterStoryForm,
+                props: {adoptee_id: this.state.selected_adoptee}
+            });
         }
     },
     render: function () {
         var search_result_maker = function (search_result_json) {
+            var a = 1;
             return {
                 "component": AdopteeSearchListing,
-                "english_name": search_result_json.english_name,
-                "chinese_name": search_result_json.chinese_name,
-                "pinyin_name": search_result_json.pinyin_name,
-                "photo": search_result_json.photo_front_story,
-                "id": search_result_json.id,
-                "select_adoptee": this.selectAdoptee
+                "props": {
+                    "english_name": search_result_json.english_name,
+                    "chinese_name": search_result_json.chinese_name,
+                    "pinyin_name": search_result_json.pinyin_name,
+                    "photo": search_result_json.photo_front_story,
+                    "id": search_result_json.id,
+                    "select_adoptee": this.selectAdoptee
+                }
             };
         }.bind(this);
         var matching_adoptees = <PaginationSection make_element={search_result_maker}
@@ -837,18 +844,31 @@ var ProvideForm = React.createClass({
         var other_content_question = gettext("Does the adoptee in your story have other content on this site?");
         var no = gettext("No");
         var yes = gettext("Yes");
-        var form = this.state.other_content ? <AddToAdopteeForm active_button_class={this.props.active_button_class}
-                                                                inactive_button_class={this.props.inactive_button_class}
-                                                                transition={this.props.transition}
-                                                                ref="form"/>
-            : <CreateAdopteeForm active_button_class={this.props.active_button_class}
-                                 inactive_button_class={this.props.inactive_button_class}
-                                 transition={this.props.transition}
-                                 ref="form"/>;
+        var form = this.state.other_content ?
+        {
+            tag: AddToAdopteeForm,
+            props: {
+                active_button_class: this.props.active_button_class,
+                inactive_button_class: this.props.inactive_button_class,
+                transition: this.props.transition
+            }
+        }
+            :
+        {
+            tag: CreateAdopteeForm,
+            props: {
+                active_button_class: this.props.active_button_class,
+                inactive_button_class: this.props.inactive_button_class,
+                transition: this.props.transition
+            }
+        };
         var no_other_content_class = this.state.other_content ? this.props.inactive_button_class
             : this.props.active_button_class;
         var other_content_class = this.state.other_content ? this.props.active_button_class
             : this.props.inactive_button_class;
+
+        var FormTag = form.tag;
+        var form_props = form.props;
 
         return (
             <div>
@@ -871,7 +891,7 @@ var ProvideForm = React.createClass({
                         </button>
                     </div>
                 </div>
-                {form}
+                <FormTag {...form_props} ref="form"/>
             </div>
         );
     }
@@ -902,8 +922,10 @@ var ContactForm = React.createClass({
         };
         if (validateEmail(this.state.value)) {
             // TODO: Make an endpoint we can submit contact requests to
-            this.props.transition(<ThanksForContacting
-                ref="content"/>)
+            this.props.transition({
+                tag: ThanksForContacting,
+                props: {}
+            });
         }
     },
     render: function () {
@@ -956,14 +978,27 @@ var SubmitStart = React.createClass({
             : this.props.active_button_class;
         var provide_your_own_button_class = this.state.provide_own_story ? this.props.active_button_class
             : this.props.inactive_button_class;
-        var form = this.state.provide_my_own_story ? <ProvideForm active_button_class={this.props.active_button_class}
-                                                                  inactive_button_class={this.props.inactive_button_class}
-                                                                  transition={this.props.transition}
-                                                                  ref="form"/>
-            : <ContactForm active_button_class={this.props.active_button_class}
-                           inactive_button_class={this.props.inactive_button_class}
-                           transition={this.props.transition}
-                           ref="form"/>;
+        var form = this.state.provide_own_story ?
+        {
+            tag: ProvideForm,
+            props: {
+                active_button_class: this.props.active_button_class,
+                inactive_button_class: this.props.inactive_button_class,
+                transition: this.props.transition
+            }
+        }
+            :
+        {
+            tag: ContactForm,
+            props: {
+                active_button_class: this.props.active_button_class,
+                inactive_button_class: this.props.inactive_button_class,
+                transition: this.props.transition
+            }
+        };
+
+        var FormTag = form.tag;
+        var form_props = form.props;
 
         return (
             <div>
@@ -986,7 +1021,7 @@ var SubmitStart = React.createClass({
                         </button>
                     </div>
                 </div>
-                {form}
+                <FormTag {...form_props} ref="form"/>
             </div>
         );
     }
@@ -995,10 +1030,14 @@ var SubmitStart = React.createClass({
 var SubmitPrompt = React.createClass({
     getInitialState: function () {
         return {
-            content: <SubmitStart active_button_class={this.props.active_button_class}
-                                  inactive_button_class={this.props.inactive_button_class}
-                                  transition={this.transition}
-                                  ref="content"/>
+            content: {
+                tag: SubmitStart,
+                props: {
+                    active_button_class: this.props.active_button_class,
+                    inactive_button_class: this.props.inactive_button_class,
+                    transition: this.transition
+                }
+            }
         }
     },
     getDefaultProps: function () {
@@ -1021,6 +1060,9 @@ var SubmitPrompt = React.createClass({
 
         // Translators: Continue button on story submission modal
         var continue_text = gettext("Continue");
+
+        var ContentTag = this.state.content.tag;
+        var content_props = this.state.content.props;
         return (
             <BootstrapModal>
                 <div className="row">
@@ -1028,7 +1070,8 @@ var SubmitPrompt = React.createClass({
                         <h2>{tell_your_story}</h2>
                     </div>
                 </div>
-                {this.state.content}
+                <ContentTag {...content_props} ref="content"/>
+
                 <div className="row">
                     <div className="col-md-12">
                         <button id="continueButton"

@@ -674,7 +674,8 @@ var AdopteeSearchListing = React.createClass({displayName: "AdopteeSearchListing
     }
 });
 
-var createAdopteeForm = React.createClass({displayName: "createAdopteeForm",
+var CreateAdopteeForm = React.createClass({
+    displayName: "CreateAdopteeForm",
     getInitialState: function () {
         return {
             // Translators: Part of the adoptee creation form
@@ -722,8 +723,10 @@ var createAdopteeForm = React.createClass({displayName: "createAdopteeForm",
                         this.state.pinyin_name_valid)
                 }),
                 success: function (data) {
-                    this.props.transition(React.createElement(EnterStoryForm, {adoptee_id: data.id, 
-                                                          ref: "content"}))
+                    this.props.transition({
+                        tag: EnterStoryForm,
+                        props: {adoptee_id: data.id}
+                    });
                 }.bind(this),
                 error: function (xhr, status, err) {
                     console.error(ADOPTEE_CREATE_ENDPOINT, status, err.toString());
@@ -755,7 +758,7 @@ var AddToAdopteeForm = React.createClass({displayName: "AddToAdopteeForm",
         return {
             value: gettext('Name'),
             search_url: ADOPTEE_SEARCH_ENDPOINT
-            + "? "
+            + "?"
             + $.param({q: ""}),
             selected_adoptee: null
         };
@@ -781,20 +784,25 @@ var AddToAdopteeForm = React.createClass({displayName: "AddToAdopteeForm",
     },
     continueForward () {
         if (this.state.selected_adoptee) {
-            this.props.transition(React.createElement(EnterStoryForm, {adoptee_id: this.state.selected_adoptee, 
-                                                  ref: "content"}))
+            this.props.transition({
+                tag: EnterStoryForm,
+                props: {adoptee_id: this.state.selected_adoptee}
+            });
         }
     },
     render: function () {
         var search_result_maker = function (search_result_json) {
+            var a = 1;
             return {
                 "component": AdopteeSearchListing,
-                "english_name": search_result_json.english_name,
-                "chinese_name": search_result_json.chinese_name,
-                "pinyin_name": search_result_json.pinyin_name,
-                "photo": search_result_json.photo_front_story,
-                "id": search_result_json.id,
-                "select_adoptee": this.selectAdoptee
+                "props": {
+                    "english_name": search_result_json.english_name,
+                    "chinese_name": search_result_json.chinese_name,
+                    "pinyin_name": search_result_json.pinyin_name,
+                    "photo": search_result_json.photo_front_story,
+                    "id": search_result_json.id,
+                    "select_adoptee": this.selectAdoptee
+                }
             };
         }.bind(this);
         var matching_adoptees = React.createElement(PaginationSection, {make_element: search_result_maker, 
@@ -837,18 +845,31 @@ var ProvideForm = React.createClass({displayName: "ProvideForm",
         var other_content_question = gettext("Does the adoptee in your story have other content on this site?");
         var no = gettext("No");
         var yes = gettext("Yes");
-        var form = this.state.other_content ? React.createElement(AddToAdopteeForm, {active_button_class: this.props.active_button_class, 
-                                                                inactive_button_class: this.props.inactive_button_class, 
-                                                                transition: this.props.transition, 
-                                                                ref: "form"})
-            : React.createElement(CreateAdopteeForm, {active_button_class: this.props.active_button_class, 
-                                 inactive_button_class: this.props.inactive_button_class, 
-                                 transition: this.props.transition, 
-                                 ref: "form"});
+        var form = this.state.other_content ?
+        {
+            tag: AddToAdopteeForm,
+            props: {
+                active_button_class: this.props.active_button_class,
+                inactive_button_class: this.props.inactive_button_class,
+                transition: this.props.transition
+            }
+        }
+            :
+        {
+            tag: CreateAdopteeForm,
+            props: {
+                active_button_class: this.props.active_button_class,
+                inactive_button_class: this.props.inactive_button_class,
+                transition: this.props.transition
+            }
+        };
         var no_other_content_class = this.state.other_content ? this.props.inactive_button_class
             : this.props.active_button_class;
         var other_content_class = this.state.other_content ? this.props.active_button_class
             : this.props.inactive_button_class;
+
+        var FormTag = form.tag;
+        var form_props = form.props;
 
         return (
             React.createElement("div", null, 
@@ -870,8 +891,8 @@ var ProvideForm = React.createClass({displayName: "ProvideForm",
                             yes
                         )
                     )
-                ), 
-                form
+                ),
+                React.createElement(FormTag, React.__spread({}, form_props, {ref: "form"}))
             )
         );
     }
@@ -902,8 +923,10 @@ var ContactForm = React.createClass({displayName: "ContactForm",
         };
         if (validateEmail(this.state.value)) {
             // TODO: Make an endpoint we can submit contact requests to
-            this.props.transition(React.createElement(ThanksForContacting, {
-                ref: "content"}))
+            this.props.transition({
+                tag: ThanksForContacting,
+                props: {}
+            });
         }
     },
     render: function () {
@@ -956,14 +979,27 @@ var SubmitStart = React.createClass({displayName: "SubmitStart",
             : this.props.active_button_class;
         var provide_your_own_button_class = this.state.provide_own_story ? this.props.active_button_class
             : this.props.inactive_button_class;
-        var form = this.state.provide_my_own_story ? React.createElement(ProvideForm, {active_button_class: this.props.active_button_class, 
-                                                                  inactive_button_class: this.props.inactive_button_class, 
-                                                                  transition: this.props.transition, 
-                                                                  ref: "form"})
-            : React.createElement(ContactForm, {active_button_class: this.props.active_button_class, 
-                           inactive_button_class: this.props.inactive_button_class, 
-                           transition: this.props.transition, 
-                           ref: "form"});
+        var form = this.state.provide_own_story ?
+        {
+            tag: ProvideForm,
+            props: {
+                active_button_class: this.props.active_button_class,
+                inactive_button_class: this.props.inactive_button_class,
+                transition: this.props.transition
+            }
+        }
+            :
+        {
+            tag: ContactForm,
+            props: {
+                active_button_class: this.props.active_button_class,
+                inactive_button_class: this.props.inactive_button_class,
+                transition: this.props.transition
+            }
+        };
+
+        var FormTag = form.tag;
+        var form_props = form.props;
 
         return (
             React.createElement("div", null, 
@@ -985,8 +1021,8 @@ var SubmitStart = React.createClass({displayName: "SubmitStart",
                             provide_my_own
                         )
                     )
-                ), 
-                form
+                ),
+                React.createElement(FormTag, React.__spread({}, form_props, {ref: "form"}))
             )
         );
     }
@@ -995,10 +1031,14 @@ var SubmitStart = React.createClass({displayName: "SubmitStart",
 var SubmitPrompt = React.createClass({displayName: "SubmitPrompt",
     getInitialState: function () {
         return {
-            content: React.createElement(SubmitStart, {active_button_class: this.props.active_button_class, 
-                                  inactive_button_class: this.props.inactive_button_class, 
-                                  transition: this.transition, 
-                                  ref: "content"})
+            content: {
+                tag: SubmitStart,
+                props: {
+                    active_button_class: this.props.active_button_class,
+                    inactive_button_class: this.props.inactive_button_class,
+                    transition: this.transition
+                }
+            }
         }
     },
     getDefaultProps: function () {
@@ -1021,14 +1061,18 @@ var SubmitPrompt = React.createClass({displayName: "SubmitPrompt",
 
         // Translators: Continue button on story submission modal
         var continue_text = gettext("Continue");
+
+        var ContentTag = this.state.content.tag;
+        var content_props = this.state.content.props;
         return (
             React.createElement(BootstrapModal, null, 
                 React.createElement("div", {className: "row"}, 
                     React.createElement("div", {className: "col-md-12"}, 
                         React.createElement("h2", null, tell_your_story)
                     )
-                ), 
-                this.state.content, 
+                ),
+                React.createElement(ContentTag, React.__spread({}, content_props, {ref: "content"})),
+
                 React.createElement("div", {className: "row"}, 
                     React.createElement("div", {className: "col-md-12"}, 
                         React.createElement("button", {id: "continueButton", 
