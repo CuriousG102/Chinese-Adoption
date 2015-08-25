@@ -98,6 +98,22 @@ class AdopteeSearchTestCase(TestCase):
         response = self.c.get(next_url)
         self.assertEqual(response.status_code, 200)
 
+    def test_adoptee_search_works_with_space(self):
+        """
+        A space character in the url doesn't ruin everything
+        """
+        response = self.c.get(reverse(self.adoptee_search_url_name, args=['ne j']))
+        # TODO: Abstract the JSON building here
+        m_jing_mei_json = '{{"english_name": "{0.english_name}",' \
+                          ' "pinyin_name": "{0.pinyin_name}",' \
+                          ' "chinese_name": "{0.chinese_name}",' \
+                          ' "id": {0.id},' \
+                          ' "photo_front_story": null}}'.format(self.adoptees[0])
+        expected_response = '{{"next":null,"previous":null,"results":[{}]}}' \
+            .format(m_jing_mei_json)
+        self.assertJSONEqual(response.content.decode('utf-8'),
+                             expected_response)
+
 
 class AdopteeGetTestCase(TestCase):
     def setUp(self):
