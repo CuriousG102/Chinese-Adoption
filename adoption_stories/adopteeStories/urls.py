@@ -11,7 +11,7 @@ urlpatterns = [
         name="storytellerCreate"),
     url(r'^adoptee/$', views.AdopteeList.as_view(),
         name="adopteeList"),
-    url(r'^search/adoptee/$', views.AdopteeSearch.as_view(),
+    url(r'^search/adoptee/(?P<q>[^/]+)/$', views.AdopteeSearch.as_view(),
         name="adopteeSearch"),
     url(r'^category/$', views.CategoryListAndCreate.as_view(),
         name="categoryListAndCreate"),

@@ -4,7 +4,6 @@ from adopteeStories import serializers
 from django.db.models import Q
 
 # Create your views here.
-from rest_framework.exceptions import ValidationError
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from rest_framework import generics
@@ -47,13 +46,10 @@ UPDATE_FILTER = Q(approved=False)
 class AdopteeSearch(generics.ListAPIView):
     serializer_class = serializers.AdopteeSearchSerializer
     FIELDS_TO_SEARCH_ON = ['english_name', 'pinyin_name', 'chinese_name']
-    FILTER_FOR_FIELDS = '__istartswith'
+    FILTER_FOR_FIELDS = '__icontains'
 
     def get_queryset(self):
-        try:
-            userSearch = self.request.query_params['q']
-        except KeyError:
-            raise ValidationError('Need a query parameter')
+        userSearch = self.kwargs['q']
         query = Q()
 
         for field in self.FIELDS_TO_SEARCH_ON:

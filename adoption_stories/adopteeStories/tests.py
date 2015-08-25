@@ -1,9 +1,13 @@
+import json
+
+from adopteeStories import ContentGeneration
 from django.core.files.uploadedfile import SimpleUploadedFile
 import io
 from PIL import Image
 from adopteeStories.models import Adoptee, StoryTeller, RelationshipCategory, Photo, Video, Audio
 from django.core.urlresolvers import reverse
 from django.test import TestCase, Client
+from django.conf import settings
 
 
 # Create your tests here.
@@ -43,34 +47,14 @@ class AdopteeSearchTestCase(TestCase):
             storyteller.save()
 
         self.c = Client()
-        self.adoptee_search_url = reverse('adopteeSearch')
-
-    def test_adoptee_search(self):
-        """
-        Empty search gets empty results when no storytellers are approved,
-        and non-empty when they are approved
-        """
-
-        response = self.c.get(self.adoptee_search_url, {'q': ''})
-        expected_response = '{"next":null,"previous":null,"results":[]}'
-        self.assertJSONNotEqual(response.content.decode('utf-8'),
-                                expected_response)
-
-        for storyteller in StoryTeller.objects.all():
-            storyteller.approved = False
-            storyteller.save()
-
-        response = self.c.get(self.adoptee_search_url, {'q': ''})
-        expected_response = '{"next":null,"previous":null,"results":[]}'
-        self.assertJSONEqual(response.content.decode('utf-8'),
-                             expected_response)
+        self.adoptee_search_url_name = 'adopteeSearch'
 
     def test_adoptee_search2(self):
         """
         Search with first Latin letter matching an english name should get that adoptee
         when the adoptee has an approved storyteller
         """
-        response = self.c.get(self.adoptee_search_url, {'q': 'M'})
+        response = self.c.get(reverse(self.adoptee_search_url_name, args=['Mad']))
         # TODO: Abstract the JSON building here
         m_jing_mei_json = '{{"english_name": "{0.english_name}",' \
                           ' "pinyin_name": "{0.pinyin_name}",' \
@@ -86,7 +70,7 @@ class AdopteeSearchTestCase(TestCase):
         """
         Search with first Chinese character matching multiple should get both
         """
-        response = self.c.get(self.adoptee_search_url, {'q': '景'})
+        response = self.c.get(reverse(self.adoptee_search_url_name, args=['景']))
         # TODO: Abstract the JSON building here
         m_jing_mei_json = '{{"english_name": "{0.english_name}",' \
                           ' "pinyin_name": "{0.pinyin_name}",' \
@@ -103,12 +87,16 @@ class AdopteeSearchTestCase(TestCase):
         self.assertJSONEqual(response.content.decode('utf-8'),
                              expected_response)
 
-    def test_adoptee_search_fail_without_q(self):
+    def test_adoptee_search_doesnt_fail_on_followup(self):
         """
-        Search endpoint hit without q parameter returns a 400 status
+        Search endpoint paginates correctly
         """
-        response = self.c.get(self.adoptee_search_url)
-        self.assertEqual(response.status_code, 400)
+        ContentGeneration.generate_test_content(number_of_adoptees=settings.REST_FRAMEWORK['PAGE_SIZE'] + 1)
+        response = self.c.get(reverse(self.adoptee_search_url_name, args=['M']))
+        json_response = json.JSONDecoder().decode(response.content.decode('utf-8'))
+        next_url = json_response['next']
+        response = self.c.get(next_url)
+        self.assertEqual(response.status_code, 200)
 
 
 class AdopteeGetTestCase(TestCase):
@@ -210,8 +198,6 @@ class AdopteeGetTestCase(TestCase):
             .format(lola_json)
         self.assertJSONEqual(response.content.decode('utf-8'),
                              expected_response)
-
-
 
     def test_adoptee_detail_get_formats_correctly(self):
         """

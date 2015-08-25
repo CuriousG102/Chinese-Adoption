@@ -28,7 +28,8 @@ class LoremIpsumProxy():
     def get_paragraphs(self, amount, start_with_lorem=False):
         return '\n'.join(loremipsum.get_paragraphs(amount, start_with_lorem))
 
-def generate_test_content():
+
+def generate_test_content(number_of_adoptees=100):
     STORYTELLER_NAMES = (('Karen', 'Wilbanks'), ('Josh', 'Duggar'), ('Brandon', 'Mond'),
                          ('Jena', 'Heath', '姓名', 'xing-ming'))
 
@@ -54,7 +55,6 @@ def generate_test_content():
                             chinese_name=RELATIONSHIPS[i][1],
                             approved=True)
 
-    NUMBER_OF_ADOPTEES = 100
     NUMBER_OF_STORIES_PER_ADOPTEE = (1, 6)  # it's a range [min, max)
     NUMBER_OF_PARAGRAPHS_IN_A_STORY = (4, 14)  # it's a range [min, max)
 
@@ -92,7 +92,7 @@ def generate_test_content():
         audio.save()
         return audio
 
-    for i in range(0, NUMBER_OF_ADOPTEES):  # create an adoptee and all of the
+    for i in range(0, number_of_adoptees):  # create an adoptee and all of the
         adoptee = Adoptee.objects.create(english_name=random.choice(ADOPTEE_NAMES)[0],
                                          pinyin_name=random.choice(ADOPTEE_NAMES)[1],
                                          chinese_name=random.choice(ADOPTEE_NAMES)[2])
