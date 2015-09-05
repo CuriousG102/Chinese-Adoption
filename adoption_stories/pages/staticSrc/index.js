@@ -301,6 +301,17 @@ var PaginationSection = React.createClass({
         this.addItems();
         $(window).on('DOMContentLoaded load resize scroll', this.onChange);
     },
+    componentWillUnmount: function () {
+        $(window).off('DOMContentLoaded load resize scroll', this.onChange);
+    },
+    componentWillReceiveProps: function (nextProps) {
+        if (nextProps.initial_url !== this.props.initial_url) {
+            this.setState({
+                items: [],
+                next_url: nextProps.initial_url
+            });
+        }
+    },
     onChange: function () { // http://stackoverflow.com/questions/123999/how-to-tell-if-a-dom-element-is-visible-in-the-current-viewport/7557433#7557433
         if (!this.refs.monitor_div) return; // there are no divs in the paginator
         var domNode = React.findDOMNode(this.refs.monitor_div);
@@ -332,6 +343,15 @@ var PaginationSection = React.createClass({
         if (monitor_div_is_visible) {
             this.addItems();
         }
+    },
+    componentDidUpdate: function (prevProps, prevState) {
+        // If the initial url changed after this pagination section was first mounted,
+        // then we should be clearing its contents and starting over with the contents
+        // we retrieve from the new initial url. The clearing of state.items and
+        // the making of the new next_url are taken care of in componentWillReceiveProps.
+        // But to avoid race conditions and hard-to-understand code, we must call
+        // addItems after the component has rendered with this new state
+        if (this.props.initial_url === this.state.next_url) this.addItems();
     },
     render: function () {
         // We can run into problems that aren't solvable
@@ -652,11 +672,11 @@ var AdopteeSearchListing = React.createClass({
                 names_text.push(names[i]);
         }
         names_text = names_text.join(" ");
-        text = interpolate(text, names_text);
+        text = interpolate(text, [names_text]);
         this.props.select_adoptee(this.props.id, text);
     },
     render: function () {
-        var photo = this.props.photo ? <img src={this.props.photo}/> : [];
+        var photo = this.props.photo ? <img src={this.props.photo.photo_file}/> : [];
         return (
             <div className="adopteeListing" onClick={this.handleClick}>
                 <NameHeader header_tag="h3"
@@ -756,9 +776,7 @@ var AddToAdopteeForm = React.createClass({
     getInitialState: function () {
         return {
             value: gettext('Name'),
-            search_url: ADOPTEE_SEARCH_ENDPOINT
-            + "?"
-            + $.param({q: ""}),
+            search_url: ADOPTEE_SEARCH_ENDPOINT,
             selected_adoptee: null
         };
     },
@@ -771,8 +789,8 @@ var AddToAdopteeForm = React.createClass({
     getAdoptees: debounce(function () {
         this.setState({
             search_url: ADOPTEE_SEARCH_ENDPOINT
-            + "?"
-            + $.param({q: this.state.value})
+                .slice(0, ADOPTEE_SEARCH_ENDPOINT.indexOf("999"))
+            + this.state.value + "/"
         });
     }, 250),
     selectAdoptee: function (id, text) {
@@ -804,9 +822,6 @@ var AddToAdopteeForm = React.createClass({
                 }
             };
         }.bind(this);
-        var matching_adoptees = <PaginationSection make_element={search_result_maker}
-                                                   initial_url={this.state.search_url}
-                                                   class_string="adopteeListingDropdown"/>;
         var what_is_name = gettext("What is the name of the adoptee connected to your story?");
         return (
             <div className="row">
@@ -816,7 +831,9 @@ var AddToAdopteeForm = React.createClass({
                         <input type="text"
                                value={this.state.value}
                                onChange={this.handleChange}/>
-                        {matching_adoptees}
+                        <PaginationSection make_element={search_result_maker}
+                                           initial_url={this.state.search_url}
+                                           class_string="adopteeListingDropdown"/>;
                     </div>
                 </div>
             </div>
@@ -1100,7 +1117,18 @@ var appElement = document.getElementById('root');
 Modal.setAppElement(appElement);
 Modal.injectCSS();
 
-ReactRouter.run(routes, ReactRouter.HashLocation, (FrontPage) => {
+
+function analytics(state, options) {
+    if (!options) {
+        options = {};
+    }
+    options.page = state.path;
+    ga('send', 'pageview', options);
+}
+
+ReactRouter.run(routes, ReactRouter.HashLocation, (FrontPage, state) => {
     React.render(<FrontPage/>, appElement);
+    // TODO: Analytics here
+    // analytics(state)
 });
 React.initializeTouchEvents(true);
