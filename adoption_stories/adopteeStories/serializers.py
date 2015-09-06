@@ -35,7 +35,7 @@ class StoryTextSerializer(serializers.Serializer):
     story_text = serializers.SerializerMethodField()
 
     def get_story_text(self, instance):
-        return '<br>'.join([line for line in instance.story_text.split('\n')])
+        return instance.story_text
 
 class AdopteeBasicsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -69,7 +69,7 @@ class StoryBasicsSerializer(serializers.ModelSerializer):
     story_text = serializers.SerializerMethodField()
 
     def get_story_text(self, instance):
-        return '<br>'.join([line for line in instance.story_text.split('\n')])
+        return instance.story_text
 
     class Meta:
         model = StoryTeller

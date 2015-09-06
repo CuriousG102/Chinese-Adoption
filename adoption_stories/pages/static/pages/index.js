@@ -682,11 +682,75 @@ var debounce = function (func, wait, immediate) {
     };
 };
 
-var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
+var AreaTextEditor = React.createClass({displayName: "AreaTextEditor",
+    mixins: [ReactScriptLoaderMixin],
+    getInitialState: function () {
+        return {
+            scriptLoading: true,
+            scriptLoadError: false
+        };
+    },
+    shouldComponentUpdate: function (nextProps, nextState) {
+        return false;
+    },
+    getScriptURL: function () {
+        return CK_EDITOR_URL;
+    },
+    onScriptLoaded: function () {
+        this.setState({scriptLoading: false});
+        this.forceUpdate(function () {
+            CKEDITOR.replace("tellStoryTextArea");
+        });
+    },
+    onScriptError: function () {
+        this.setState({
+            scriptLoading: false,
+            scriptLoadError: true
+        });
+        this.forceUpdate();
+    },
+    getText: function () {
+        return CKEDITOR.instances.tellStoryTextArea.getData()
+    },
     render: function () {
+        if (this.state.scriptLoading) {
+            var text_editor_loading = gettext("Text editor loading");
+            return React.createElement("div", {id: "tellStoryTextAreaLoading"}, text_editor_loading);
+        } else if (this.state.scriptLoadError) {
+            var error_message = gettext("There is a problem with your connectivity");
+            return React.createElement("div", {id: "tellStoryTextAreaError"}, error_message);
+        } else {
+            return React.createElement("textarea", {id: "tellStoryTextArea"});
+        }
+    }
+});
+
+var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
+    getInitialState: function () {
+        return {
+            selected_category: null
+        }
+    },
+    continueForward: function () {
+
+    },
+    render: function () {
+        var what_is_your_relationship = gettext("What is your relationship to the adoptee?");
+        var enter_story_instructions = gettext("Please enter your story below. We recommend that you first" +
+            " type in Word to avoid losing your work. You will have an opportunity " +
+            "to upload multimedia in the next prompt. ");
         return (
             React.createElement("div", null, 
-                "You see nothing, nothing!"
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-md-12"}, 
+                        React.createElement("h4", null, what_is_your_relationship)
+                    )
+                ), 
+                React.createElement("select", null
+
+                ), 
+                enter_story_instructions, 
+                React.createElement(AreaTextEditor, {ref: "textArea"})
             )
         );
     }
@@ -1081,9 +1145,6 @@ var SubmitPrompt = React.createClass({displayName: "SubmitPrompt",
             content: {
                 tag: SubmitStart,
                 props: {
-                    active_button_class: this.props.active_button_class,
-                    inactive_button_class: this.props.inactive_button_class,
-                    transition: this.transition
                 }
             }
         }
@@ -1111,6 +1172,9 @@ var SubmitPrompt = React.createClass({displayName: "SubmitPrompt",
 
         var ContentTag = this.state.content.tag;
         var content_props = this.state.content.props;
+        content_props['active_button_class'] = this.props.active_button_class;
+        content_props['inactive_button_class'] = this.props.inactive_button_class;
+        content_props['transition'] = this.transition;
         return (
             React.createElement(BootstrapModal, null, 
                 React.createElement("div", {className: "row"}, 

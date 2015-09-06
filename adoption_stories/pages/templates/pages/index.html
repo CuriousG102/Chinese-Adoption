@@ -29,11 +29,14 @@
     var ADOPTEE_DETAIL_ENDPOINT = "{% url "adopteeDetail" 999 %}";
     var ADOPTEE_SEARCH_ENDPOINT = "{% url "adopteeSearch" 999 %}";
     var ADOPTEE_CREATE_ENDPOINT = "{% url "adopteeCreate" %}";
+    var CATEGORY_ENDPOINT = "{% url "categoryListAndCreate" %}";
+    var CK_EDITOR_URL = "{% static "pages/ckeditor/ckeditor.js" %}"
   </script>
   <!-- TODO: Add opengraph integration at Jena's request -->
 </head>
 <body>
 <div id="root"></div>
+<script src="{% static "pages/ReactScriptLoader.js" %}"></script>
 <script src="{% static "pages/index.js" %}"></script>
 </body>
 </html>

@@ -682,11 +682,75 @@ var debounce = function (func, wait, immediate) {
     };
 };
 
-var EnterStoryForm = React.createClass({
+var AreaTextEditor = React.createClass({
+    mixins: [ReactScriptLoaderMixin],
+    getInitialState: function () {
+        return {
+            scriptLoading: true,
+            scriptLoadError: false
+        };
+    },
+    shouldComponentUpdate: function (nextProps, nextState) {
+        return false;
+    },
+    getScriptURL: function () {
+        return CK_EDITOR_URL;
+    },
+    onScriptLoaded: function () {
+        this.setState({scriptLoading: false});
+        this.forceUpdate(function () {
+            CKEDITOR.replace("tellStoryTextArea");
+        });
+    },
+    onScriptError: function () {
+        this.setState({
+            scriptLoading: false,
+            scriptLoadError: true
+        });
+        this.forceUpdate();
+    },
+    getText: function () {
+        return CKEDITOR.instances.tellStoryTextArea.getData()
+    },
     render: function () {
+        if (this.state.scriptLoading) {
+            var text_editor_loading = gettext("Text editor loading");
+            return <div id="tellStoryTextAreaLoading">{text_editor_loading}</div>;
+        } else if (this.state.scriptLoadError) {
+            var error_message = gettext("There is a problem with your connectivity");
+            return <div id="tellStoryTextAreaError">{error_message}</div>;
+        } else {
+            return <textarea id="tellStoryTextArea"/>;
+        }
+    }
+});
+
+var EnterStoryForm = React.createClass({
+    getInitialState: function () {
+        return {
+            selected_category: null
+        }
+    },
+    continueForward: function () {
+
+    },
+    render: function () {
+        var what_is_your_relationship = gettext("What is your relationship to the adoptee?");
+        var enter_story_instructions = gettext("Please enter your story below. We recommend that you first" +
+            " type in Word to avoid losing your work. You will have an opportunity " +
+            "to upload multimedia in the next prompt. ");
         return (
             <div>
-                You see nothing, nothing!
+                <div className="row">
+                    <div className="col-md-12">
+                        <h4>{what_is_your_relationship}</h4>
+                    </div>
+                </div>
+                <select>
+
+                </select>
+                {enter_story_instructions}
+                <AreaTextEditor ref="textArea"/>
             </div>
         );
     }
@@ -1081,9 +1145,6 @@ var SubmitPrompt = React.createClass({
             content: {
                 tag: SubmitStart,
                 props: {
-                    active_button_class: this.props.active_button_class,
-                    inactive_button_class: this.props.inactive_button_class,
-                    transition: this.transition
                 }
             }
         }
@@ -1111,6 +1172,9 @@ var SubmitPrompt = React.createClass({
 
         var ContentTag = this.state.content.tag;
         var content_props = this.state.content.props;
+        content_props['active_button_class'] = this.props.active_button_class;
+        content_props['inactive_button_class'] = this.props.inactive_button_class;
+        content_props['transition'] = this.transition;
         return (
             <BootstrapModal>
                 <div className="row">
