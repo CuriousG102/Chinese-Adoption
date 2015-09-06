@@ -91,9 +91,13 @@ class StoryTellerCreate(GenericCreate):
     serializer_class = serializers.StoryCreationSerializer
 
 
-class CategoryListAndCreate(GenericCreate, generics.ListAPIView):
+class CategoryListAndCreate(GenericCreate):
     serializer_class = serializers.RelationshipSerializer
     queryset = RelationshipCategory.objects.all().filter(CATEGORY_FILTER)
+    def get(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class GenericUpload(GenericCreate):

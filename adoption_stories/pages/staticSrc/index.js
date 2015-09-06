@@ -717,7 +717,8 @@ var AreaTextEditor = React.createClass({
             var text_editor_loading = gettext("Text editor loading");
             return <div id="tellStoryTextAreaLoading">{text_editor_loading}</div>;
         } else if (this.state.scriptLoadError) {
-            var error_message = gettext("There is a problem with your connectivity");
+            var error_message = gettext("There is a problem with your connectivity" +
+                "or with the website");
             return <div id="tellStoryTextAreaError">{error_message}</div>;
         } else {
             return <textarea id="tellStoryTextArea"/>;
@@ -728,17 +729,120 @@ var AreaTextEditor = React.createClass({
 var EnterStoryForm = React.createClass({
     getInitialState: function () {
         return {
-            selected_category: null
-        }
+            categories: [],
+            selected_category: -1,
+            new_category_english: this.props.new_category_english_text,
+            english_valid: false,
+            new_category_chinese: this.props.new_category_chinese_text,
+            chinese_valid: false
+        };
     },
     continueForward: function () {
+        if (this.state.selected_category === -1 ||
+            (this.state.selected_category === -2 &&
+             !this.state.english_valid &&
+             !this.state.chinese_valid) ||
+            this.refs.textArea.getText().length === 0) return;
 
+    },
+    getDefaultProps: function () {
+        return {
+            // Translators: Seen by person when creating a new relationship category
+            new_category_english_text: gettext("Relationship name in English"),
+            // Translators: Seen by person when creating a new relationship category
+            new_category_chinese_text: gettext("Relationship name in Chinese")
+        };
+    },
+    componentDidMount: function () {
+        $.ajax({
+            url: CATEGORY_ENDPOINT,
+            dataType: "json",
+            success: function (data) {
+                this.setState({
+                    categories: data
+                });
+            }.bind(this),
+            error: function (xhr, status, err) {
+                console.error(CATEGORY_ENDPOINT, status, err.toString());
+            }.bind(this)
+        });
+    },
+    handleSelection: function(event) {
+        this.setState({
+            selectedCategory: event.target.value
+        });
+    },
+    handleCategoryCreatorEnglishChange: function (event) {
+        this.setState({
+            new_category_english: event.target.value,
+            english_valid: true
+        });
+    },
+    handleCategoryCreatorChineseChange: function (event) {
+        this.setState({
+            new_category_chinese: event.target.value,
+            chinese_valid: true
+        });
     },
     render: function () {
         var what_is_your_relationship = gettext("What is your relationship to the adoptee?");
         var enter_story_instructions = gettext("Please enter your story below. We recommend that you first" +
             " type in Word to avoid losing your work. You will have an opportunity " +
             "to upload multimedia in the next prompt. ");
+        var categories;
+        if (this.state.categories.length === 0) {
+            var loading = gettext("Loading");
+            categories = [<option value={-1}>{loading}</option>]
+        }
+        else {
+            categories = this.state.categories.slice();
+            categories = categories.map(function (json, i, arr) {
+                var order_of_names;
+                if (language === ENGLISH)
+                    order_of_names = [json.english_name, json.chinese_name];
+                else
+                    order_of_names = [json.chinese_name, json.english_name];
+                var name;
+                for (var j = 0; j < order_of_names; j++) {
+                    if (order_of_names[j]) {
+                        name = order_of_names[j];
+                        break;
+                    }
+                }
+                return <option value={json.id}>{name}</option>;
+            });
+            var select_a_category = gettext("Select relationship");
+            categories.unshift(<option value={-1}>{select_a_category}</option>);
+            var other = gettext("Other relationship");
+            categories.push(<option value={-2}>{other}</option>);
+        }
+        var other_category_creator;
+        if (this.state.selected_category === -2) {
+            // Translators: Seen by person when creating a new relationship category
+            var instructions = gettext("Please fill out the relationship " +
+                "name in at least one language");
+            other_category_creator = [
+                <div className="row">
+                    <div className="col-md-12">
+                        <h4>{instructions}</h4>
+                    </div>
+                </div>,
+                <div className="row">
+                    <div className="col-md-12">
+                        <input value={this.state.new_category_english}
+                               onChange={this.handleCategoryCreatorEnglishChange}/>
+                    </div>
+                </div>,
+                <div className="row">
+                    <div className="col-md-12">
+                        <input value={this.state.new_category_chinese}
+                               onChange={this.handleCategoryCreatorChineseChange}/>
+                    </div>
+                </div>
+            ]
+        } else {
+            other_category_creator = [];
+        }
         return (
             <div>
                 <div className="row">
@@ -746,11 +850,25 @@ var EnterStoryForm = React.createClass({
                         <h4>{what_is_your_relationship}</h4>
                     </div>
                 </div>
-                <select>
-
-                </select>
-                {enter_story_instructions}
-                <AreaTextEditor ref="textArea"/>
+                <div className="row">
+                    <div className="col-md-12">
+                        <select value={this.state.selected_category}
+                                onChange={this.handleSelection}>
+                            {categories}
+                        </select>
+                    </div>
+                </div>
+                {other_category_creator}
+                <div className="row">
+                    <div className="col-md-12">
+                        {enter_story_instructions}
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-md-12">
+                        <AreaTextEditor ref="textArea"/>
+                    </div>
+                </div>
             </div>
         );
     }

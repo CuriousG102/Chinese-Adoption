@@ -717,7 +717,8 @@ var AreaTextEditor = React.createClass({displayName: "AreaTextEditor",
             var text_editor_loading = gettext("Text editor loading");
             return React.createElement("div", {id: "tellStoryTextAreaLoading"}, text_editor_loading);
         } else if (this.state.scriptLoadError) {
-            var error_message = gettext("There is a problem with your connectivity");
+            var error_message = gettext("There is a problem with your connectivity" +
+                "or with the website");
             return React.createElement("div", {id: "tellStoryTextAreaError"}, error_message);
         } else {
             return React.createElement("textarea", {id: "tellStoryTextArea"});
@@ -728,17 +729,120 @@ var AreaTextEditor = React.createClass({displayName: "AreaTextEditor",
 var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
     getInitialState: function () {
         return {
-            selected_category: null
-        }
+            categories: [],
+            selected_category: -1,
+            new_category_english: this.props.new_category_english_text,
+            english_valid: false,
+            new_category_chinese: this.props.new_category_chinese_text,
+            chinese_valid: false
+        };
     },
     continueForward: function () {
+        if (this.state.selected_category === -1 ||
+            (this.state.selected_category === -2 &&
+             !this.state.english_valid &&
+             !this.state.chinese_valid) ||
+            this.refs.textArea.getText().length === 0) return;
 
+    },
+    getDefaultProps: function () {
+        return {
+            // Translators: Seen by person when creating a new relationship category
+            new_category_english_text: gettext("Relationship name in English"),
+            // Translators: Seen by person when creating a new relationship category
+            new_category_chinese_text: gettext("Relationship name in Chinese")
+        };
+    },
+    componentDidMount: function () {
+        $.ajax({
+            url: CATEGORY_ENDPOINT,
+            dataType: "json",
+            success: function (data) {
+                this.setState({
+                    categories: data
+                });
+            }.bind(this),
+            error: function (xhr, status, err) {
+                console.error(CATEGORY_ENDPOINT, status, err.toString());
+            }.bind(this)
+        });
+    },
+    handleSelection: function(event) {
+        this.setState({
+            selectedCategory: event.target.value
+        });
+    },
+    handleCategoryCreatorEnglishChange: function (event) {
+        this.setState({
+            new_category_english: event.target.value,
+            english_valid: true
+        });
+    },
+    handleCategoryCreatorChineseChange: function (event) {
+        this.setState({
+            new_category_chinese: event.target.value,
+            chinese_valid: true
+        });
     },
     render: function () {
         var what_is_your_relationship = gettext("What is your relationship to the adoptee?");
         var enter_story_instructions = gettext("Please enter your story below. We recommend that you first" +
             " type in Word to avoid losing your work. You will have an opportunity " +
             "to upload multimedia in the next prompt. ");
+        var categories;
+        if (this.state.categories.length === 0) {
+            var loading = gettext("Loading");
+            categories = [React.createElement("option", {value: -1}, loading)]
+        }
+        else {
+            categories = this.state.categories.slice();
+            categories = categories.map(function (json, i, arr) {
+                var order_of_names;
+                if (language === ENGLISH)
+                    order_of_names = [json.english_name, json.chinese_name];
+                else
+                    order_of_names = [json.chinese_name, json.english_name];
+                var name;
+                for (var j = 0; j < order_of_names; j++) {
+                    if (order_of_names[j]) {
+                        name = order_of_names[j];
+                        break;
+                    }
+                }
+                return React.createElement("option", {value: json.id}, name);
+            });
+            var select_a_category = gettext("Select relationship");
+            categories.unshift(React.createElement("option", {value: -1}, select_a_category));
+            var other = gettext("Other relationship");
+            categories.push(React.createElement("option", {value: -2}, other));
+        }
+        var other_category_creator;
+        if (this.state.selected_category === -2) {
+            // Translators: Seen by person when creating a new relationship category
+            var instructions = gettext("Please fill out the relationship " +
+                "name in at least one language");
+            other_category_creator = [
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-md-12"}, 
+                        React.createElement("h4", null, instructions)
+                    )
+                ),
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-md-12"}, 
+                        React.createElement("input", {value: this.state.new_category_english, 
+                               onChange: this.handleCategoryCreatorEnglishChange})
+                    )
+                ),
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-md-12"}, 
+                        React.createElement("input", {value: this.state.new_category_chinese, 
+                               onChange: this.handleCategoryCreatorChineseChange})
+                    )
+                )
+            ]
+        } else {
+            other_category_creator = [];
+        }
         return (
             React.createElement("div", null, 
                 React.createElement("div", {className: "row"}, 
@@ -746,11 +850,25 @@ var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
                         React.createElement("h4", null, what_is_your_relationship)
                     )
                 ), 
-                React.createElement("select", null
-
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-md-12"}, 
+                        React.createElement("select", {value: this.state.selected_category, 
+                                onChange: this.handleSelection}, 
+                            categories
+                        )
+                    )
                 ), 
-                enter_story_instructions, 
-                React.createElement(AreaTextEditor, {ref: "textArea"})
+                other_category_creator, 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-md-12"}, 
+                        enter_story_instructions
+                    )
+                ), 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-md-12"}, 
+                        React.createElement(AreaTextEditor, {ref: "textArea"})
+                    )
+                )
             )
         );
     }

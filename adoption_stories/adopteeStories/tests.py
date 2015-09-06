@@ -326,7 +326,7 @@ class CategoryGetTestCase(TestCase):
 
     def test_unapproved_category_not_listed(self):
         response = self.c.get(self.category_url)
-        expected_response = '{"next": null,"previous": null,"results": []}'
+        expected_response = '[]'
         self.assertJSONEqual(response.content.decode('utf-8'),
                              expected_response)
 
@@ -339,8 +339,7 @@ class CategoryGetTestCase(TestCase):
                             '  "chinese_name": null,' \
                             '  "id": {0.id}}}'.format(self.relationship)
 
-        expected_response = '{{"next":null,"previous":null,"results":[{}]}}' \
-            .format(relationship_json)
+        expected_response = '[{}]'.format(relationship_json)
         self.assertJSONEqual(response.content.decode('utf-8'),
                              expected_response)
 
