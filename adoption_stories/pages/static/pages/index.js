@@ -732,25 +732,65 @@ var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
             categories: [],
             selected_category: -1,
             new_category_english: this.props.new_category_english_text,
-            english_valid: false,
             new_category_chinese: this.props.new_category_chinese_text,
-            chinese_valid: false
+            english_name: this.props.english_name_text,
+            chinese_name: this.props.chinese_name_text,
+            pinyin_name: this.props.pinyin_name_text
         };
     },
     continueForward: function () {
         if (this.state.selected_category === -1 ||
             (this.state.selected_category === -2 &&
-             !this.state.english_valid &&
-             !this.state.chinese_valid) ||
-            this.refs.textArea.getText().length === 0) return;
+             this.state.new_category_english === this.props.new_category_english_text &&
+             this.state.new_category_chinese === this.props.new_category_chinese_text) ||
+            this.refs.textArea.getText().length === 0 ||
+            (this.state.english_name === this.props.english_name_text &&
+             this.state.chinese_name === this.props.chinese_name_text &&
+             this.state.pinyin_name  === this.props.pinyin_name_text)) return;
 
+        var postStoryteller = function (category_id) {
+            $.ajax({
+                method: "POST",
+                url: STORYTELLER_ENDPOINT,
+                dataType: "json",
+                success: function (data) {
+
+                }.bind(this),
+                error: function (xhr, status, err) {
+                    console.error(STORYTELLER_ENDPOINT, status, err.toString());
+                }.bind(this)
+            })
+        };
+        if (category === -2) {
+            // TODO: Since error is boilerplate on all our AJAX calls it can probably be implemented as part of ajaxSetup
+            $.ajax({
+                method: "POST",
+                url: CATEGORY_ENDPOINT,
+                dataType: "json",
+                data: {english_name: this.state.new_category_english !== this.props.new_category_english_text ?
+                                        this.state.new_category_english: null,
+                       chinese_name: this.state.new_category_chinese !== this.props.new_category_chinese_text ?
+                                        this.state.new_category_chinese: null},
+                success: function (data) {
+                    postStoryteller(data.id);
+                }.bind(this),
+                error: function (xhr, status, err) {
+                    console.error(CATEGORY_ENDPOINT, status, err.toString());
+                }.bind(this)
+            });
+        } else {
+            postStoryteller(this.state.selected_category)
+        }
     },
     getDefaultProps: function () {
         return {
             // Translators: Seen by person when creating a new relationship category
             new_category_english_text: gettext("Relationship name in English"),
             // Translators: Seen by person when creating a new relationship category
-            new_category_chinese_text: gettext("Relationship name in Chinese")
+            new_category_chinese_text: gettext("Relationship name in Chinese"),
+            english_name_text: gettext("Your name in English (if applicable)"),
+            chinese_name_text: gettext("Your name in Chinese (if applicable)"),
+            pinyin_name_text:  gettext("Your name in Pinyin (if applicable)")
         };
     },
     componentDidMount: function () {
@@ -772,19 +812,34 @@ var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
             selectedCategory: event.target.value
         });
     },
+    // to-do: Clean up the ridiculously non-DRY pattern here
     handleCategoryCreatorEnglishChange: function (event) {
         this.setState({
-            new_category_english: event.target.value,
-            english_valid: true
+            new_category_english: event.target.value
         });
     },
     handleCategoryCreatorChineseChange: function (event) {
         this.setState({
-            new_category_chinese: event.target.value,
-            chinese_valid: true
+            new_category_chinese: event.target.value
+        });
+    },
+    handleEnglishNameChange: function (event) {
+        this.setState({
+            english_name: event.target.value
+        });
+    },
+    handleChineseNameChange: function (event) {
+        this.setState({
+            chinese_name: event.target.value
+        });
+    },
+    handlePinyinNameChange: function (event) {
+        this.setState({
+            pinyin_name: event.target.value
         });
     },
     render: function () {
+        var what_is_your_name = gettext("What is your name?");
         var what_is_your_relationship = gettext("What is your relationship to the adoptee?");
         var enter_story_instructions = gettext("Please enter your story below. We recommend that you first" +
             " type in Word to avoid losing your work. You will have an opportunity " +
@@ -845,6 +900,18 @@ var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
         }
         return (
             React.createElement("div", null, 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-md-12"}, 
+                        React.createElement("h4", null, what_is_your_name)
+                    )
+                ), 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-md-12"}, 
+                        React.createElement("input", {value: this.state.english_name, onChange: this.handleEnglishNameChange}), 
+                        React.createElement("input", {value: this.state.chinese_name, onChange: this.handleChineseNameChange}), 
+                        React.createElement("input", {value: this.state.pinyin_name, onChange: this.handlePinyinNameChange})
+                    )
+                ), 
                 React.createElement("div", {className: "row"}, 
                     React.createElement("div", {className: "col-md-12"}, 
                         React.createElement("h4", null, what_is_your_relationship)
