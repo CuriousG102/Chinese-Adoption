@@ -727,6 +727,10 @@ var AreaTextEditor = React.createClass({displayName: "AreaTextEditor",
 });
 
 var Thanks = React.createClass({displayName: "Thanks",
+    mixins: [ReactRouter.Navigation],
+    continueForward: function () {
+        this.transitionTo("/");
+    },
     render: function () {
         var thanks = gettext("Thank you for your time and your story." +
             " Your content will be reviewed and posted as soon as possible.");
@@ -768,7 +772,7 @@ var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
                 method: "POST",
                 url: STORYTELLER_ENDPOINT,
                 dataType: "json",
-                data: {
+                data: JSON.stringify({
                     relationship_to_story: category_id,
                     story_text: this.refs.textArea.getText(),
                     email: this.state.email,
@@ -779,9 +783,12 @@ var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
                         this.state.chinese_name : null,
                     pinyin_name: this.state.pinyin_name !== this.props.pinyin_name_text ?
                         this.state.pinyin_name : null
-                },
+                }),
                 success: function (data) {
-
+                    this.props.transition({
+                        tag: Thanks,
+                        props: {}
+                    })
                 }.bind(this),
                 error: function (xhr, status, err) {
                     console.error(STORYTELLER_ENDPOINT, status, err.toString());
@@ -794,12 +801,12 @@ var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
                 method: "POST",
                 url: CATEGORY_ENDPOINT,
                 dataType: "json",
-                data: {
+                data: JSON.stringify({
                     english_name: this.state.new_category_english !== this.props.new_category_english_text ?
                         this.state.new_category_english : null,
                     chinese_name: this.state.new_category_chinese !== this.props.new_category_chinese_text ?
                         this.state.new_category_chinese : null
-                },
+                }),
                 success: function (data) {
                     postStoryteller(data.id);
                 }.bind(this),
@@ -839,7 +846,7 @@ var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
     },
     handleSelection: function (event) {
         this.setState({
-            selectedCategory: event.target.value
+            selected_category: event.target.value
         });
     },
     // to-do: Clean up the ridiculously non-DRY pattern here
@@ -899,13 +906,13 @@ var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
                 else
                     order_of_names = [json.chinese_name, json.english_name];
                 var name;
-                for (var j = 0; j < order_of_names; j++) {
+                for (var j = 0; j < order_of_names.length; j++) {
                     if (order_of_names[j]) {
                         name = order_of_names[j];
                         break;
                     }
                 }
-                return React.createElement("option", {value: json.id}, name);
+                return React.createElement("option", {value: json.id, key: json.id}, name);
             });
             var select_a_category = gettext("Select relationship");
             categories.unshift(React.createElement("option", {value: -1}, select_a_category));
@@ -963,7 +970,7 @@ var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
                     React.createElement("div", {className: "col-md-12"}, 
                         React.createElement("input", {value: this.state.email, 
                                onChange: this.handleEmailChange, 
-                               class: email_class})
+                               className: email_class})
                     )
                 ), 
                 React.createElement("div", {className: "row"}, 
