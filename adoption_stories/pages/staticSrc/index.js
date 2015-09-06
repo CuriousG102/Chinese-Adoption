@@ -961,7 +961,7 @@ var EnterStoryForm = React.createClass({
                 </div>
                 <div className="row">
                     <div className="col-md-12">
-                        <input value=this.state.email
+                        <input value={this.state.email}
                                onChange={this.handleEmailChange}
                                class={email_class}/>
                     </div>

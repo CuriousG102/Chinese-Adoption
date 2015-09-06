@@ -726,6 +726,20 @@ var AreaTextEditor = React.createClass({displayName: "AreaTextEditor",
     }
 });
 
+var Thanks = React.createClass({displayName: "Thanks",
+    render: function () {
+        var thanks = gettext("Thank you for your time and your story." +
+            " Your content will be reviewed and posted as soon as possible.");
+        return (
+            React.createElement("div", {className: "row"}, 
+                React.createElement("div", {className: "col-md-12"}, 
+                    React.createElement("h4", null, thanks)
+                )
+            )
+        );
+    }
+});
+
 var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
     getInitialState: function () {
         return {
@@ -735,24 +749,37 @@ var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
             new_category_chinese: this.props.new_category_chinese_text,
             english_name: this.props.english_name_text,
             chinese_name: this.props.chinese_name_text,
-            pinyin_name: this.props.pinyin_name_text
+            pinyin_name: this.props.pinyin_name_text,
+            email: this.props.email_text
         };
     },
     continueForward: function () {
         if (this.state.selected_category === -1 ||
             (this.state.selected_category === -2 &&
-             this.state.new_category_english === this.props.new_category_english_text &&
-             this.state.new_category_chinese === this.props.new_category_chinese_text) ||
+            this.state.new_category_english === this.props.new_category_english_text &&
+            this.state.new_category_chinese === this.props.new_category_chinese_text) ||
             this.refs.textArea.getText().length === 0 ||
             (this.state.english_name === this.props.english_name_text &&
-             this.state.chinese_name === this.props.chinese_name_text &&
-             this.state.pinyin_name  === this.props.pinyin_name_text)) return;
+            this.state.chinese_name === this.props.chinese_name_text &&
+            this.state.pinyin_name === this.props.pinyin_name_text) || !this.emailIsValid(this.state.email)) return;
 
         var postStoryteller = function (category_id) {
             $.ajax({
                 method: "POST",
                 url: STORYTELLER_ENDPOINT,
                 dataType: "json",
+                data: {
+                    relationship_to_story: category_id,
+                    story_text: this.refs.textArea.getText(),
+                    email: this.state.email,
+                    related_adoptee: this.props.adoptee_id,
+                    english_name: this.state.english_name !== this.props.english_name_text ?
+                        this.state.english_name : null,
+                    chinese_name: this.state.chinese_name !== this.props.chinese_name_text ?
+                        this.state.chinese_name : null,
+                    pinyin_name: this.state.pinyin_name !== this.props.pinyin_name_text ?
+                        this.state.pinyin_name : null
+                },
                 success: function (data) {
 
                 }.bind(this),
@@ -760,17 +787,19 @@ var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
                     console.error(STORYTELLER_ENDPOINT, status, err.toString());
                 }.bind(this)
             })
-        };
-        if (category === -2) {
+        }.bind(this);
+        if (this.state.selected_category === -2) {
             // TODO: Since error is boilerplate on all our AJAX calls it can probably be implemented as part of ajaxSetup
             $.ajax({
                 method: "POST",
                 url: CATEGORY_ENDPOINT,
                 dataType: "json",
-                data: {english_name: this.state.new_category_english !== this.props.new_category_english_text ?
-                                        this.state.new_category_english: null,
-                       chinese_name: this.state.new_category_chinese !== this.props.new_category_chinese_text ?
-                                        this.state.new_category_chinese: null},
+                data: {
+                    english_name: this.state.new_category_english !== this.props.new_category_english_text ?
+                        this.state.new_category_english : null,
+                    chinese_name: this.state.new_category_chinese !== this.props.new_category_chinese_text ?
+                        this.state.new_category_chinese : null
+                },
                 success: function (data) {
                     postStoryteller(data.id);
                 }.bind(this),
@@ -790,7 +819,8 @@ var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
             new_category_chinese_text: gettext("Relationship name in Chinese"),
             english_name_text: gettext("Your name in English (if applicable)"),
             chinese_name_text: gettext("Your name in Chinese (if applicable)"),
-            pinyin_name_text:  gettext("Your name in Pinyin (if applicable)")
+            pinyin_name_text: gettext("Your name in Pinyin (if applicable)"),
+            email_text: gettext("Your email")
         };
     },
     componentDidMount: function () {
@@ -807,7 +837,7 @@ var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
             }.bind(this)
         });
     },
-    handleSelection: function(event) {
+    handleSelection: function (event) {
         this.setState({
             selectedCategory: event.target.value
         });
@@ -838,8 +868,19 @@ var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
             pinyin_name: event.target.value
         });
     },
+    handleEmailChange: function (event) {
+        this.setState({
+            email: event.target.value
+        });
+    },
+    emailIsValid: function (email) {
+        // http://stackoverflow.com/questions/46155/validate-email-address-in-javascript
+        var re = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+        return re.test(email);
+    },
     render: function () {
         var what_is_your_name = gettext("What is your name?");
+        var what_is_your_email = gettext("What is your email?");
         var what_is_your_relationship = gettext("What is your relationship to the adoptee?");
         var enter_story_instructions = gettext("Please enter your story below. We recommend that you first" +
             " type in Word to avoid losing your work. You will have an opportunity " +
@@ -898,6 +939,7 @@ var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
         } else {
             other_category_creator = [];
         }
+        var email_class = this.emailIsValid(this.state.email) ? "validEmail" : "invalidEmail";
         return (
             React.createElement("div", null, 
                 React.createElement("div", {className: "row"}, 
@@ -910,6 +952,18 @@ var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
                         React.createElement("input", {value: this.state.english_name, onChange: this.handleEnglishNameChange}), 
                         React.createElement("input", {value: this.state.chinese_name, onChange: this.handleChineseNameChange}), 
                         React.createElement("input", {value: this.state.pinyin_name, onChange: this.handlePinyinNameChange})
+                    )
+                ), 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-md-12"}, 
+                        React.createElement("h4", null, what_is_your_email)
+                    )
+                ), 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-md-12"}, 
+                        React.createElement("input", {value: this.state.email, 
+                               onChange: this.handleEmailChange, 
+                               class: email_class})
                     )
                 ), 
                 React.createElement("div", {className: "row"}, 
