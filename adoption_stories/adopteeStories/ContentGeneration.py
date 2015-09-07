@@ -43,7 +43,7 @@ def generate_test_content(number_of_adoptees=100):
 
     PHOTO_DIMENSION_BOUNDARIES = ((600, 3001), (400, 3001))  # like ((minX, maxX), (minY, maxY))
 
-    NUMBER_OF_CAPTION_SENTENCES = (1, 4)  # it's a range [min, max)
+    NUMBER_OF_CAPTION_SENTENCES = (1, 2)  # it's a range [min, max)
 
     RELATIONSHIPS = [('Biological Father', '关系'), ('Biological Mother', '关系'),
                      ('Adoptive Father', '关系'), ('Adoptive Mother', '关系'),
