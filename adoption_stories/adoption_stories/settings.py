@@ -127,6 +127,8 @@ STATIC_URL = '/static/'
 # Uploaded files
 
 MEDIA_URL = '/media/'
+
+STATIC_ROOT = 'static/'
 MEDIA_ROOT = 'media/'
 
 REST_FRAMEWORK = {
