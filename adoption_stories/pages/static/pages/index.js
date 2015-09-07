@@ -1165,6 +1165,10 @@ var AddToAdopteeForm = React.createClass({displayName: "AddToAdopteeForm",
                 }
             };
         }.bind(this);
+        var dropdown = this.state.selected_adoptee ? []
+            : React.createElement(PaginationSection, {make_element: search_result_maker, 
+                                 initial_url: this.state.search_url, 
+                                 class_string: "adopteeListingDropdown"});
         var what_is_name = gettext("What is the name of the adoptee connected to your story?");
         return (
             React.createElement("div", {className: "row"}, 
@@ -1173,10 +1177,9 @@ var AddToAdopteeForm = React.createClass({displayName: "AddToAdopteeForm",
                         React.createElement("h4", null, what_is_name), 
                         React.createElement("input", {type: "text", 
                                value: this.state.value, 
-                               onChange: this.handleChange}), 
-                        React.createElement(PaginationSection, {make_element: search_result_maker, 
-                                           initial_url: this.state.search_url, 
-                                           class_string: "adopteeListingDropdown"}), ";"
+                               onChange: this.handleChange, 
+                               className: "form-control"}), 
+                        dropdown
                     )
                 )
             )

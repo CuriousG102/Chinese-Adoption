@@ -122,3 +122,66 @@ p {
     float: right;
     max-height: 350px;
 }
+
+.adopteeListingDropdown {
+    background: #FFFFFF;
+    border: 1px solid #838383;
+    box-shadow: 0px 10px 8px 2px rgba(124, 124, 124, 0.50);
+    border-radius: 6px;
+    overflow: scroll;
+    max-height: 300px;
+}
+
+.adopteeListing {
+    height: 80px;
+    border-bottom: 1px solid;
+    border-bottom-color: #e6e6e6;
+    padding: 12px 5px;
+}
+
+.adopteeListing:hover {
+    cursor: pointer;
+    background-color: #e6e6e6;
+}
+
+.adopteeListingName, .adopteeListingPhoto {
+    height: 85%;
+}
+
+.adopteeListingPhoto {
+    min-width: 20%;
+    display: block;
+    text-align: right;
+    margin-right: 13px;
+}
+
+.adopteeListingPhoto img {
+    max-height: 100%;
+    max-width: 100%;
+    display: inline;
+    float: right;
+}
+
+.adopteeListingName {
+    min-width: 75%;
+    max-width: 75%;
+    display: inline;
+    float: left;
+    margin-left: 12px;
+}
+
+.adopteeListing h4 {
+    margin: 10px 0px 0px 0px;
+}
+
+.adopteeListing h3 {
+    margin: 0px;
+}
+
+#beContactedButton {
+    margin-right: 160px;
+}
+
+#hasNoOtherContentButton {
+    margin-right: 245px;
+}
