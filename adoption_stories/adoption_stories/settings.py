@@ -90,7 +90,7 @@ if 'DB' in os.environ and os.environ['DB'] == 'pg':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'django',
+            'NAME': 'chinese_adoption',
             'USER': os.environ['DB_USER'],
             'PASSWORD': os.environ['DB_PASSWORD'],
             'HOST': '127.0.0.1',
