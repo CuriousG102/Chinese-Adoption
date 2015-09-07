@@ -260,8 +260,8 @@ var Media = React.createClass({
 });
 
 var processStoryText = function (story_text) {
-    story_text = story_text.split("<br>");
-    for (var i = 0; i < story_text.length; i++) {
+    story_text = story_text.split(/<p>|<\/p>/);
+    for (var i = 1; i < story_text.length; i += 2) {
         story_text[i] = <p>{story_text[i]}</p>
     }
     return story_text
@@ -456,9 +456,9 @@ var FrontPage = React.createClass({
     mixins: [ReactRouter.Navigation],
     render: function () {
         // Translators: Title for the site
-        var title = gettext("Chinese-American");
+        var title = gettext("Our China Stories");
         // Translators: Summary of the site
-        var summary = gettext("From 1999 to 2013, 71,632 adoptions of Chinese children by American families were reported to the U.S. Department of State. There are many narratives around these adoptions, but this site is a place for those most intimately involved in the process to tell their own stories");
+        var summary = gettext("Since 1992, some 140,000 children have left China for homes in sixteen countries. While there are many narratives surrounding these adoptions, these stories are best told by the people most intimately involved. Here, Chinese adoptees, their family members, friends and mentors speak for themselves.");
         // Translators: Button label
         var submit = gettext("Share Your Story");
         var submit_handle_click = function () {
@@ -748,6 +748,7 @@ var EnterStoryForm = React.createClass({
     getInitialState: function () {
         return {
             categories: [],
+            categories_loading: true,
             selected_category: -1,
             new_category_english: this.props.new_category_english_text,
             new_category_chinese: this.props.new_category_chinese_text,
@@ -758,8 +759,8 @@ var EnterStoryForm = React.createClass({
         };
     },
     continueForward: function () {
-        if (this.state.selected_category === -1 ||
-            (this.state.selected_category === -2 &&
+        if (parseInt(this.state.selected_category) === -1 ||
+            (parseInt(this.state.selected_category) === -2 &&
             this.state.new_category_english === this.props.new_category_english_text &&
             this.state.new_category_chinese === this.props.new_category_chinese_text) ||
             this.refs.textArea.getText().length === 0 ||
@@ -772,7 +773,7 @@ var EnterStoryForm = React.createClass({
                 method: "POST",
                 url: STORYTELLER_ENDPOINT,
                 dataType: "json",
-                data: JSON.stringify({
+                data: {
                     relationship_to_story: category_id,
                     story_text: this.refs.textArea.getText(),
                     email: this.state.email,
@@ -783,7 +784,7 @@ var EnterStoryForm = React.createClass({
                         this.state.chinese_name : null,
                     pinyin_name: this.state.pinyin_name !== this.props.pinyin_name_text ?
                         this.state.pinyin_name : null
-                }),
+                },
                 success: function (data) {
                     this.props.transition({
                         tag: Thanks,
@@ -795,18 +796,18 @@ var EnterStoryForm = React.createClass({
                 }.bind(this)
             })
         }.bind(this);
-        if (this.state.selected_category === -2) {
+        if (parseInt(this.state.selected_category) === -2) {
             // TODO: Since error is boilerplate on all our AJAX calls it can probably be implemented as part of ajaxSetup
             $.ajax({
                 method: "POST",
                 url: CATEGORY_ENDPOINT,
                 dataType: "json",
-                data: JSON.stringify({
+                data: {
                     english_name: this.state.new_category_english !== this.props.new_category_english_text ?
                         this.state.new_category_english : null,
                     chinese_name: this.state.new_category_chinese !== this.props.new_category_chinese_text ?
                         this.state.new_category_chinese : null
-                }),
+                },
                 success: function (data) {
                     postStoryteller(data.id);
                 }.bind(this),
@@ -836,7 +837,8 @@ var EnterStoryForm = React.createClass({
             dataType: "json",
             success: function (data) {
                 this.setState({
-                    categories: data
+                    categories: data,
+                    categories_loading: false
                 });
             }.bind(this),
             error: function (xhr, status, err) {
@@ -893,7 +895,7 @@ var EnterStoryForm = React.createClass({
             " type in Word to avoid losing your work. You will have an opportunity " +
             "to upload multimedia in the next prompt. ");
         var categories;
-        if (this.state.categories.length === 0) {
+        if (this.state.categories_loading) {
             var loading = gettext("Loading");
             categories = [<option value={-1}>{loading}</option>]
         }
@@ -915,12 +917,12 @@ var EnterStoryForm = React.createClass({
                 return <option value={json.id} key={json.id}>{name}</option>;
             });
             var select_a_category = gettext("Select relationship");
-            categories.unshift(<option value={-1}>{select_a_category}</option>);
+            categories.unshift(<option value={-1} key={-1}>{select_a_category}</option>);
             var other = gettext("Other relationship");
-            categories.push(<option value={-2}>{other}</option>);
+            categories.push(<option value={-2} key={-2}>{other}</option>);
         }
         var other_category_creator;
-        if (this.state.selected_category === -2) {
+        if (parseInt(this.state.selected_category) === -2) {
             // Translators: Seen by person when creating a new relationship category
             var instructions = gettext("Please fill out the relationship " +
                 "name in at least one language");
@@ -1074,14 +1076,14 @@ var CreateAdopteeForm = React.createClass({
                 url: ADOPTEE_CREATE_ENDPOINT,
                 type: 'POST',
                 dataType: "json",
-                data: JSON.stringify({
+                data: {
                     english_name: get_name_value(this.state.english_name,
                         this.state.english_name_valid),
                     chinese_name: get_name_value(this.state.chinese_name,
                         this.state.chinese_name_valid),
                     pinyin_name: get_name_value(this.state.pinyin_name,
                         this.state.pinyin_name_valid)
-                }),
+                },
                 success: function (data) {
                     this.props.transition({
                         tag: EnterStoryForm,
