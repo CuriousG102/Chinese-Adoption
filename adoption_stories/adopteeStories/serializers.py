@@ -155,18 +155,14 @@ class RestrictedImageField(serializers.ImageField):
 
 class PhotoFileSerializer(serializers.Serializer):
     photo_file = RestrictedImageField()
+    english_caption = serializers.CharField(max_length=200, allow_null=True)
+    chinese_caption = serializers.CharField(max_length=200, allow_null=True)
 
     def create(self, validated_data):
         return Photo.objects.create(**validated_data)
 
 
 MULTIMEDIA_FIELDS = ('english_caption', 'chinese_caption', 'story_teller', 'id')
-
-
-class PhotoInfoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Photo
-        fields = MULTIMEDIA_FIELDS
 
 
 class PhotoSerializer(serializers.ModelSerializer):

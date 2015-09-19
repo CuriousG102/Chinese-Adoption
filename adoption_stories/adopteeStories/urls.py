@@ -17,8 +17,6 @@ urlpatterns = [
         name="categoryListAndCreate"),
     url(r'^photoUpload/$', views.PhotoFileCreate.as_view(),
         name="photoCreate"),
-    url(r'^photoUpdate/(?P<pk>[0-9]+)/$', views.PhotoUpdate.as_view(),
-        name="photoUpdate"),
     url(r'^audio/$', views.AudioCreate.as_view(),
         name="audioCreate"),
     url(r'^video/$', views.VideoCreate.as_view(),

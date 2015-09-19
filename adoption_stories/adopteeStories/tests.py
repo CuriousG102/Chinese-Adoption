@@ -1,7 +1,6 @@
 import json
 
 from adopteeStories import ContentGeneration
-from django.core.files.uploadedfile import SimpleUploadedFile
 import io
 from PIL import Image
 from adopteeStories.models import Adoptee, StoryTeller, RelationshipCategory, Photo, Video, Audio
@@ -381,7 +380,9 @@ class PhotoFileUploadTestCase(TestCase):
         edgeSizeImage.save(fakeFile, format="JPEG")
         fakeFile.name = 'myTestImage.jpg'
         fakeFile.seek(0)
-        response = self.c.post(self.upload_url, {'photo_file': fakeFile})
+        response = self.c.post(self.upload_url, {'photo_file': fakeFile,
+                                                 'english_caption': 'english',
+                                                 'chinese_caption': ''})
         self.assertEqual(response.status_code, 201)
         qs = Photo.objects.all()
         self.assertEqual(len(qs), 1)
@@ -389,6 +390,8 @@ class PhotoFileUploadTestCase(TestCase):
         self.assertEqual(qs[0].photo_file.read(), fakeFile.getvalue())
         self.assertJSONEqual(response.content.decode('utf-8'),
                              '{{"id":{0.id}}}'.format(qs[0]))
+        self.assertEqual(qs[0].english_caption, 'english')
+        self.assertEqual(qs[0].chinese_caption, None)
 
         qs.delete()
 
@@ -396,7 +399,9 @@ class PhotoFileUploadTestCase(TestCase):
         nonEdgeSizeImage.save(fakeFile, format="JPEG")
         fakeFile.name = 'myTestImage.jpg'
         fakeFile.seek(0)
-        response = self.c.post(self.upload_url, {'photo_file': fakeFile})
+        response = self.c.post(self.upload_url, {'photo_file': fakeFile,
+                                                 'english_caption': 'english',
+                                                 'chinese_caption': ''})
         self.assertEqual(response.status_code, 201)
         qs = Photo.objects.all()
         self.assertEqual(len(qs), 1)
@@ -411,7 +416,9 @@ class PhotoFileUploadTestCase(TestCase):
         badImage.save(fakeFile, format="JPEG")
         fakeFile.name = 'myTestImage.jpg'
         fakeFile.seek(0)
-        response = self.c.post(self.upload_url, {'photo_file': fakeFile})
+        response = self.c.post(self.upload_url, {'photo_file': fakeFile,
+                                                 'english_caption': '',
+                                                 'chinese_caption': ''})
         self.assertEqual(response.status_code, 400)
         qs = Photo.objects.all()
         self.assertEqual(len(qs), 0)
@@ -422,14 +429,18 @@ class PhotoFileUploadTestCase(TestCase):
         nonEdgeSizeImage.save(fakeFile, format="PNG")
         fakeFile.name = 'myTestImage.png'
         fakeFile.seek(0)
-        response = self.c.post(self.upload_url, {'photo_file': fakeFile})
+        response = self.c.post(self.upload_url, {'photo_file': fakeFile,
+                                                 'english_caption': '',
+                                                 'chinese_caption': ''})
         self.assertEqual(response.status_code, 400)
         qs = Photo.objects.all()
         self.assertEqual(len(qs), 0)
 
         fakeFile.name = 'myTestImage.jpg'
         fakeFile.seek(0)
-        response = self.c.post(self.upload_url, {'photo_file': fakeFile})
+        response = self.c.post(self.upload_url, {'photo_file': fakeFile,
+                                                 'english_caption': '',
+                                                 'chinese_caption': ''})
         self.assertEqual(response.status_code, 400)
         qs = Photo.objects.all()
         self.assertEqual(len(qs), 0)
@@ -438,61 +449,14 @@ class PhotoFileUploadTestCase(TestCase):
         fakeFile = io.BytesIO(b"lolzi'ma1337hacker")
         fakeFile.name = 'myTestImage.jpg'
         fakeFile.seek(0)
-        response = self.c.post(self.upload_url, {'photo_file': fakeFile})
+        response = self.c.post(self.upload_url, {'photo_file': fakeFile,
+                                                 'english_caption': '',
+                                                 'chinese_caption': ''})
         self.assertEqual(response.status_code, 400)
         qs = Photo.objects.all()
         self.assertEqual(len(qs), 0)
 
         # TODO: Test validation with a file that is too large
-
-
-class PhotoUpdateTestCase(TestCase):
-    UPLOAD_VIEW_NAME = 'photoUpdate'
-
-    def setUp(self):
-        self.c = Client()
-        nonEdgeSizeImage = Image.new('RGB', (int(600 * 1.5), int(400 * 1.5)), (255, 255, 255))
-        self.photo = Photo()
-        self.photo.photo_file = SimpleUploadedFile('myTestImage.jpg',
-                                                   content=nonEdgeSizeImage.tobytes(),
-                                                   content_type="image/jpeg")
-        self.photo.save()
-
-        relationship = RelationshipCategory(approved=True)
-        relationship.save()
-
-        adoptee = Adoptee(english_name='Madeline Jing-Mei',
-                          pinyin_name='Jǐngměi',
-                          chinese_name='景美')
-        adoptee.save()
-
-        prototypical_storyteller_kw_args = {'story_text': 'bs',
-                                            'email': 'bs@example.com',
-                                            'approved': True,
-                                            'relationship_to_story': relationship,
-                                            'related_adoptee': adoptee,
-                                            }
-
-        self.storyteller = StoryTeller(**prototypical_storyteller_kw_args)
-        self.storyteller.save()
-
-    def test_photo_can_be_updated(self):
-        update_json = '{{"english_caption": "a lovely walk in the park",' \
-                      '  "chinese_caption": "景美景美景美景美景美景美景美",' \
-                      '  "story_teller": {0.id}}}'.format(self.storyteller)
-        url = reverse(self.UPLOAD_VIEW_NAME, args=[self.photo.id])
-        response = self.c.patch(url,
-                                data=update_json,
-                                content_type='application/json')
-        self.assertEqual(response.status_code, 200)
-        expected_response = '{{"english_caption": "a lovely walk in the park",' \
-                            '  "chinese_caption": "景美景美景美景美景美景美景美",' \
-                            '  "story_teller": {0.id},' \
-                            '  "id": {1.id}}}'.format(self.storyteller,
-                                                      Photo.objects.all()[0])
-        self.assertJSONEqual(response.content.decode('utf-8'),
-                             expected_response)
-
 
 # TODO: Make a parent class for VideoCreateTestCase and AudioCreateTestCase, because they're literally just copy paste with a few changed variables
 class VideoCreateTestCase(TestCase):
