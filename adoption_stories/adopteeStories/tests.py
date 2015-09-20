@@ -368,6 +368,38 @@ class PhotoFileUploadTestCase(TestCase):
         self.MIN_WIDTH = 600
         self.MIN_HEIGHT = 400
 
+        self.adoptees = [
+            Adoptee(english_name='Madeline Jing-Mei',
+                    pinyin_name='Jǐngměi',
+                    chinese_name='景美'),
+            Adoptee(english_name='Kim Bla', ),
+            Adoptee(chinese_name='景',
+                    pinyin_name='Lola'),
+            Adoptee(english_name='Search Test',
+                    pinyin_name='Lala',
+                    chinese_name='搜索的一例'),
+        ]
+        for adoptee in self.adoptees:
+            adoptee.save()
+
+        self.relationship = RelationshipCategory(approved=True)
+        self.relationship.save()
+
+        prototypical_storyteller_kw_args = {'story_text': 'bsbs',
+                                            'email': 'bs@example.com',
+                                            'approved': True,
+                                            'relationship_to_story': self.relationship,
+                                            }
+        self.storytellers = [StoryTeller(related_adoptee=adoptee,
+                                         **prototypical_storyteller_kw_args)
+                             for adoptee in self.adoptees]
+
+        for i, storyteller in enumerate(self.storytellers):
+            storyteller.save()
+            adoptee = self.adoptees[i]
+            adoptee.front_story = storyteller
+            adoptee.save()
+
     def test_file_post_for_valid_photo(self):
         """
         test file uploads with valid photo sizes
@@ -382,7 +414,8 @@ class PhotoFileUploadTestCase(TestCase):
         fakeFile.seek(0)
         response = self.c.post(self.upload_url, {'photo_file': fakeFile,
                                                  'english_caption': 'english',
-                                                 'chinese_caption': ''})
+                                                 'chinese_caption': '',
+                                                 'story_teller': self.storytellers[0].id})
         self.assertEqual(response.status_code, 201)
         qs = Photo.objects.all()
         self.assertEqual(len(qs), 1)
@@ -401,7 +434,8 @@ class PhotoFileUploadTestCase(TestCase):
         fakeFile.seek(0)
         response = self.c.post(self.upload_url, {'photo_file': fakeFile,
                                                  'english_caption': 'english',
-                                                 'chinese_caption': ''})
+                                                 'chinese_caption': '',
+                                                 'story_teller': self.storytellers[0].id})
         self.assertEqual(response.status_code, 201)
         qs = Photo.objects.all()
         self.assertEqual(len(qs), 1)
@@ -417,8 +451,9 @@ class PhotoFileUploadTestCase(TestCase):
         fakeFile.name = 'myTestImage.jpg'
         fakeFile.seek(0)
         response = self.c.post(self.upload_url, {'photo_file': fakeFile,
-                                                 'english_caption': '',
-                                                 'chinese_caption': ''})
+                                                 'english_caption': 'english',
+                                                 'chinese_caption': '',
+                                                 'story_teller': self.storytellers[0].id})
         self.assertEqual(response.status_code, 400)
         qs = Photo.objects.all()
         self.assertEqual(len(qs), 0)
@@ -430,8 +465,9 @@ class PhotoFileUploadTestCase(TestCase):
         fakeFile.name = 'myTestImage.png'
         fakeFile.seek(0)
         response = self.c.post(self.upload_url, {'photo_file': fakeFile,
-                                                 'english_caption': '',
-                                                 'chinese_caption': ''})
+                                                 'english_caption': 'english',
+                                                 'chinese_caption': '',
+                                                 'story_teller': self.storytellers[0].id})
         self.assertEqual(response.status_code, 400)
         qs = Photo.objects.all()
         self.assertEqual(len(qs), 0)
@@ -439,8 +475,9 @@ class PhotoFileUploadTestCase(TestCase):
         fakeFile.name = 'myTestImage.jpg'
         fakeFile.seek(0)
         response = self.c.post(self.upload_url, {'photo_file': fakeFile,
-                                                 'english_caption': '',
-                                                 'chinese_caption': ''})
+                                                 'english_caption': 'english',
+                                                 'chinese_caption': '',
+                                                 'story_teller': self.storytellers[0].id})
         self.assertEqual(response.status_code, 400)
         qs = Photo.objects.all()
         self.assertEqual(len(qs), 0)
@@ -450,8 +487,9 @@ class PhotoFileUploadTestCase(TestCase):
         fakeFile.name = 'myTestImage.jpg'
         fakeFile.seek(0)
         response = self.c.post(self.upload_url, {'photo_file': fakeFile,
-                                                 'english_caption': '',
-                                                 'chinese_caption': ''})
+                                                 'english_caption': 'english',
+                                                 'chinese_caption': '',
+                                                 'story_teller': self.storytellers[0].id})
         self.assertEqual(response.status_code, 400)
         qs = Photo.objects.all()
         self.assertEqual(len(qs), 0)

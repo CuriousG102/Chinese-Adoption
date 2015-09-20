@@ -157,6 +157,7 @@ class PhotoFileSerializer(serializers.Serializer):
     photo_file = RestrictedImageField()
     english_caption = serializers.CharField(max_length=200, allow_null=True)
     chinese_caption = serializers.CharField(max_length=200, allow_null=True)
+    story_teller = serializers.PrimaryKeyRelatedField(queryset=StoryTeller.objects.all())
 
     def create(self, validated_data):
         return Photo.objects.create(**validated_data)
