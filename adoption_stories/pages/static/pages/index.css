@@ -185,3 +185,8 @@ p {
 #hasNoOtherContentButton {
     margin-right: 245px;
 }
+
+/* TODO: Come back in and do a real rather than hackey fix */
+.cke_notification {
+    display: none;
+}
