@@ -744,6 +744,269 @@ var Thanks = React.createClass({
     }
 });
 
+//var PictureForm = React.createClass({
+//    getInitialState: function () {
+//        return {
+//            files: []
+//        };
+//    },
+//    is_valid: function (file) {
+//        if
+//    },
+//    onDrop: function (files) {
+//        if (this.is_valid(files[0])) {
+//            this.setState({files: files});
+//        }
+//    },
+//    render: function () {
+//        var preview_url = files ? files[0].preview : "";
+//        var upload_like_this = gettext("Upload image that is 2.5 MB or less in size and at least " +
+//                                "600 x 400 px");
+//        return (
+//            <div>
+//                <div className="row">
+//                    <div className="col-md-12">
+//                        <Dropzone multiple={false}
+//                                  accept=".jpg">
+//                            <div>
+//                            </div>
+//                        </Dropzone>
+//                    </div>
+//                </div>
+//                <div className="row">
+//                    <div className="col-md-12">
+//                        <img id="imgPreview" src={preview_url}/>
+//                    </div>
+//                </div>
+//            </div>
+//        )
+//    }
+//});
+
+var SoundcloudForm = React.createClass({
+    re_detect: /^(http(s)?:\/\/(www\.)?)?soundcloud\.com\/.*/,
+    is_valid: function (url) {
+        return this.re_detect.test(url);
+    },
+    getInitialState: function () {
+        return {
+            soundcloud_url: gettext("Please paste a soundcloud url of your audio here. " +
+                "Please keep the audio to 5 minutes or less."),
+            embed_shizzle: {__html: ""}
+        };
+    },
+    handleChange: function (event) {
+        this.setState({
+            soundcloud_url: event.target.value,
+            embed_shizzle: {__html: ""}
+        });
+        if (this.is_valid(event.target.value)) {
+            debounce(function () {
+                $.ajax({
+                    url: "http://soundcloud.com/oembed",
+                    dataType: "json",
+                    data: {
+                        format: "json",
+                        url: event.target.value,
+                        maxheight: 81
+                    },
+                    success: function (initial_url, data) {
+                        // if statement guards against scenario where user has changed url but the reuest has returned
+                        // for a stale one
+                        if (this.state.soundcloud_url === initial_url) {
+                            this.setState({
+                                embed_shizzle: {
+                                    __html: data.html
+                                }
+                            });
+                        }
+                    }.bind(this, event.target.value),
+                    error: function (xhr, status, err) {
+                        console.error(event.target.value, status, err.toString());
+                    }.bind(this)
+                });
+            }.bind(this), 1000);
+        }
+    },
+    render: function () {
+        var url_input_classname = this.is_valid(self.state.soundcloud_url) ?
+            "valid" : "invalid";
+        return (
+            <div>
+                <div className="row">
+                    <div className="col-md-12">
+                        <input id="soundCloudURLInput"
+                               value={this.state.soundcloud_url}
+                               onChange={this.handleChange}
+                               className={url_input_classname}/>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-md-12">
+                        <div className="media-embed"
+                             dangerouslySetInnerHTML={this.state.embed_shizzle}/>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+});
+
+var YoutubeForm = React.createClass({
+    re_detect: /^(http(s)?:\/\/)?(www\.|m\.)?youtu(\.?)be(\.com)?\/.*/,
+    is_valid: function (url) {
+        return this.re_detect.test(url);
+    },
+    getInitialState: function () {
+        return {
+            soundcloud_url: gettext("Please paste a youtube url of your video here. Please keep the video to 5 " +
+                "minutes or less"),
+            // embed_shizzle: {__html: ""}
+        };
+    },
+    handleChange: function (event) {
+        this.setState({
+            soundcloud_url: event.target.value,
+            // embed_shizzle: {__html: ""}
+        });
+
+    },
+    render: function () {
+        var url_input_classname = this.is_valid(self.state.soundcloud_url) ?
+            "valid" : "invalid";
+        return (
+            <div>
+                <div className="row">
+                    <div className="col-md-12">
+                        <input id="soundCloudURLInput"
+                               value={this.state.soundcloud_url}
+                               onChange={this.handleChange}
+                               className={url_input_classname}/>
+                    </div>
+                </div>
+                /*                <div className="row">
+                                    <div className="col-md-12">
+                                        <div className="media-embed"
+                                             dangerouslySetInnerHTML={this.state.embed_shizzle}/>
+                                    </div>
+                                </div> */
+            </div>
+        );
+    }
+});
+
+var MediaUpload = React.createClass({
+    MULTIMEDIA_FORMS: {
+        //picture: {
+        //    name: gettext("Picture"),
+        //    tag: PictureForm,
+        //    upload_field_name: "photo_file"
+        //},
+        soundcloud: {
+            name: gettext("Soundcloud"),
+            tag: SoundcloudForm
+        },
+        youtube: {
+            name: gettext("Youtube"),
+            tag: YoutubeForm
+        }
+    },
+    ENGLISH_CAPTION_DEFAULT: gettext("English caption for multimedia (if able)"),
+    CHINESE_CAPTION_DEFAULT: gettext("Chinese caption for multimedia (if able)"),
+    getInitialState: function () {
+        return {
+            wants_to_provide: true,
+            selected_form: "picture",
+            english_caption: this.ENGLISH_CAPTION_DEFAULT,
+            chinese_caption: this.CHINESE_CAPTION_DEFAULT
+        };
+    },
+    handle_type_selection: function (event) {
+        this.setState({
+            selected_form: event.target.value
+        });
+    },
+    provide: function (event) {
+        this.setState({
+            wants_to_provide: true
+        });
+    },
+    dont_provide: function (event) {
+        this.setState({
+            wants_to_provide: false
+        });
+    },
+    render: function () {
+        var do_you_wish_to_provide = gettext("Do you wish to provide a multimedia item (audio, video, or picture) " +
+            "to accompany your story?");
+        var no = gettext("No");
+        var yes = gettext("Yes");
+        var what_kind = gettext("Will the multimedia item be a youtube video, a picture, or a soundcloud clip?");
+        var youtube = gettext("Youtube");
+        var picture = gettext("Picture");
+        var soundcloud = gettext("Soundcloud");
+        var type_selection_options = [];
+        $.each(Object.keys(this.MULTIMEDIA_FORMS), function (type_selection_options, i, key) {
+            var form_option = this.MULTIMEDIA_FORMS[key];
+            type_selection_options.push(<option value={key} key={key}>{form_option.name}</option>);
+        }.bind(this, type_selection_options));
+
+        var media_type_form = this.state.wants_to_provide ?
+            [
+                <div id="multimediaKindForm">
+                    <div className="row">
+                        <div className="col-md-12">
+                            {what_kind}
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col-md-12">
+                            <select value={this.state.selected_form}
+                                    onChange={this.handle_type_selection}>
+                                {type_selection_options}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            ] :
+            [];
+        var dont_provide_multimedia_button_class = this.state.wants_to_provide ?
+            this.props.inactive_button_class : this.props.active_button_class;
+        var provide_multimedia_button_class = this.state.wants_to_provide ?
+            this.props.active_button_class : this.props.inactive_button_class;
+
+        var MultimediaFormTag = this.MULTIMEDIA_FORMS[this.state.selected_form].tag;
+
+        return (
+            <div>
+                <div className="row">
+                    <div className="col-md-12">
+                        {do_you_wish_to_provide}
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-md-12">
+                        <button id="dontProvideMultimediaButton"
+                                className={dont_provide_multimedia_button_class}
+                                onClick={this.dont_provide}>
+                            {no}
+                        </button>
+                        <button id="provideMultimediaButton"
+                                className={provide_multimedia_button_class}
+                                onClick={this.provide}>
+                            {yes}
+                        </button>
+                    </div>
+                </div>
+                {media_type_form}
+                <MultimediaFormTag {...this.props}
+                    wants_to_provide={this.state.wants_to_provide}
+                    ref="multimedia_form"/>
+            </div>
+        );
+    }
+});
+
 var EnterStoryForm = React.createClass({
     getInitialState: function () {
         return {
@@ -787,7 +1050,7 @@ var EnterStoryForm = React.createClass({
                 },
                 success: function (data) {
                     this.props.transition({
-                        tag: Thanks,
+                        tag: MediaUpload,
                         props: {}
                     })
                 }.bind(this),
@@ -1395,8 +1658,7 @@ var SubmitPrompt = React.createClass({
         return {
             content: {
                 tag: SubmitStart,
-                props: {
-                }
+                props: {}
             }
         }
     },
