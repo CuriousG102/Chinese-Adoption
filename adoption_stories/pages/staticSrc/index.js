@@ -1023,9 +1023,9 @@ var MediaUpload = React.createClass({
         var no = gettext("No");
         var yes = gettext("Yes");
         var what_kind = gettext("Will the multimedia item be a photo, YouTube video, or a SoundCloud clip?");
-        var youtube = gettext("Youtube");
-        var picture = gettext("Picture");
-        var soundcloud = gettext("Soundcloud");
+        var youtube = gettext("YouTube");
+        var picture = gettext("Photo");
+        var soundcloud = gettext("SoundCloud");
         var type_selection_options = [];
         $.each(Object.keys(this.MULTIMEDIA_FORMS), function (type_selection_options, i, key) {
             var form_option = this.MULTIMEDIA_FORMS[key];

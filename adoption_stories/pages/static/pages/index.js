@@ -842,12 +842,12 @@ var SoundcloudForm = React.createClass({displayName: "SoundcloudForm",
         var explain = gettext("Be sure you are in a quiet place with minimal background noise when you record your SoundCloud clip. Your clip should not be longer than five minutes.");
         return (
             React.createElement("div", null, 
-                React.createElement("div", {className: "row"}, 
-                    React.createElement("div", {className: "col-md-12"},
+                React.createElement("div", {className: "row"},
+                    React.createElement("div", {className: "col-md-12"}, 
                         React.createElement("h4", null, explain)
                     )
                 ),
-                React.createElement("div", {className: "row"},
+                React.createElement("div", {className: "row"}, 
                     React.createElement("div", {className: "col-md-12"}, 
                         React.createElement("input", {id: "soundCloudURLInput", 
                                value: this.state.soundcloud_url, 
@@ -897,12 +897,12 @@ var YoutubeForm = React.createClass({displayName: "YoutubeForm",
         if (!this.props.wants_to_provide) return React.createElement("div", null);
         return (
             React.createElement("div", null, 
-                React.createElement("div", {className: "row"}, 
-                    React.createElement("div", {className: "col-md-12"},
+                React.createElement("div", {className: "row"},
+                    React.createElement("div", {className: "col-md-12"}, 
                         React.createElement("h4", null, explain)
                     )
                 ),
-                React.createElement("div", {className: "row"},
+                React.createElement("div", {className: "row"}, 
                     React.createElement("div", {className: "col-md-12"}, 
                         React.createElement("input", {id: "soundCloudURLInput", 
                                value: this.state.youtube_url, 
@@ -1023,9 +1023,9 @@ var MediaUpload = React.createClass({displayName: "MediaUpload",
         var no = gettext("No");
         var yes = gettext("Yes");
         var what_kind = gettext("Will the multimedia item be a photo, YouTube video, or a SoundCloud clip?");
-        var youtube = gettext("Youtube");
-        var picture = gettext("Picture");
-        var soundcloud = gettext("Soundcloud");
+        var youtube = gettext("YouTube");
+        var picture = gettext("Photo");
+        var soundcloud = gettext("SoundCloud");
         var type_selection_options = [];
         $.each(Object.keys(this.MULTIMEDIA_FORMS), function (type_selection_options, i, key) {
             var form_option = this.MULTIMEDIA_FORMS[key];
@@ -1738,9 +1738,10 @@ var SubmitStart = React.createClass({displayName: "SubmitStart",
                     )
                 ),
                 React.createElement(FormTag, React.__spread({}, form_props, {ref: "form"})),
+
                 React.createElement("div", {className: "row"},
                     React.createElement("div", {className: "col-md-12"},
-                        React.createElement("p", {className: "tiny-tos"},
+                        React.createElement("p", {className: "tiny-tos"}, 
                             tos
                         )
                     )
