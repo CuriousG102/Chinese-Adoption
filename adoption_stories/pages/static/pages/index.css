@@ -190,3 +190,7 @@ p {
 .cke_notification {
     display: none;
 }
+
+.tiny-tos {
+    font-size: 12px;
+}

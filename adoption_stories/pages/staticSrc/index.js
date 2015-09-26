@@ -797,8 +797,7 @@ var SoundcloudForm = React.createClass({
     },
     getInitialState: function () {
         return {
-            soundcloud_url: gettext("Please paste a soundcloud url of your audio here. " +
-                "Please keep the audio to 5 minutes or less."),
+            soundcloud_url: gettext("Please paste a soundcloud url of your audio here"),
             embed_shizzle: {__html: ""}
         };
     },
@@ -840,8 +839,14 @@ var SoundcloudForm = React.createClass({
         var url_input_classname = this.is_valid(this.state.soundcloud_url) ?
             "valid" : "invalid";
         if (!this.props.wants_to_provide) return <div />;
+        var explain = gettext("Be sure you are in a quiet place with minimal background noise when you record your SoundCloud clip. Your clip should not be longer than five minutes.");
         return (
             <div>
+                <div className="row">
+                    <div className="col-md-12">
+                        <h4>{explain}</h4>
+                    </div>
+                </div>
                 <div className="row">
                     <div className="col-md-12">
                         <input id="soundCloudURLInput"
@@ -874,8 +879,7 @@ var YoutubeForm = React.createClass({
     },
     getInitialState: function () {
         return {
-            youtube_url: gettext("Please paste a youtube url of your video here. Please keep the video to 5 " +
-                "minutes or less"),
+            youtube_url: gettext("Please paste a youtube url of your video here"),
             // embed_shizzle: {__html: ""}
         };
     },
@@ -889,9 +893,15 @@ var YoutubeForm = React.createClass({
     render: function () {
         var url_input_classname = this.is_valid(this.state.youtube_url) ?
             "valid" : "invalid";
+        var explain = gettext("When shooting your photo or YouTube video, be sure you are not standing with light behind you. If you are using your phone to shoot video, be sure the phone is horizontal.");
         if (!this.props.wants_to_provide) return <div />;
         return (
             <div>
+                <div className="row">
+                    <div className="col-md-12">
+                        <h4>{explain}</h4>
+                    </div>
+                </div>
                 <div className="row">
                     <div className="col-md-12">
                         <input id="soundCloudURLInput"
@@ -920,13 +930,13 @@ var MediaUpload = React.createClass({
         //    endpoint: PHOTO_UPLOAD_ENDPOINT
         //},
         soundcloud: {
-            name: gettext("Soundcloud"),
+            name: gettext("SoundCloud"),
             tag: SoundcloudForm,
             upload_field_name: "audio",
             endpoint: AUDIO_UPLOAD_ENDPOINT
         },
         youtube: {
-            name: gettext("Youtube"),
+            name: gettext("YouTube"),
             tag: YoutubeForm,
             upload_field_name: "video",
             endpoint: VIDEO_UPLOAD_ENDPOINT
@@ -1008,11 +1018,11 @@ var MediaUpload = React.createClass({
         });
     },
     render: function () {
-        var do_you_wish_to_provide = gettext("Do you wish to provide a multimedia item (audio, video, or picture) " +
+        var do_you_wish_to_provide = gettext("Do you wish to provide a multimedia item (photo, video, or audio) " +
             "to accompany your story?");
         var no = gettext("No");
         var yes = gettext("Yes");
-        var what_kind = gettext("Will the multimedia item be a youtube video, a picture, or a soundcloud clip?");
+        var what_kind = gettext("Will the multimedia item be a photo, YouTube video, or a SoundCloud clip?");
         var youtube = gettext("Youtube");
         var picture = gettext("Picture");
         var soundcloud = gettext("Soundcloud");
@@ -1677,10 +1687,8 @@ var SubmitStart = React.createClass({
         this.refs.form.continueForward();
     },
     render: function () {
-        // Translators: Prompt for story submission
-        var how_tell_story = gettext("How would you like to tell your story?");
         // Translators: Option for story submission: Opposing option is 'Provide my own story'
-        var be_contacted = gettext("Be contacted");
+        var be_contacted = gettext("Get more information");
         // Translators: Option for story submission: Opposing option is 'Be contacted'
         var provide_my_own = gettext("Provide my own story");
         // Translators: Prompt for story submission
@@ -1711,13 +1719,10 @@ var SubmitStart = React.createClass({
         var FormTag = form.tag;
         var form_props = form.props;
 
+        var tos = gettext("By submitting your story to this site, you are agreeing to post your content publicly. You are also promising that the content is not plagiarized from anyone, that it does not infringe a copyright or trademark, and that it isn’t libelous or otherwise unlawful or misleading. You also agree to be bound by this site’s Terms of Use and Privacy Policy.");
+
         return (
             <div>
-                <div className="row">
-                    <div className="col-md-12">
-                        <h4>{how_tell_story}</h4>
-                    </div>
-                </div>
                 <div className="row">
                     <div className="col-md-12">
                         <button id="beContactedButton"
@@ -1733,6 +1738,14 @@ var SubmitStart = React.createClass({
                     </div>
                 </div>
                 <FormTag {...form_props} ref="form"/>
+
+                <div className="row">
+                    <div className="col-md-12">
+                        <p className="tiny-tos">
+                            {tos}
+                        </p>
+                    </div>
+                </div>
             </div>
         );
     }
