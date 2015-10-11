@@ -15,15 +15,16 @@
   <script src="http://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.js"></script>
   <script src="http://cdnjs.cloudflare.com/ajax/libs/react-modal/0.3.0/react-modal.js"></script>
   <script src="http://cdnjs.cloudflare.com/ajax/libs/react-router/0.13.3/ReactRouter.js"></script>
-  <script type="text/javascript" src="{% url 'django.views.i18n.javascript_catalog' %}"></script>
+  {% get_current_language as LANGUAGE_CODE %}
+  <script type="text/javascript"
+          src="{% url 'django.views.i18n.javascript_catalog' %}?language={{ LANGUAGE_CODE }}"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
   <link rel="stylesheet" href="{% static "pages/index.css" %}">
   <script>
-    {% get_current_language as LANGUAGE_CODE %}
+    // {% trans "Share Your Story" %}
     // code below not yet enabled because we do not yet have translation files and I am not yet ready to write tests
     // and the entire translation handling part of things yet
-    // var language = "{{ LANGUAGE_CODE }}";
-    var language = "en";
+    var language = "{{ LANGUAGE_CODE }}";
     var ENGLISH = "en";
     var ADOPTEE_LIST_ENDPOINT = "{% url "adopteeList" %}";
     var ADOPTEE_DETAIL_ENDPOINT = "{% url "adopteeDetail" 999 %}";

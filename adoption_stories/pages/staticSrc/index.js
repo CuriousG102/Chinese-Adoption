@@ -437,7 +437,7 @@ var StoryCard = React.createClass({
         } else {
             link_text = gettext("More about this person");
         }
-        var link = "/#/adoptee/" + this.props.id.toString();
+        var link = "#/adoptee/" + this.props.id.toString();
 
         var class_string = this.props.className ? this.props.className : "";
 
@@ -530,6 +530,8 @@ var FrontPage = React.createClass({
             items_prerender_processor={items_prerender_processor}></PaginationSection>;
 
         var RouteHandler = ReactRouter.RouteHandler;
+        var other_language_prompt = language === ENGLISH ? gettext("Switch to Chinese") : gettext("Switch to English");
+        var other_language_link = language === ENGLISH ? "/zh-hans/#" : "/en/#";
 
         return (
             <div className="container">
@@ -542,9 +544,12 @@ var FrontPage = React.createClass({
                     <div className="col-md-7">
                         <p>{summary}</p>
                     </div>
-                    <div className="col-md-5">
+                    <div className="col-md-4">
                         <Button text={submit} handle_click={submit_handle_click}/>
                         <Button text={about} handle_click={about_handle_click}/>
+                    </div>
+                    <div className="col-md-1">
+                        <a href={other_language_link}>{other_language_prompt}</a>
                     </div>
                 </div>
                 {paginator}

@@ -437,7 +437,7 @@ var StoryCard = React.createClass({displayName: "StoryCard",
         } else {
             link_text = gettext("More about this person");
         }
-        var link = "/#/adoptee/" + this.props.id.toString();
+        var link = "#/adoptee/" + this.props.id.toString();
 
         var class_string = this.props.className ? this.props.className : "";
 
@@ -530,6 +530,8 @@ var FrontPage = React.createClass({displayName: "FrontPage",
             items_prerender_processor: items_prerender_processor});
 
         var RouteHandler = ReactRouter.RouteHandler;
+        var other_language_prompt = language === ENGLISH ? gettext("Switch to Chinese") : gettext("Switch to English");
+        var other_language_link = language === ENGLISH ? "/zh-hans/#" : "/en/#";
 
         return (
             React.createElement("div", {className: "container"}, 
@@ -541,10 +543,13 @@ var FrontPage = React.createClass({displayName: "FrontPage",
                 React.createElement("div", {className: "row", id: "header-bottom-row"}, 
                     React.createElement("div", {className: "col-md-7"}, 
                         React.createElement("p", null, summary)
-                    ), 
-                    React.createElement("div", {className: "col-md-5"}, 
+                    ),
+                    React.createElement("div", {className: "col-md-4"}, 
                         React.createElement(Button, {text: submit, handle_click: submit_handle_click}), 
                         React.createElement(Button, {text: about, handle_click: about_handle_click})
+                    ),
+                    React.createElement("div", {className: "col-md-1"},
+                        React.createElement("a", {href: other_language_link}, other_language_prompt)
                     )
                 ), 
                 paginator, 
@@ -718,7 +723,7 @@ var AreaTextEditor = React.createClass({displayName: "AreaTextEditor",
             return React.createElement("div", {id: "tellStoryTextAreaLoading"}, text_editor_loading);
         } else if (this.state.scriptLoadError) {
             var error_message = gettext("There is a problem with your connectivity" +
-                " or with the website");
+                "or with the website");
             return React.createElement("div", {id: "tellStoryTextAreaError"}, error_message);
         } else {
             return React.createElement("textarea", {id: "tellStoryTextArea"});
@@ -841,7 +846,7 @@ var SoundcloudForm = React.createClass({displayName: "SoundcloudForm",
         if (!this.props.wants_to_provide) return React.createElement("div", null);
         var explain = gettext("Be sure you are in a quiet place with minimal background noise when you record your SoundCloud clip. Your clip should not be longer than five minutes.");
         return (
-            React.createElement("div", null,
+            React.createElement("div", null, 
                 React.createElement("div", {className: "row"}, 
                     React.createElement("div", {className: "col-md-12"}, 
                         React.createElement("h4", null, explain)
@@ -896,7 +901,7 @@ var YoutubeForm = React.createClass({displayName: "YoutubeForm",
         var explain = gettext("When shooting your photo or YouTube video, be sure you are not standing with light behind you. If you are using your phone to shoot video, be sure the phone is horizontal.");
         if (!this.props.wants_to_provide) return React.createElement("div", null);
         return (
-            React.createElement("div", null,
+            React.createElement("div", null, 
                 React.createElement("div", {className: "row"}, 
                     React.createElement("div", {className: "col-md-12"}, 
                         React.createElement("h4", null, explain)
@@ -1739,7 +1744,7 @@ var SubmitStart = React.createClass({displayName: "SubmitStart",
                 ),
                 React.createElement(FormTag, React.__spread({}, form_props, {ref: "form"})),
 
-                React.createElement("div", {className: "row"},
+                React.createElement("div", {className: "row"}, 
                     React.createElement("div", {className: "col-md-12"}, 
                         React.createElement("p", {className: "tiny-tos"}, 
                             tos

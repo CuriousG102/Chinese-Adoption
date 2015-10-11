@@ -2,7 +2,7 @@ h1, h2, h3, a, h4, h5, h6 {
     font-family: georgia;
 }
 
-p {
+p, button, a {
     font-family: times;
 }
 
