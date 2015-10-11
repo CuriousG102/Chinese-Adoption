@@ -20,42 +20,42 @@ msgstr ""
 #. Translators: Title of the admin page
 #: adopteeStories/apps.py:9
 msgid "Adoptee Stories"
-msgstr ""
+msgstr "被领养者的故事"
 
 #: adopteeStories/custom_rest_fields.py:17
 msgid "A multimedia item matching the url could not be found. Does one exist?"
-msgstr ""
+msgstr "此链接的多媒体文件不存在。是否存在此多媒体文件？"
 
 #: adopteeStories/custom_rest_fields.py:22
 msgid "Provided url is invalid"
-msgstr ""
+msgstr "提供的链接无效"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:14 adopteeStories/models.py:125
 #: adopteeStories/models.py:179
 msgid "English Name"
-msgstr ""
+msgstr "英文姓名"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:17 adopteeStories/models.py:187
 msgid "Pinyin Name"
-msgstr ""
+msgstr "拼音姓名"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:20 adopteeStories/models.py:128
 #: adopteeStories/models.py:183
 msgid "Chinese Name"
-msgstr ""
+msgstr "中文姓名"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:25
 msgid "Photo Front Story"
-msgstr ""
+msgstr "主页故事照片"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:29
 msgid "Front Story"
-msgstr ""
+msgstr "主页故事"
 
 #. Translators: Name of a field in the admin page
 #. Translators: Name of a field in the admin pages
@@ -63,157 +63,157 @@ msgstr ""
 #: adopteeStories/models.py:32 adopteeStories/models.py:70
 #: adopteeStories/models.py:135 adopteeStories/models.py:191
 msgid "Created At"
-msgstr ""
+msgstr "创建于"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:34 adopteeStories/models.py:72
 #: adopteeStories/models.py:138 adopteeStories/models.py:194
 msgid "Updated At"
-msgstr ""
+msgstr "更新于"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:39
 msgid "Adoptee"
-msgstr ""
+msgstr "被领养者"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:41
 msgid "Adoptees"
-msgstr ""
+msgstr "被领养者"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:59
 msgid "English Caption"
-msgstr ""
+msgstr "英文标题"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:62
 msgid "Chinese Caption"
-msgstr ""
+msgstr "中文标题"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:65 adopteeStories/models.py:132
 #: adopteeStories/models.py:170
 msgid "Approved"
-msgstr ""
+msgstr "已批准"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:67 adopteeStories/models.py:199
 msgid "Story Teller"
-msgstr ""
+msgstr "故事讲述者"
 
 #. Translators: name of field in the admin page
 #: adopteeStories/models.py:84
 msgid "Audio Soundcloud Embed"
-msgstr ""
+msgstr "Soundcloud音频植入"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:89
 msgid "Audio item"
-msgstr ""
+msgstr "音频文件"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:91
 msgid "Audio items"
-msgstr ""
+msgstr "音频文件"
 
 #. Translators: name of field in the admin page
 #: adopteeStories/models.py:96
 msgid "Video Youtube Embed"
-msgstr ""
+msgstr "Youtube视频植入"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:101
 msgid "Video item"
-msgstr ""
+msgstr "视频文件"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:103
 msgid "Video items"
-msgstr ""
+msgstr "视频文件"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:110
 msgid "Photo File"
-msgstr ""
+msgstr "照片文档"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:115
 msgid "Photo"
-msgstr ""
+msgstr "照片"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:117
 msgid "Photos"
-msgstr ""
+msgstr "照片"
 
 #. Translators: Label for the number determining the order of the relationship category for admins
 #: adopteeStories/models.py:140
 msgid "Position of relationship category"
-msgstr ""
+msgstr "关系类别位置"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:145
 msgid "Relationship Category"
-msgstr ""
+msgstr "关系类别"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:147
 msgid "Relationship Categories"
-msgstr ""
+msgstr "关系类别"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:163
 msgid "Relationship to Story"
-msgstr ""
+msgstr "于故事的关系"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:166
 msgid "Story Text"
-msgstr ""
+msgstr "故事正文"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:168
 msgid "Email"
-msgstr ""
+msgstr "电子邮件"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:173
 msgid "Related Adoptee"
-msgstr ""
+msgstr "相关被领养人"
 
 #. Translators: Name of a field in the admin page
 #: adopteeStories/models.py:201
 msgid "Story Tellers"
-msgstr ""
+msgstr "故事讲述者"
 
 #. Translators: Error message for people who try to bypass image upload restrictions
 #: adopteeStories/serializers.py:129
 msgid "Image is too large"
-msgstr ""
+msgstr "图片文件过大"
 
 #. Translators: Error message when image is too small
 #: adopteeStories/serializers.py:137
 msgid "Image does not meet minimum width and height requirements"
-msgstr ""
+msgstr "图片文件未达到最低长宽要求"
 
 #. Translators: Error message when image is not one of the allowed formats
 #: adopteeStories/serializers.py:144
 msgid "Image does not meet formatting requirements"
-msgstr ""
+msgstr "图片文件未达到格式要求"
 
 #: adoption_stories/settings.py:151
 msgid "Chinese American"
-msgstr ""
+msgstr "美国华人"
 
 #: embed_video/fields.py:66 embed_video/fields.py:88
 msgid "URL could not be recognized."
-msgstr ""
+msgstr "链接无法识别"
 
 #: embed_video/fields.py:68 embed_video/fields.py:92
 msgid "ID of this video could not be recognized."
-msgstr ""
+msgstr "视频文件代码无法识别"
 
 #: pages/templates/pages/index.html:10
 msgid "Chinese-American"
-msgstr ""
+msgstr "美国华人"
