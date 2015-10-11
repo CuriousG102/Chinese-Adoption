@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-21 19:28-0500\n"
+"POT-Creation-Date: 2015-09-26 17:17-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,173 +31,178 @@ msgid "Provided url is invalid"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:16 adopteeStories/models.py:129
-#: adopteeStories/models.py:180
+#: adopteeStories/models.py:14 adopteeStories/models.py:125
+#: adopteeStories/models.py:179
 msgid "English Name"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:19 adopteeStories/models.py:188
+#: adopteeStories/models.py:17 adopteeStories/models.py:187
 msgid "Pinyin Name"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:22 adopteeStories/models.py:132
-#: adopteeStories/models.py:184
+#: adopteeStories/models.py:20 adopteeStories/models.py:128
+#: adopteeStories/models.py:183
 msgid "Chinese Name"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:28
+#: adopteeStories/models.py:25
 msgid "Photo Front Story"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:32
+#: adopteeStories/models.py:29
 msgid "Front Story"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
 #. Translators: Name of a field in the admin pages
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:34 adopteeStories/models.py:73
-#: adopteeStories/models.py:139 adopteeStories/models.py:192
+#: adopteeStories/models.py:32 adopteeStories/models.py:70
+#: adopteeStories/models.py:135 adopteeStories/models.py:191
 msgid "Created At"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:36 adopteeStories/models.py:75
-#: adopteeStories/models.py:142 adopteeStories/models.py:195
+#: adopteeStories/models.py:34 adopteeStories/models.py:72
+#: adopteeStories/models.py:138 adopteeStories/models.py:194
 msgid "Updated At"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:42
+#: adopteeStories/models.py:39
 msgid "Adoptee"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:44
+#: adopteeStories/models.py:41
 msgid "Adoptees"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:62
+#: adopteeStories/models.py:59
 msgid "English Caption"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:65
+#: adopteeStories/models.py:62
 msgid "Chinese Caption"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:68 adopteeStories/models.py:136
-#: adopteeStories/models.py:171
+#: adopteeStories/models.py:65 adopteeStories/models.py:132
+#: adopteeStories/models.py:170
 msgid "Approved"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:70 adopteeStories/models.py:201
+#: adopteeStories/models.py:67 adopteeStories/models.py:199
 msgid "Story Teller"
 msgstr ""
 
 #. Translators: name of field in the admin page
-#: adopteeStories/models.py:88
+#: adopteeStories/models.py:84
 msgid "Audio Soundcloud Embed"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:93
+#: adopteeStories/models.py:89
 msgid "Audio item"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:95
+#: adopteeStories/models.py:91
 msgid "Audio items"
 msgstr ""
 
 #. Translators: name of field in the admin page
-#: adopteeStories/models.py:100
+#: adopteeStories/models.py:96
 msgid "Video Youtube Embed"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:105
+#: adopteeStories/models.py:101
 msgid "Video item"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:107
+#: adopteeStories/models.py:103
 msgid "Video items"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:114
+#: adopteeStories/models.py:110
 msgid "Photo File"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:119
+#: adopteeStories/models.py:115
 msgid "Photo"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:121
+#: adopteeStories/models.py:117
 msgid "Photos"
 msgstr ""
 
+#. Translators: Label for the number determining the order of the relationship category for admins
+#: adopteeStories/models.py:140
+msgid "Position of relationship category"
+msgstr ""
+
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:146
+#: adopteeStories/models.py:145
 msgid "Relationship Category"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:148
+#: adopteeStories/models.py:147
 msgid "Relationship Categories"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:164
+#: adopteeStories/models.py:163
 msgid "Relationship to Story"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:167
+#: adopteeStories/models.py:166
 msgid "Story Text"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:169
+#: adopteeStories/models.py:168
 msgid "Email"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:174
+#: adopteeStories/models.py:173
 msgid "Related Adoptee"
 msgstr ""
 
 #. Translators: Name of a field in the admin page
-#: adopteeStories/models.py:203
+#: adopteeStories/models.py:201
 msgid "Story Tellers"
 msgstr ""
 
 #. Translators: Error message for people who try to bypass image upload restrictions
-#: adopteeStories/serializers.py:130
+#: adopteeStories/serializers.py:129
 msgid "Image is too large"
 msgstr ""
 
 #. Translators: Error message when image is too small
-#: adopteeStories/serializers.py:138
+#: adopteeStories/serializers.py:137
 msgid "Image does not meet minimum width and height requirements"
 msgstr ""
 
 #. Translators: Error message when image is not one of the allowed formats
-#: adopteeStories/serializers.py:145
+#: adopteeStories/serializers.py:144
 msgid "Image does not meet formatting requirements"
 msgstr ""
 
-#: adoption_stories/settings.py:138
+#: adoption_stories/settings.py:151
 msgid "Chinese American"
 msgstr ""
 
