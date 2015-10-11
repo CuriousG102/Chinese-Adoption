@@ -3,7 +3,7 @@ h1, h2, h3, a, h4, h5, h6 {
 }
 
 p, button, a {
-    font-family: times;
+    font-family: times, "SimSun", "STHeiti Light", "华文细黑", "宋体";
 }
 
 .story-card {
