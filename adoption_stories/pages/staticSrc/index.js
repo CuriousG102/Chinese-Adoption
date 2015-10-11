@@ -535,20 +535,18 @@ var FrontPage = React.createClass({
 
         return (
             <div className="container">
-                <div className="row">
-                    <div className="col-md-12">
-                        <h1 id="front-page-header">{title}</h1>
-                    </div>
-                </div>
                 <div className="row" id="header-bottom-row">
-                    <div className="col-md-7">
+                    <div className="col-md-1">
+                        <img id="logo" src={LOGO_LOCATION}/>
+                    </div>
+                    <div className="col-md-6 notLogo">
                         <p>{summary}</p>
                     </div>
-                    <div className="col-md-4">
+                    <div className="col-md-3 notLogo">
                         <Button text={submit} handle_click={submit_handle_click}/>
                         <Button text={about} handle_click={about_handle_click}/>
                     </div>
-                    <div className="col-md-1">
+                    <div className="col-md-1 notLogo">
                         <a href={other_language_link}>{other_language_prompt}</a>
                     </div>
                 </div>

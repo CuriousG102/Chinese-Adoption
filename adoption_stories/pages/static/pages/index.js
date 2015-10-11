@@ -535,20 +535,18 @@ var FrontPage = React.createClass({displayName: "FrontPage",
 
         return (
             React.createElement("div", {className: "container"}, 
-                React.createElement("div", {className: "row"}, 
-                    React.createElement("div", {className: "col-md-12"}, 
-                        React.createElement("h1", {id: "front-page-header"}, title)
-                    )
-                ), 
                 React.createElement("div", {className: "row", id: "header-bottom-row"}, 
-                    React.createElement("div", {className: "col-md-7"}, 
+                    React.createElement("div", {className: "col-md-1"}, 
+                        React.createElement("img", {id: "logo", src: LOGO_LOCATION})
+                    ), 
+                    React.createElement("div", {className: "col-md-6 notLogo"}, 
                         React.createElement("p", null, summary)
-                    ),
-                    React.createElement("div", {className: "col-md-4"}, 
+                    ), 
+                    React.createElement("div", {className: "col-md-3 notLogo"}, 
                         React.createElement(Button, {text: submit, handle_click: submit_handle_click}), 
                         React.createElement(Button, {text: about, handle_click: about_handle_click})
-                    ),
-                    React.createElement("div", {className: "col-md-1"},
+                    ), 
+                    React.createElement("div", {className: "col-md-1 notLogo"}, 
                         React.createElement("a", {href: other_language_link}, other_language_prompt)
                     )
                 ), 
@@ -1741,8 +1739,8 @@ var SubmitStart = React.createClass({displayName: "SubmitStart",
                             provide_my_own
                         )
                     )
-                ),
-                React.createElement(FormTag, React.__spread({}, form_props, {ref: "form"})),
+                ), 
+                React.createElement(FormTag, React.__spread({},  form_props, {ref: "form"})), 
 
                 React.createElement("div", {className: "row"}, 
                     React.createElement("div", {className: "col-md-12"}, 

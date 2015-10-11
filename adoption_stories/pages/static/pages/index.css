@@ -26,6 +26,14 @@ p, button, a {
     margin-bottom: 33px;
 }
 
+#header-bottom-row .notLogo {
+    margin-top: 30px;
+}
+
+#logo {
+    height: 150px;
+}
+
 #header-bottom-row p {
     line-height: 2;
 }

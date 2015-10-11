@@ -7,7 +7,7 @@
   {# Translators: The title of the site that shows up in the top of a browser or in a tab #}
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>{% trans "Chinese-American" %}</title>
+  <title>{% trans "Our China Stories" %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8"/>
   <!-- TODO: Add shims for legacy browsers -->
   <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
@@ -36,6 +36,7 @@
     var PHOTO_UPLOAD_ENDPOINT = "{% url "photoCreate" %}";
     var AUDIO_UPLOAD_ENDPOINT = "{% url "audioCreate" %}";
     var VIDEO_UPLOAD_ENDPOINT = "{% url "videoCreate" %}";
+    var LOGO_LOCATION = "{% static "pages/logo.jpg" %}";
   </script>
   <!-- TODO: Add opengraph integration at Jena's request -->
 </head>
