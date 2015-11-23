@@ -1,9 +1,60 @@
-h1, h2, h3, a, h4, h5, h6 {
-    font-family: georgia;
+p, button, a, h1, h2, h3, a, h4, h5, h6 {
+    font-family: notoSerif, Palatino, "Palatino Linotype", serif, "SimSun", "STHeiti Light", "华文细黑", "宋体";
 }
 
-p, button, a {
-    font-family: times, "SimSun", "STHeiti Light", "华文细黑", "宋体";
+p {
+    font-size: 14pt;
+    color: #333;
+}
+
+.button {
+    font-size: 18px;
+    height: 55px;
+    width: 200px;
+    background-color: #FFF;
+    color: #E64C3B;
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, .1);
+    text-align: center;
+    border: 2px solid #E64C3B;
+    -ms-box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    box-sizing:border-box;
+}
+
+.headerRow .button:nth-child(1) {
+    margin-left: 20px;
+    margin-right: 25px;
+}
+
+.headerRow .button:nth-child(2) {
+    margin-left: 25px;
+    margin-right: 20px;
+}
+
+.buttonContainer {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.buttons {
+    display: inline-block;
+}
+
+.summaryRow {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.summaryContainer {
+    text-align: center;
+}
+
+.summaryContainer p {
+    text-align: center;
+    display: inline-block;
+    max-width: 490px;
 }
 
 .story-card {
@@ -26,12 +77,10 @@ p, button, a {
     margin-bottom: 33px;
 }
 
-#header-bottom-row .notLogo {
-    margin-top: 30px;
-}
-
 #logo {
-    height: 150px;
+    height: 100px;
+    display: block;
+    margin: 20px auto;
 }
 
 #header-bottom-row p {

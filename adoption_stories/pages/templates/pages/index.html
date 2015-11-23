@@ -19,6 +19,12 @@
   <script type="text/javascript"
           src="{% url 'django.views.i18n.javascript_catalog' %}?language={{ LANGUAGE_CODE }}"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <style>
+    @font-face {
+      font-family: notoSerif;
+      src: url({% static "pages/NotoSerif-Regular.ttf" %});
+    }
+  </style>
   <link rel="stylesheet" href="{% static "pages/index.css" %}">
   <link rel="icon" type="image/png" href="{% static "pages/icon.png" %}">
   <script>

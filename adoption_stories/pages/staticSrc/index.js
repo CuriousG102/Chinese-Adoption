@@ -37,7 +37,7 @@ var Modal = ReactModal;
 
 var Button = React.createClass({
     render: function () {
-        var class_string = this.props.class_string ? this.props.class_string : "btn btn-primary btn-lg active";
+        var class_string = this.props.class_string ? this.props.class_string : "button";
         var type_string = this.props.type_string ? this.props.type_string : "button";
         var styles = this.props.styles ? this.props.styles : {};
 
@@ -458,7 +458,7 @@ var FrontPage = React.createClass({
         // Translators: Title for the site
         var title = gettext("Our China Stories");
         // Translators: Summary of the site
-        var summary = gettext("Since 1992, some 140,000 children have left China for homes in sixteen countries. While there are many narratives surrounding these adoptions, these stories are best told by the people most intimately involved. Here, Chinese adoptees, their family members, friends and mentors speak for themselves.");
+        var summary = gettext("Since 1992, some 140,000 children have left China for homes in sixteen countries. Here, Chinese adoptees, their families and friends tell their stories.");
         // Translators: Button label
         var submit = gettext("Share Your Story");
         var submit_handle_click = function () {
@@ -535,20 +535,22 @@ var FrontPage = React.createClass({
 
         return (
             <div className="container">
-                <div className="row" id="header-bottom-row">
-                    <div className="col-md-1">
+                <div className="headerRow">
+                    <div className="col-md-12">
                         <img id="logo" src={LOGO_LOCATION}/>
+                        <a href={other_language_link} style={{float: "right"}}>{other_language_prompt}</a>
+                        <div className="summaryContainer">
+                            <p>{summary}</p>
+                        </div>
+                        <div className="buttonContainer">
+                            <div className="buttons">
+                                <Button text={submit} handle_click={submit_handle_click}/>
+                                <Button text={about} handle_click={about_handle_click}/>
+                            </div>
+                        </div>
                     </div>
-                    <div className="col-md-6 notLogo">
-                        <p>{summary}</p>
-                    </div>
-                    <div className="col-md-3 notLogo">
-                        <Button text={submit} handle_click={submit_handle_click}/>
-                        <Button text={about} handle_click={about_handle_click}/>
-                    </div>
-                    <div className="col-md-1 notLogo">
-                        <a href={other_language_link}>{other_language_prompt}</a>
-                    </div>
+                </div>
+                <div className="row headerFillRow">
                 </div>
                 {paginator}
                 <RouteHandler/>
