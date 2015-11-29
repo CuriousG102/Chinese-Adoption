@@ -530,15 +530,21 @@ var FrontPage = React.createClass({displayName: "FrontPage",
             items_prerender_processor: items_prerender_processor});
 
         var RouteHandler = ReactRouter.RouteHandler;
-        var other_language_prompt = language === ENGLISH ? gettext("Switch to Chinese") : gettext("Switch to English");
+        var other_language_prompt = language === ENGLISH ? "中文" : "Switch to English";
         var other_language_link = language === ENGLISH ? "/zh-hans/#" : "/en/#";
 
         return (
             React.createElement("div", {className: "container"}, 
                 React.createElement("div", {className: "headerRow"}, 
                     React.createElement("div", {className: "col-md-12"}, 
-                        React.createElement("img", {id: "logo", src: LOGO_LOCATION}), 
-                        React.createElement("a", {href: other_language_link, style: {float: "right"}}, other_language_prompt), 
+                        React.createElement("div", {className: "logoSwitchLinkContainer"}, 
+                            React.createElement("div", {className: "otherLanguagePromptContainer"}, 
+                                React.createElement("a", {href: other_language_link}, other_language_prompt)
+                            ), 
+                            React.createElement("div", {className: "imageContainer"}, 
+                                React.createElement("img", {className: "logo", src: LOGO_LOCATION})
+                            )
+                        ), 
                         React.createElement("div", {className: "summaryContainer"}, 
                             React.createElement("p", null, summary)
                         ), 
@@ -1422,7 +1428,7 @@ var CreateAdopteeForm = React.createClass({displayName: "CreateAdopteeForm",
     chineseInputChange: function (event) {
         this.setState({chinese_name: event.target.value, chinese_name_valid: true});
     },
-    continueForward() {
+    continueForward: function () {
         // TODO: Make this block duplicate posts
         var get_name_value = function (name, valid) {
             if (valid && name && name.length > 0)
@@ -1505,7 +1511,7 @@ var AddToAdopteeForm = React.createClass({displayName: "AddToAdopteeForm",
             value: text
         });
     },
-    continueForward () {
+    continueForward: function () {
         if (this.state.selected_adoptee) {
             this.props.transition({
                 tag: EnterStoryForm,
@@ -1560,10 +1566,10 @@ var ProvideForm = React.createClass({displayName: "ProvideForm",
     otherContent: function () {
         this.hasOtherContent(true);
     },
-    hasOtherContent(has_content) {
+    hasOtherContent: function (has_content) {
         this.setState({other_content: has_content});
     },
-    continueForward() {
+    continueForward: function () {
         this.refs.form.continueForward();
     },
     render: function () {
@@ -1767,8 +1773,8 @@ var SubmitPrompt = React.createClass({displayName: "SubmitPrompt",
     },
     getDefaultProps: function () {
         return {
-            active_button_class: "btn btn-primary btn-lg active-form-selector",
-            inactive_button_class: "btn btn-default btn-lg active-form-selector"
+            active_button_class: "button active",
+            inactive_button_class: "button"
         }
     },
     transition: function (content) {
@@ -1837,7 +1843,7 @@ function analytics(state, options) {
     ga('send', 'pageview', options);
 }
 
-ReactRouter.run(routes, ReactRouter.HashLocation, (FrontPage, state) => {
+ReactRouter.run(routes, ReactRouter.HashLocation, function (FrontPage, state) {
     React.render(React.createElement(FrontPage, null), appElement);
     // TODO: Analytics here
     // analytics(state)

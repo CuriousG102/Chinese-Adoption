@@ -530,15 +530,21 @@ var FrontPage = React.createClass({
             items_prerender_processor={items_prerender_processor}></PaginationSection>;
 
         var RouteHandler = ReactRouter.RouteHandler;
-        var other_language_prompt = language === ENGLISH ? gettext("Switch to Chinese") : gettext("Switch to English");
+        var other_language_prompt = language === ENGLISH ? "中文" : "Switch to English";
         var other_language_link = language === ENGLISH ? "/zh-hans/#" : "/en/#";
 
         return (
             <div className="container">
                 <div className="headerRow">
                     <div className="col-md-12">
-                        <img id="logo" src={LOGO_LOCATION}/>
-                        <a href={other_language_link} style={{float: "right"}}>{other_language_prompt}</a>
+                        <div className="logoSwitchLinkContainer">
+                            <div className="otherLanguagePromptContainer">
+                                <a href={other_language_link}>{other_language_prompt}</a>
+                            </div>
+                            <div className="imageContainer">
+                                <img className="logo" src={LOGO_LOCATION}/>
+                            </div>
+                        </div>
                         <div className="summaryContainer">
                             <p>{summary}</p>
                         </div>
@@ -1422,7 +1428,7 @@ var CreateAdopteeForm = React.createClass({
     chineseInputChange: function (event) {
         this.setState({chinese_name: event.target.value, chinese_name_valid: true});
     },
-    continueForward() {
+    continueForward: function () {
         // TODO: Make this block duplicate posts
         var get_name_value = function (name, valid) {
             if (valid && name && name.length > 0)
@@ -1505,7 +1511,7 @@ var AddToAdopteeForm = React.createClass({
             value: text
         });
     },
-    continueForward () {
+    continueForward: function () {
         if (this.state.selected_adoptee) {
             this.props.transition({
                 tag: EnterStoryForm,
@@ -1560,10 +1566,10 @@ var ProvideForm = React.createClass({
     otherContent: function () {
         this.hasOtherContent(true);
     },
-    hasOtherContent(has_content) {
+    hasOtherContent: function (has_content) {
         this.setState({other_content: has_content});
     },
-    continueForward() {
+    continueForward: function () {
         this.refs.form.continueForward();
     },
     render: function () {
@@ -1767,8 +1773,8 @@ var SubmitPrompt = React.createClass({
     },
     getDefaultProps: function () {
         return {
-            active_button_class: "btn btn-primary btn-lg active-form-selector",
-            inactive_button_class: "btn btn-default btn-lg active-form-selector"
+            active_button_class: "button active",
+            inactive_button_class: "button"
         }
     },
     transition: function (content) {
@@ -1837,7 +1843,7 @@ function analytics(state, options) {
     ga('send', 'pageview', options);
 }
 
-ReactRouter.run(routes, ReactRouter.HashLocation, (FrontPage, state) => {
+ReactRouter.run(routes, ReactRouter.HashLocation, function (FrontPage, state) {
     React.render(<FrontPage/>, appElement);
     // TODO: Analytics here
     // analytics(state)
