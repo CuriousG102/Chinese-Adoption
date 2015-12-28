@@ -6,4 +6,7 @@ ADOPTEE_STORIES_CONFIG = {
     'FORMATS': {'JPEG',
                 },
     'IMAGE_MAX_SIZE': int(2.5 * 2 ** 20),  # 2.5 megabytes
+    'PHOTO_FRONT_STORY_HEIGHT': 75,
+    'PHOTO_FRONT_STORY_WIDTH': 200,
+    'PHOTO_FRONT_STORY_MAX_SIZE': int(200 * 2 ** 10),  # 200 kilobytes
 }

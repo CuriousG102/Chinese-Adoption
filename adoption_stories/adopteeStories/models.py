@@ -1,9 +1,12 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.core import validators
 
 
 # Create your models here.
 from embed_video.fields import EmbedYoutubeField, EmbedSoundcloudField
+
+from .custom_model_fields import RestrictedImageField
 
 
 class Adoptee(models.Model):
@@ -19,11 +22,9 @@ class Adoptee(models.Model):
                                     # Translators: Name of a field in the admin page
                                     db_index=True, verbose_name=_('Chinese Name'))
 
-    # Ticket here: https://code.djangoproject.com/ticket/25306#ticket
-    photo_front_story = models.ForeignKey('Photo', null=True, blank=True,
+    photo_front_story = RestrictedImageField(null=True, blank=True,
                                           # Translators: Name of a field in the admin page
-                                          verbose_name=_('Photo Front Story'),
-                                          limit_choices_to={'approved': True})
+                                          verbose_name=_('Photo Front Story'))
 
     # Translators: Name of a field in the admin page
     front_story = models.ForeignKey('StoryTeller', null=True, verbose_name=_('Front Story'), blank=True,

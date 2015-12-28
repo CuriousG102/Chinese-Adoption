@@ -1,13 +1,15 @@
 import json
 
 from adopteeStories import ContentGeneration
+from django.core.files.base import ContentFile
 import io
 from PIL import Image
 from adopteeStories.models import Adoptee, StoryTeller, RelationshipCategory, Photo, Video, Audio
 from django.core.urlresolvers import reverse
 from django.test import TestCase, Client
 from django.conf import settings
-from .ContentGeneration import create_random_photo
+from .ContentGeneration import create_random_photo, create_random_image_file
+from .default_settings import ADOPTEE_STORIES_CONFIG as config
 
 
 # Create your tests here.
@@ -51,7 +53,9 @@ class AdopteeSearchTestCase(TestCase):
 
         for adoptee, storyteller, photo in zip(self.adoptees, self.storytellers, self.photos):
             adoptee.front_story = storyteller
-            adoptee.photo_front_story = photo
+            image_file = create_random_image_file(config['PHOTO_FRONT_STORY_WIDTH'],
+                                                  config['PHOTO_FRONT_STORY_HEIGHT'])
+            adoptee.photo_front_story.save('bs.jpg', ContentFile(image_file.getvalue()))
             adoptee.save()
 
         self.c = Client()
@@ -68,7 +72,7 @@ class AdopteeSearchTestCase(TestCase):
                           ' "pinyin_name": "{0.pinyin_name}",' \
                           ' "chinese_name": "{0.chinese_name}",' \
                           ' "id": {0.id},' \
-                          ' "photo_front_story": {{"photo_file":"{0.photo_front_story.photo_file.url}"}}}}'.format(self.adoptees[0])
+                          ' "photo_front_story": "http://testserver{0.photo_front_story.url}"}}'.format(self.adoptees[0])
         expected_response = '{{"next":null,"previous":null,"results":[{}]}}' \
             .format(m_jing_mei_json)
         self.assertJSONEqual(response.content.decode('utf-8'),
@@ -97,12 +101,12 @@ class AdopteeSearchTestCase(TestCase):
                           ' "pinyin_name": "{0.pinyin_name}",' \
                           ' "chinese_name": "{0.chinese_name}",' \
                           ' "id": {0.id},' \
-                          ' "photo_front_story": {{"photo_file":"{0.photo_front_story.photo_file.url}"}}}}'.format(self.adoptees[0])
+                          ' "photo_front_story": "http://testserver{0.photo_front_story.url}"}}'.format(self.adoptees[0])
         lola_json = '{{"english_name": null,' \
                     ' "pinyin_name": "{0.pinyin_name}",' \
                     ' "chinese_name": "{0.chinese_name}",' \
                     ' "id": {0.id},' \
-                    ' "photo_front_story": {{"photo_file":"{0.photo_front_story.photo_file.url}"}}}}'.format(self.adoptees[3])
+                    ' "photo_front_story": "http://testserver{0.photo_front_story.url}"}}'.format(self.adoptees[3])
         expected_response = '{{"next":null,"previous":null,"results":[{0}, {1}]}}' \
             .format(lola_json, m_jing_mei_json)
         self.assertJSONEqual(response.content.decode('utf-8'),
@@ -129,7 +133,7 @@ class AdopteeSearchTestCase(TestCase):
                           ' "pinyin_name": "{0.pinyin_name}",' \
                           ' "chinese_name": "{0.chinese_name}",' \
                           ' "id": {0.id},' \
-                          ' "photo_front_story": {{"photo_file":"{0.photo_front_story.photo_file.url}"}}}}'.format(self.adoptees[0])
+                          ' "photo_front_story": "http://testserver{0.photo_front_story.url}"}}'.format(self.adoptees[0])
         expected_response = '{{"next":null,"previous":null,"results":[{}]}}' \
             .format(m_jing_mei_json)
         self.assertJSONEqual(response.content.decode('utf-8'),
@@ -137,6 +141,8 @@ class AdopteeSearchTestCase(TestCase):
 
 
 class AdopteeGetTestCase(TestCase):
+    maxDiff = None
+
     def setUp(self):
         self.adoptees = [
             Adoptee(english_name='Madeline Jing-Mei',
@@ -171,7 +177,9 @@ class AdopteeGetTestCase(TestCase):
             photo = create_random_photo(storyteller)
             self.photos.append(photo)
             adoptee.front_story = storyteller
-            adoptee.photo_front_story = photo
+            image_file = create_random_image_file(config['PHOTO_FRONT_STORY_WIDTH'],
+                                                  config['PHOTO_FRONT_STORY_HEIGHT'])
+            adoptee.photo_front_story.save('bs.jpg', ContentFile(image_file.getvalue()))
             adoptee.save()
 
         self.c = Client()
@@ -195,13 +203,13 @@ class AdopteeGetTestCase(TestCase):
                           ' "pinyin_name": "{0.pinyin_name}",' \
                           ' "chinese_name": "{0.chinese_name}",' \
                           ' "id": {0.id},' \
-                          ' "photo_front_story": {{"photo_file":"{0.photo_front_story.photo_file.url}"}},' \
+                          ' "photo_front_story": "http://testserver{0.photo_front_story.url}",' \
                           ' "front_story": {{"story_text": "bsbs"}} }}'.format(self.adoptees[0])
         lola_json = '{{"english_name": null,' \
                     ' "pinyin_name": "{0.pinyin_name}",' \
                     ' "chinese_name": "{0.chinese_name}",' \
                     ' "id": {0.id},' \
-                    ' "photo_front_story": {{"photo_file":"{0.photo_front_story.photo_file.url}"}},' \
+                    ' "photo_front_story": "http://testserver{0.photo_front_story.url}",' \
                     ' "front_story": {{"story_text": "bsbs"}} }}'.format(self.adoptees[2])
         expected_response = '{{"next":null,"previous":null,"results":[{0}, {1}]}}' \
             .format(lola_json, m_jing_mei_json)
@@ -230,7 +238,7 @@ class AdopteeGetTestCase(TestCase):
                     ' "pinyin_name": "{0.pinyin_name}",' \
                     ' "chinese_name": "{0.chinese_name}",' \
                     ' "id": {0.id},' \
-                    ' "photo_front_story": {{"photo_file":"{0.photo_front_story.photo_file.url}"}},' \
+                    ' "photo_front_story": "http://testserver{0.photo_front_story.url}",' \
                     ' "front_story": {{"story_text": "bsbs"}} }}'.format(self.adoptees[2])
         expected_response = '{{"next":null,"previous":null,"results":[{0}]}}' \
             .format(lola_json)
@@ -394,8 +402,8 @@ class PhotoFileUploadTestCase(TestCase):
     def setUp(self):
         self.c = Client()
         self.upload_url = reverse('photoCreate')
-        self.MIN_WIDTH = 600
-        self.MIN_HEIGHT = 400
+        self.MIN_WIDTH = config['MIN_WIDTH']
+        self.MIN_HEIGHT = config['MIN_HEIGHT']
 
         self.adoptees = [
             Adoptee(english_name='Madeline Jing-Mei',
@@ -523,7 +531,7 @@ class PhotoFileUploadTestCase(TestCase):
         qs = Photo.objects.all()
         self.assertEqual(len(qs), 0)
 
-        # TODO: Test validation with a file that is too large
+    # TODO: Test validation with a file that is too large
 
 # TODO: Make a parent class for VideoCreateTestCase and AudioCreateTestCase, because they're literally just copy paste with a few changed variables
 class VideoCreateTestCase(TestCase):

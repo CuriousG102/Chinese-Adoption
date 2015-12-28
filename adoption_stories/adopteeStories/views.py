@@ -29,6 +29,7 @@ from rest_framework import mixins
 # exceptions for relationship categories without bloating the selector as well.
 ADOPTEE_FILTERS_Q_OBJECTS = [Q(stories__approved=True),
                              Q(front_story__isnull=False),
+                             Q(front_story__approved=True),
                              Q(photo_front_story__isnull=False),
                              ]
 ADOPTEE_FILTER = Q()
@@ -36,7 +37,7 @@ ADOPTEE_FILTER = Q()
 for q_object in ADOPTEE_FILTERS_Q_OBJECTS:
     ADOPTEE_FILTER &= q_object
 
-CATEGORY_FILTERS_Q_OBJECTS = [Q(approved=True)]
+CATEGORY_FILTERS_Q_OBJECTS = [Q(approved=True), ]
 CATEGORY_FILTER = Q()
 
 for q_object in CATEGORY_FILTERS_Q_OBJECTS:
@@ -95,6 +96,7 @@ class StoryTellerCreate(GenericCreate):
 class CategoryListAndCreate(GenericCreate):
     serializer_class = serializers.RelationshipSerializer
     queryset = RelationshipCategory.objects.all().filter(CATEGORY_FILTER)
+
     def get(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)

@@ -8,17 +8,6 @@ from embed_video.backends import YoutubeBackend
 from rest_framework import serializers
 
 
-class PhotoLinkSerializer(serializers.ModelSerializer):
-    photo_file = serializers.SerializerMethodField('get_photo_link')
-
-    def get_photo_link(self, instance):
-        return instance.photo_file.url
-
-    class Meta:
-        model = Photo
-        fields = ('photo_file',)
-
-
 class AudioLinkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Audio
@@ -37,6 +26,7 @@ class StoryTextSerializer(serializers.Serializer):
     def get_story_text(self, instance):
         return instance.story_text
 
+
 class AdopteeBasicsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Adoptee
@@ -44,14 +34,11 @@ class AdopteeBasicsSerializer(serializers.ModelSerializer):
 
 
 class AdopteeSearchSerializer(AdopteeBasicsSerializer):
-    photo_front_story = PhotoLinkSerializer(many=False)
-
     class Meta(AdopteeBasicsSerializer.Meta):
         fields = AdopteeBasicsSerializer.Meta.fields + ('photo_front_story',)
 
 
 class AdopteeListSerializer(AdopteeBasicsSerializer):
-    photo_front_story = PhotoLinkSerializer(many=False)
     front_story = StoryTextSerializer(many=False)
 
     class Meta(AdopteeBasicsSerializer.Meta):
@@ -171,6 +158,7 @@ class PhotoSerializer(serializers.ModelSerializer):
         model = Photo
         fields = MULTIMEDIA_FIELDS + ('photo_file',)
 
+
 class AudioSerializer(serializers.ModelSerializer):
     audio = SoundcloudField()
 
@@ -197,24 +185,17 @@ class StorySerializer(StoryBasicsSerializer):
     media = serializers.SerializerMethodField('get_media_field')
 
     def get_media_field(self, instance):
-        querysets = {"audio": Audio.objects.all().filter(story_teller=instance)
-            .filter(approved=True),
-                     "video": Video.objects.all().filter(story_teller=instance)
-                         .filter(approved=True),
-                     "photo": Photo.objects.all().filter(story_teller=instance)
-                         .filter(approved=True)}
-
-        queryset_serializers = {"audio": AudioSerializer,
-                                "video": VideoSerializer,
-                                "photo": PhotoSerializer}
+        querysets = {"audio": (Audio.objects.all(), AudioSerializer),
+                     "video": (Video.objects.all(), VideoSerializer),
+                     "photo": (Photo.objects.all(), PhotoSerializer), }
 
         response = {}
 
-        for label, queryset in querysets.items():
+        for label, queryset_and_serializer in querysets.items():
+            queryset, serializer = queryset_and_serializer
             queryset = queryset.filter(story_teller=instance) \
                 .filter(approved=True)
-            response[label] = queryset_serializers[label](queryset,
-                                                          many=True).data
+            response[label] = serializer(queryset, many=True).data
 
         return response
 
