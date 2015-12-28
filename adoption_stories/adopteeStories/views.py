@@ -28,6 +28,8 @@ from rest_framework import mixins
 # that storyteller if it isn't media. This allows granularity in making one-off
 # exceptions for relationship categories without bloating the selector as well.
 ADOPTEE_FILTERS_Q_OBJECTS = [Q(stories__approved=True),
+                             Q(front_story__isnull=False),
+                             Q(photo_front_story__isnull=False),
                              ]
 ADOPTEE_FILTER = Q()
 
@@ -59,8 +61,7 @@ class AdopteeSearch(generics.ListAPIView):
 
 
 class AdopteeList(generics.ListAPIView):
-    queryset = Adoptee.objects.all().filter(ADOPTEE_FILTER) \
-        .filter(front_story__isnull=False).distinct()
+    queryset = Adoptee.objects.all().filter(ADOPTEE_FILTER).distinct()
     serializer_class = serializers.AdopteeListSerializer
 
 

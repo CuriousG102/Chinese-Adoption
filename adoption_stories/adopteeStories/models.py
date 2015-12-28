@@ -76,7 +76,7 @@ class MultimediaItem(models.Model):
         ordering = ['-created']
 
     def __str__(self):
-        return str(self.story_teller) + str(self.created)
+        return " ".join([str(self.story_teller), str(self.created)])
 
 
 class Audio(MultimediaItem):

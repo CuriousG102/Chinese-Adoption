@@ -28,22 +28,55 @@ class LoremIpsumProxy():
     def get_paragraphs(self, amount, start_with_lorem=False):
         return '\n'.join(loremipsum.get_paragraphs(amount, start_with_lorem))
 
+YOUTUBE_VIDEOS = ('https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+                  'https://www.youtube.com/watch?v=PYpiQ4gbngc')
+
+SOUNDCLOUD_CLIPS = ('https://soundcloud.com/syed-sarim-ahsen/wake-me-up-avicci-feat-aloe',
+                    'https://soundcloud.com/helterskelter-beatles-c/cant-buy-me-love',)
+
+PHOTO_DIMENSION_BOUNDARIES = ((600, 3001), (400, 3001))  # like ((minX, maxX), (minY, maxY))
+
+NUMBER_OF_CAPTION_SENTENCES = (1, 2)  # it's a range [min, max)
+
+def set_other_media_fields(media_item, storyteller):
+    media_item.english_caption = LoremIpsumProxy().get_sentences(random.randrange(*NUMBER_OF_CAPTION_SENTENCES))
+    media_item.chinese_caption = chinese_lorem.get_sentences(random.randrange(*NUMBER_OF_CAPTION_SENTENCES))
+    media_item.approved = True
+    media_item.story_teller = storyteller
+
+def create_random_photo(storyteller):
+    width = random.randrange(*PHOTO_DIMENSION_BOUNDARIES[0])
+    height = random.randrange(*PHOTO_DIMENSION_BOUNDARIES[1])
+    r = random.randrange(0, 256)
+    g = random.randrange(0, 256)
+    b = random.randrange(0, 256)
+    photo = Image.new('RGB', (width, height), (r, g, b))
+    photo_file = io.BytesIO()
+    photo.save(photo_file, format="JPEG")
+    photo_file.seek(0)
+    photo = Photo()
+    photo.photo_file.save('bs.jpg', ContentFile(photo_file.getvalue()))
+    set_other_media_fields(photo, storyteller)
+    photo.save()
+    return photo
+
+def create_random_video(storyteller):
+    video = Video(video=random.choice(YOUTUBE_VIDEOS))
+    set_other_media_fields(video, storyteller)
+    video.save()
+    return video
+
+def create_random_audio(storyteller):
+    audio = Audio(audio=random.choice(SOUNDCLOUD_CLIPS))
+    set_other_media_fields(audio, storyteller)
+    audio.save()
+    return audio
 
 def generate_test_content(number_of_adoptees=100):
     STORYTELLER_NAMES = (('Karen', 'Wilbanks'), ('Josh', 'Duggar'), ('Brandon', 'Mond'),
                          ('Jena', 'Heath', '姓名', 'xing-ming'))
 
     ADOPTEE_NAMES = (('Madeline', 'Jǐngměi', '景美'), ('Stephen', 'xing-ming', '姓名'))
-
-    YOUTUBE_VIDEOS = ('https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-                      'https://www.youtube.com/watch?v=PYpiQ4gbngc')
-
-    SOUNDCLOUD_CLIPS = ('https://soundcloud.com/syed-sarim-ahsen/wake-me-up-avicci-feat-aloe',
-                        'https://soundcloud.com/helterskelter-beatles-c/cant-buy-me-love',)
-
-    PHOTO_DIMENSION_BOUNDARIES = ((600, 3001), (400, 3001))  # like ((minX, maxX), (minY, maxY))
-
-    NUMBER_OF_CAPTION_SENTENCES = (1, 2)  # it's a range [min, max)
 
     RELATIONSHIPS = [('Biological Father', '关系'), ('Biological Mother', '关系'),
                      ('Adoptive Father', '关系'), ('Adoptive Mother', '关系'),
@@ -57,40 +90,6 @@ def generate_test_content(number_of_adoptees=100):
 
     NUMBER_OF_STORIES_PER_ADOPTEE = (1, 6)  # it's a range [min, max)
     NUMBER_OF_PARAGRAPHS_IN_A_STORY = (4, 14)  # it's a range [min, max)
-
-    def set_other_media_fields(media_item, storyteller):
-        media_item.english_caption = LoremIpsumProxy().get_sentences(random.randrange(*NUMBER_OF_CAPTION_SENTENCES))
-        media_item.chinese_caption = chinese_lorem.get_sentences(random.randrange(*NUMBER_OF_CAPTION_SENTENCES))
-        media_item.approved = True
-        media_item.story_teller = storyteller
-
-    def create_random_photo(storyteller):
-        width = random.randrange(*PHOTO_DIMENSION_BOUNDARIES[0])
-        height = random.randrange(*PHOTO_DIMENSION_BOUNDARIES[1])
-        r = random.randrange(0, 256)
-        g = random.randrange(0, 256)
-        b = random.randrange(0, 256)
-        photo = Image.new('RGB', (width, height), (r, g, b))
-        photo_file = io.BytesIO()
-        photo.save(photo_file, format="JPEG")
-        photo_file.seek(0)
-        photo = Photo()
-        photo.photo_file.save('bs.jpg', ContentFile(photo_file.getvalue()))
-        set_other_media_fields(photo, storyteller)
-        photo.save()
-        return photo
-
-    def create_random_video(storyteller):
-        video = Video(video=random.choice(YOUTUBE_VIDEOS))
-        set_other_media_fields(video, storyteller)
-        video.save()
-        return video
-
-    def create_random_audio(storyteller):
-        audio = Audio(audio=random.choice(SOUNDCLOUD_CLIPS))
-        set_other_media_fields(audio, storyteller)
-        audio.save()
-        return audio
 
     for i in range(0, number_of_adoptees):  # create an adoptee and all of the
         adoptee = Adoptee.objects.create(english_name=random.choice(ADOPTEE_NAMES)[0],

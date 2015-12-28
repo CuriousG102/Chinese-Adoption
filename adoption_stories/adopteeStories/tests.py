@@ -7,6 +7,7 @@ from adopteeStories.models import Adoptee, StoryTeller, RelationshipCategory, Ph
 from django.core.urlresolvers import reverse
 from django.test import TestCase, Client
 from django.conf import settings
+from .ContentGeneration import create_random_photo
 
 
 # Create your tests here.
@@ -42,8 +43,16 @@ class AdopteeSearchTestCase(TestCase):
                                          **prototypical_storyteller_kw_args)
                              for adoptee in self.adoptees]
 
+        self.photos = []
+
         for storyteller in self.storytellers:
             storyteller.save()
+            self.photos.append(create_random_photo(storyteller))
+
+        for adoptee, storyteller, photo in zip(self.adoptees, self.storytellers, self.photos):
+            adoptee.front_story = storyteller
+            adoptee.photo_front_story = photo
+            adoptee.save()
 
         self.c = Client()
         self.adoptee_search_url_name = 'adopteeSearch'
@@ -51,7 +60,7 @@ class AdopteeSearchTestCase(TestCase):
     def test_adoptee_search2(self):
         """
         Search with first Latin letter matching an english name should get that adoptee
-        when the adoptee has an approved storyteller
+        when the adoptee has an approved storyteller and front page story and photo front story
         """
         response = self.c.get(reverse(self.adoptee_search_url_name, args=['Mad']))
         # TODO: Abstract the JSON building here
@@ -59,9 +68,22 @@ class AdopteeSearchTestCase(TestCase):
                           ' "pinyin_name": "{0.pinyin_name}",' \
                           ' "chinese_name": "{0.chinese_name}",' \
                           ' "id": {0.id},' \
-                          ' "photo_front_story": null}}'.format(self.adoptees[0])
+                          ' "photo_front_story": {{"photo_file":"{0.photo_front_story.photo_file.url}"}}}}'.format(self.adoptees[0])
         expected_response = '{{"next":null,"previous":null,"results":[{}]}}' \
             .format(m_jing_mei_json)
+        self.assertJSONEqual(response.content.decode('utf-8'),
+                             expected_response)
+
+    def test_adoptee_search4(self):
+        """
+        Search with first Latin letter matching an english name should get nothing
+        when the adoptee has no front page story chosen
+        """
+        self.adoptees[0].front_story = None
+        self.adoptees[0].save()
+        response = self.c.get(reverse(self.adoptee_search_url_name, args=['Mad']))
+        # TODO: Abstract the JSON building here
+        expected_response = '{"next":null,"previous":null,"results":[]}'
         self.assertJSONEqual(response.content.decode('utf-8'),
                              expected_response)
 
@@ -75,12 +97,12 @@ class AdopteeSearchTestCase(TestCase):
                           ' "pinyin_name": "{0.pinyin_name}",' \
                           ' "chinese_name": "{0.chinese_name}",' \
                           ' "id": {0.id},' \
-                          ' "photo_front_story": null}}'.format(self.adoptees[0])
+                          ' "photo_front_story": {{"photo_file":"{0.photo_front_story.photo_file.url}"}}}}'.format(self.adoptees[0])
         lola_json = '{{"english_name": null,' \
                     ' "pinyin_name": "{0.pinyin_name}",' \
                     ' "chinese_name": "{0.chinese_name}",' \
                     ' "id": {0.id},' \
-                    ' "photo_front_story": null}}'.format(self.adoptees[3])
+                    ' "photo_front_story": {{"photo_file":"{0.photo_front_story.photo_file.url}"}}}}'.format(self.adoptees[3])
         expected_response = '{{"next":null,"previous":null,"results":[{0}, {1}]}}' \
             .format(lola_json, m_jing_mei_json)
         self.assertJSONEqual(response.content.decode('utf-8'),
@@ -107,7 +129,7 @@ class AdopteeSearchTestCase(TestCase):
                           ' "pinyin_name": "{0.pinyin_name}",' \
                           ' "chinese_name": "{0.chinese_name}",' \
                           ' "id": {0.id},' \
-                          ' "photo_front_story": null}}'.format(self.adoptees[0])
+                          ' "photo_front_story": {{"photo_file":"{0.photo_front_story.photo_file.url}"}}}}'.format(self.adoptees[0])
         expected_response = '{{"next":null,"previous":null,"results":[{}]}}' \
             .format(m_jing_mei_json)
         self.assertJSONEqual(response.content.decode('utf-8'),
@@ -142,10 +164,14 @@ class AdopteeGetTestCase(TestCase):
                                          **prototypical_storyteller_kw_args)
                              for adoptee in self.adoptees]
 
-        for i, storyteller in enumerate(self.storytellers):
+        self.photos = []
+
+        for adoptee, storyteller in zip(self.adoptees, self.storytellers):
             storyteller.save()
-            adoptee = self.adoptees[i]
+            photo = create_random_photo(storyteller)
+            self.photos.append(photo)
             adoptee.front_story = storyteller
+            adoptee.photo_front_story = photo
             adoptee.save()
 
         self.c = Client()
@@ -155,15 +181,13 @@ class AdopteeGetTestCase(TestCase):
         """
         Adoptee list endpoint shows adoptees with approved storytellers
         """
-        for storyteller in enumerate(self.storytellers):
-            if storyteller[0] % 2 == 1:
-                storyteller[1].approved = False
-                storyteller[1].save()
+        for storyteller in self.storytellers[1::2]:
+            storyteller.approved = False
+            storyteller.save()
 
-        for i, adoptee in enumerate(self.adoptees):
-            if i % 2 == 0:
-                adoptee.front_story = self.storytellers[i]
-                adoptee.save()
+        for adoptee, storyteller in zip(self.adoptees[::2], self.storytellers[::2]):
+            adoptee.front_story = storyteller
+            adoptee.save()
 
         response = self.c.get(self.adoptee_list_url)
 
@@ -171,13 +195,13 @@ class AdopteeGetTestCase(TestCase):
                           ' "pinyin_name": "{0.pinyin_name}",' \
                           ' "chinese_name": "{0.chinese_name}",' \
                           ' "id": {0.id},' \
-                          ' "photo_front_story": null,' \
+                          ' "photo_front_story": {{"photo_file":"{0.photo_front_story.photo_file.url}"}},' \
                           ' "front_story": {{"story_text": "bsbs"}} }}'.format(self.adoptees[0])
         lola_json = '{{"english_name": null,' \
                     ' "pinyin_name": "{0.pinyin_name}",' \
                     ' "chinese_name": "{0.chinese_name}",' \
                     ' "id": {0.id},' \
-                    ' "photo_front_story": null,' \
+                    ' "photo_front_story": {{"photo_file":"{0.photo_front_story.photo_file.url}"}},' \
                     ' "front_story": {{"story_text": "bsbs"}} }}'.format(self.adoptees[2])
         expected_response = '{{"next":null,"previous":null,"results":[{0}, {1}]}}' \
             .format(lola_json, m_jing_mei_json)
@@ -189,10 +213,9 @@ class AdopteeGetTestCase(TestCase):
         If the administrator has not assigned adoptees a story, they should not
         show up in the list endpoint
         """
-        for storyteller in enumerate(self.storytellers):
-            if storyteller[0] % 2 == 1:
-                storyteller[1].approved = False
-                storyteller[1].save()
+        for storyteller in self.storytellers[1::2]:
+            storyteller.approved = False
+            storyteller.save()
 
         for adoptee in self.adoptees:
             adoptee.front_story = None
@@ -207,7 +230,7 @@ class AdopteeGetTestCase(TestCase):
                     ' "pinyin_name": "{0.pinyin_name}",' \
                     ' "chinese_name": "{0.chinese_name}",' \
                     ' "id": {0.id},' \
-                    ' "photo_front_story": null,' \
+                    ' "photo_front_story": {{"photo_file":"{0.photo_front_story.photo_file.url}"}},' \
                     ' "front_story": {{"story_text": "bsbs"}} }}'.format(self.adoptees[2])
         expected_response = '{{"next":null,"previous":null,"results":[{0}]}}' \
             .format(lola_json)
@@ -222,18 +245,24 @@ class AdopteeGetTestCase(TestCase):
                             '  "chinese_name": null,' \
                             '  "id": {0.id}}}'.format(self.relationship)
 
+        photo_json = '{{"chinese_caption": "{0.chinese_caption}",' \
+                     '  "english_caption": "{0.english_caption}",' \
+                     '  "id": {0.id},' \
+                     '  "photo_file": "{0.photo_file.url}",' \
+                     '  "story_teller": {0.story_teller.id}}}'.format(self.photos[0])
+
         story_json = '{{"story_text": "bsbs",' \
                      '  "english_name": null,' \
                      '  "chinese_name": null,' \
                      '  "pinyin_name": null,' \
-                     '  "relationship_to_story": {},' \
+                     '  "relationship_to_story": {0},' \
                      '  "media": {{' \
                      '            "audio": [],' \
-                     '            "photo": [],' \
+                     '            "photo": [{1}],' \
                      '            "video": []' \
                      '}}' \
                      '}}' \
-            .format(relationship_json)
+            .format(relationship_json, photo_json)
 
         m_jing_mei_json = '{{"english_name": "{0.english_name}",' \
                           ' "pinyin_name": "{0.pinyin_name}",' \
