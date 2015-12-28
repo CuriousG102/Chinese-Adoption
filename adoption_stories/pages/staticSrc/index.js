@@ -407,11 +407,10 @@ var PaginationSection = React.createClass({
 var StoryCard = React.createClass({
     render: function () {
         var stuff_to_add = [];
+        stuff_to_add.push(<img src={this.props.photo_front_story.photo_file}></img>);
         stuff_to_add.push(<Adoptee english_name={this.props.english_name}
                                    chinese_name={this.props.chinese_name}
                                    pinyin_name={this.props.pinyin_name}></Adoptee>);
-
-        if (this.props.photo_front_story) stuff_to_add.push(<img src={this.props.photo_front_story.photo_file}></img>);
         var story_text = processStoryText(this.props.front_story.story_text);
         stuff_to_add.push(<div className="story-container">
             <p className="story-text">{story_text}</p>
@@ -496,17 +495,10 @@ var FrontPage = React.createClass({
             var columned_items_for_rows = [];
             var ITEMS_IN_A_ROW = 3;
             for (var i = 0; i < items.length; i++) {
-                var row = Math.floor(i / ITEMS_IN_A_ROW) % ITEMS_IN_A_ROW; // so, 0th, 1st, and 2nd rows
-                var col = i % ITEMS_IN_A_ROW;
                 var item = items[i];
-                if (row === col)
-                    columned_items_for_rows.push(
-                        <div className="col-md-6">{item}</div>
-                    );
-                else
-                    columned_items_for_rows.push(
-                        <div className="col-md-3">{item}</div>
-                    );
+                columned_items_for_rows.push(
+                    <div className="col-md-4">{item}</div>
+                );
             }
 
             for (var i = 0; i < columned_items_for_rows.length; i += ITEMS_IN_A_ROW) {
@@ -515,7 +507,7 @@ var FrontPage = React.createClass({
                     : i + ITEMS_IN_A_ROW;
                 var row_items = columned_items_for_rows.slice(i, end_slice_index);
                 items_to_return.push(
-                    <div className="row">
+                    <div className="row front-page-row">
                         {row_items}
                     </div>
                 );
@@ -555,8 +547,6 @@ var FrontPage = React.createClass({
                             </div>
                         </div>
                     </div>
-                </div>
-                <div className="row headerFillRow">
                 </div>
                 {paginator}
                 <RouteHandler/>

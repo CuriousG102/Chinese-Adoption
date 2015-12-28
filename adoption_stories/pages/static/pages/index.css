@@ -3,17 +3,19 @@ p, button, a, h1, h2, h3, a, h4, h5, h6 {
 }
 
 p {
-    font-size: 14pt;
+    font-size: 16px;
     color: #333;
 }
 
 .otherLanguagePromptContainer {
     width: 0;
+    height: 20px;
     float: right;
 }
 
 .otherLanguagePromptContainer a {
     width: 50px;
+    color: #E64C3B;
 }
 
 .button {
@@ -38,6 +40,7 @@ p {
 
 .button:hover {
     background-color: #EBF0F0;
+    /*box-shadow: none;*/
 }
 
 .headerRow .button:nth-child(1) {
@@ -51,7 +54,7 @@ p {
 }
 
 .buttonContainer {
-    margin: 20px 0;
+    margin: 20px 0 50px;
     text-align: center;
 }
 
@@ -277,4 +280,8 @@ p {
 
 .tiny-tos {
     font-size: 12px;
+}
+
+.front-page-row {
+    margin: 25px 0;
 }
