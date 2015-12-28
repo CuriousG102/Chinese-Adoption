@@ -1,8 +1,11 @@
 """
-A one-off script to create some test content for the site.
-If you end up using this for your own purposes, I would highly recommend
-giving it some structure and testability
+What started as a one-off script to create some test content for the site.
+Now coupled with the test code for this site in quite a few ways and a definite
+source of technical debt. If you end up using this for your own purposes,
+I would highly recommend giving it some structure and testability
 """
+from collections import deque
+
 from django.core.files.base import ContentFile
 import io
 from PIL import Image
@@ -82,7 +85,7 @@ def generate_test_content(number_of_adoptees=100):
                      ('Adoptive Father', '关系'), ('Adoptive Mother', '关系'),
                      ('Teacher', '关系'), ('Parents', '关系')]
 
-    for i in range(0, len(RELATIONSHIPS)):
+    for i in range(len(RELATIONSHIPS)):
         RELATIONSHIPS[i] = RelationshipCategory \
             .objects.create(english_name=RELATIONSHIPS[i][0],
                             chinese_name=RELATIONSHIPS[i][1],
@@ -91,14 +94,15 @@ def generate_test_content(number_of_adoptees=100):
     NUMBER_OF_STORIES_PER_ADOPTEE = (1, 6)  # it's a range [min, max)
     NUMBER_OF_PARAGRAPHS_IN_A_STORY = (4, 14)  # it's a range [min, max)
 
-    for i in range(0, number_of_adoptees):  # create an adoptee and all of the
+    for i in range(number_of_adoptees):  # create an adoptee and all of the
         adoptee = Adoptee.objects.create(english_name=random.choice(ADOPTEE_NAMES)[0],
                                          pinyin_name=random.choice(ADOPTEE_NAMES)[1],
                                          chinese_name=random.choice(ADOPTEE_NAMES)[2])
 
         relationships = RELATIONSHIPS[:]
         random.shuffle(relationships)
-        random_media = []
+        relationships = deque(relationships)
+        random_photos = []
 
         # people who are in their life
         number_of_storytellers = random.randrange(*NUMBER_OF_STORIES_PER_ADOPTEE)
@@ -128,15 +132,12 @@ def generate_test_content(number_of_adoptees=100):
                                 chinese_name=chinese_name,
                                 pinyin_name=pinyin_name)
 
-            random_media.append(random.choice([create_random_photo, create_random_video,
-                                               create_random_audio])(storyteller))
+            random.choice([create_random_video,
+                           create_random_audio])(storyteller)
+            random_photos.append(create_random_photo(storyteller))
             storytellers.append(storyteller)
 
         adoptee.front_story = random.choice(storytellers)
-
-        for media in random_media:
-            if isinstance(media, Photo):
-                adoptee.photo_front_story = media
-                break
+        adoptee.photo_front_story = random.choice(random_photos)
 
         adoptee.save()
