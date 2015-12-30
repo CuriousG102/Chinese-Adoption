@@ -39,7 +39,8 @@ YOUTUBE_VIDEOS = ('https://www.youtube.com/watch?v=dQw4w9WgXcQ',
 SOUNDCLOUD_CLIPS = ('https://soundcloud.com/syed-sarim-ahsen/wake-me-up-avicci-feat-aloe',
                     'https://soundcloud.com/helterskelter-beatles-c/cant-buy-me-love',)
 
-PHOTO_DIMENSION_BOUNDARIES = ((600, 3001), (400, 3001))  # like ((minX, maxX), (minY, maxY))
+PHOTO_DIMENSION_BOUNDARIES = ((config['MIN_WIDTH'], int(config['MIN_WIDTH']*7.5)),
+                              (config['MIN_HEIGHT'], int(config['MIN_HEIGHT']*7.5)))  # like ((minX, maxX), (minY, maxY))
 
 NUMBER_OF_CAPTION_SENTENCES = (1, 2)  # it's a range [min, max)
 

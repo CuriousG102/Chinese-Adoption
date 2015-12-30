@@ -174,11 +174,3 @@ SUIT_CONFIG = {
     # misc
     # 'LIST_PER_PAGE': 15
 }
-
-ADOPTEE_STORIES_CONFIG = {
-    'MIN_WIDTH': 600,
-    'MIN_HEIGHT': 400,
-    'FORMATS': {'JPEG',
-                },
-    'IMAGE_MAX_SIZE': int(2.5 * 2 ** 20),  # 2.5 megabytes
-}

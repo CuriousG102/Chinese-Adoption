@@ -7,6 +7,7 @@ from django.core import validators
 from embed_video.fields import EmbedYoutubeField, EmbedSoundcloudField
 
 from .custom_model_fields import RestrictedImageField
+from .default_settings import ADOPTEE_STORIES_CONFIG as config
 
 
 class Adoptee(models.Model):
@@ -22,9 +23,13 @@ class Adoptee(models.Model):
                                     # Translators: Name of a field in the admin page
                                     db_index=True, verbose_name=_('Chinese Name'))
 
-    photo_front_story = RestrictedImageField(null=True, blank=True,
-                                          # Translators: Name of a field in the admin page
-                                          verbose_name=_('Photo Front Story'))
+    photo_front_story = RestrictedImageField(maximum_size=config['PHOTO_FRONT_STORY_MAX_SIZE'],
+                                             required_width=config['PHOTO_FRONT_STORY_WIDTH'],
+                                             required_height=config['PHOTO_FRONT_STORY_HEIGHT'],
+                                             required_formats=config['FORMATS'],
+                                             null=True, blank=True,
+                                             # Translators: Name of a field in the admin page
+                                             verbose_name=_('Photo Front Story'))
 
     # Translators: Name of a field in the admin page
     front_story = models.ForeignKey('StoryTeller', null=True, verbose_name=_('Front Story'), blank=True,

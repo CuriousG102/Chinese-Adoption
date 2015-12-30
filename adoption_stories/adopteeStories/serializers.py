@@ -1,7 +1,7 @@
-from adopteeStories import default_settings
-from adopteeStories.custom_rest_fields import SoundcloudField, YoutubeField
-from adopteeStories.models import Adoptee, Photo, StoryTeller, RelationshipCategory, Audio, Video
-from django.conf import settings
+from .default_settings import ADOPTEE_STORIES_CONFIG as config
+from .custom_rest_fields import SoundcloudField, YoutubeField
+from .models import Adoptee, Photo, StoryTeller, RelationshipCategory, Audio, Video
+
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from embed_video.backends import YoutubeBackend
@@ -94,15 +94,8 @@ class RestrictedDjangoImageField(forms.ImageField):
         Uses PIL validation and also ensures that the file is above a minimum height and width
         """
 
-        d_config = default_settings.ADOPTEE_STORIES_CONFIG
-        min_width, min_height, formats, max_size = d_config['MIN_WIDTH'], d_config['MIN_HEIGHT'], d_config['FORMATS'], \
-                                                   d_config['IMAGE_MAX_SIZE']
-
-        if settings.ADOPTEE_STORIES_CONFIG:
-            min_width = settings.ADOPTEE_STORIES_CONFIG['MIN_WIDTH'] or min_width
-            min_height = settings.ADOPTEE_STORIES_CONFIG['MIN_HEIGHT'] or min_height
-            formats = settings.ADOPTEE_STORIES_CONFIG['FORMATS'] or formats
-            max_size = settings.ADOPTEE_STORIES_CONFIG['IMAGE_MAX_SIZE'] or max_size
+        min_width, min_height, formats, max_size = config['MIN_WIDTH'], config['MIN_HEIGHT'], config['FORMATS'], \
+                                                   config['IMAGE_MAX_SIZE']
 
         # While a lot of validation will only be carried out in-depth on the backend,
         # due to the difficulty of writing it, this size validation will be on the
