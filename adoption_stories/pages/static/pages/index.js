@@ -94,6 +94,8 @@ var NameHeader = React.createClass({displayName: "NameHeader",
     }
 });
 
+
+// TODO: Deal with dead code in Adoptee (there's a lot around photo, which never happens)
 var Adoptee = React.createClass({displayName: "Adoptee",
     render: function () {
         var Primary_Name_Tag;
@@ -271,13 +273,20 @@ var StoryTeller = React.createClass({displayName: "StoryTeller",
     render: function () {
         var story_text = this.props.story_text ? processStoryText(this.props.story_text)
             : React.createElement("p", null);
+
+        var classname = "storyTeller";
+
+        if (this.props.extra_classnames) {
+            classname += " " + this.props.extra_classnames;
+        }
+
         return (
-            React.createElement("div", {className: "storyTeller"}, 
+            React.createElement("div", {className: classname}, 
                 React.createElement(NameHeader, {english_name: this.props.english_name, 
                             chinese_name: this.props.chinese_name, 
                             pinyin_name: this.props.pinyin_name, 
-                            header_tag: "h3", 
-                            sub_header_tag: "h4"}), 
+                            header_tag: "h2", 
+                            sub_header_tag: "h3"}), 
                 React.createElement(RelationshipHeader, {english_name: this.props.relationship_to_story.english_name, 
                                     chinese_name: this.props.relationship_to_story.chinese_name}
                 ), 
@@ -407,7 +416,7 @@ var PaginationSection = React.createClass({displayName: "PaginationSection",
 var StoryCard = React.createClass({displayName: "StoryCard",
     render: function () {
         var stuff_to_add = [];
-        stuff_to_add.push(React.createElement("img", {src: this.props.photo_front_story.photo_file}));
+        stuff_to_add.push(React.createElement("img", {src: this.props.photo_front_story}));
         stuff_to_add.push(React.createElement(Adoptee, {english_name: this.props.english_name, 
                                    chinese_name: this.props.chinese_name, 
                                    pinyin_name: this.props.pinyin_name}));
@@ -419,23 +428,8 @@ var StoryCard = React.createClass({displayName: "StoryCard",
         var detail_name_order = language === ENGLISH ? [this.props.english_name, this.props.pinyin_name, this.props.chinese_name]
             : [this.props.chinese_name, this.props.english_name, this.props.pinyin_name];
 
-        var name_for_link = null;
-        for (var i = 0; i < detail_name_order.length; i++) {
-            if (detail_name_order[i]) {
-                name_for_link = detail_name_order[i];
-                break;
-            }
-        }
-
-        var link_text;
-
-        if (name_for_link) {
-            // Translators: %s marks the place where a person's name should be inserted. The webpage prefers the name in the viewer's language first and then uses other names if that one is not available
-            link_text = gettext("More about %s");
-            link_text = interpolate(link_text, [name_for_link]);
-        } else {
-            link_text = gettext("More about this person");
-        }
+        // Translators: The ... that comes before
+        var link_text = gettext("...");
         var link = "#/adoptee/" + this.props.id.toString();
 
         var class_string = this.props.className ? this.props.className : "";
@@ -443,8 +437,10 @@ var StoryCard = React.createClass({displayName: "StoryCard",
         return (
             React.createElement("div", {className: class_string}, 
                 stuff_to_add, 
-                React.createElement("a", {href: link, className: "detail-link"}, 
-                    link_text
+                React.createElement("div", {className: "detail-link-container"}, 
+                    React.createElement("a", {href: link, className: "detail-link"}, 
+                        link_text
+                    )
                 )
             )
         );
@@ -497,7 +493,7 @@ var FrontPage = React.createClass({displayName: "FrontPage",
             for (var i = 0; i < items.length; i++) {
                 var item = items[i];
                 columned_items_for_rows.push(
-                    React.createElement("div", {className: "col-md-4"}, item)
+                    React.createElement("div", {className: "col-md-4 front-page-card"}, item)
                 );
             }
 
@@ -507,7 +503,7 @@ var FrontPage = React.createClass({displayName: "FrontPage",
                     : i + ITEMS_IN_A_ROW;
                 var row_items = columned_items_for_rows.slice(i, end_slice_index);
                 items_to_return.push(
-                    React.createElement("div", {className: "row front-page-row"}, 
+                    React.createElement("div", {className: "row"}, 
                         row_items
                     )
                 );
@@ -568,14 +564,8 @@ var BootstrapModal = React.createClass({displayName: "BootstrapModal",
                 onRequestClose: this.handleModalCloseRequest
                 }, 
                 React.createElement("div", {className: "modal-content"}, 
+                    React.createElement("img", {src: X_ICON, id: "close-button", onClick: this.handleModalCloseRequest}), 
                     React.createElement("div", {className: "container-fluid"}, 
-                        React.createElement("div", {className: "row", id: "close-row"}, 
-                            React.createElement("div", {className: "col-md-11"}), 
-                            React.createElement("div", {className: "col-md-1"}, 
-                                React.createElement("span", {className: "glyphicon glyphicon-remove-circle", "aria-hidden": "true", 
-                                      onClick: this.handleModalCloseRequest})
-                            )
-                        ), 
                         this.props.children
                     )
                 )
@@ -587,7 +577,7 @@ var BootstrapModal = React.createClass({displayName: "BootstrapModal",
 var AdopteeDetail = React.createClass({displayName: "AdopteeDetail",
     componentDidMount: function () {
         $.ajax({
-            url: ADOPTEE_DETAIL_ENDPOINT.replace("999",
+            url: ADOPTEE_DETAIL_ENDPOINT.replace("999999999",
                 this.props.params.id.toString()),
             dataType: "json",
             success: function (data) {
@@ -615,6 +605,10 @@ var AdopteeDetail = React.createClass({displayName: "AdopteeDetail",
         var story_components = [];
         for (var i = 0; i < this.state.stories.length; i++) {
             var story = this.state.stories[i];
+            var extra_class;
+            if (i===0) extra_class = "first";
+            else if (i===this.state.stories.length-1) extra_class = "last";
+            else extra_class = "middle";
             story_components.push(
                 React.createElement("div", {className: "row"}, 
                     React.createElement("div", {className: "col-md-12"}, 
@@ -623,7 +617,8 @@ var AdopteeDetail = React.createClass({displayName: "AdopteeDetail",
                                      pinyin_name: story.pinyin_name, 
                                      relationship_to_story: story.relationship_to_story, 
                                      media: story.media, 
-                                     story_text: story.story_text}
+                                     story_text: story.story_text, 
+                                     extra_classnames: extra_class}
                             )
                     )
                 )
@@ -1491,7 +1486,7 @@ var AddToAdopteeForm = React.createClass({displayName: "AddToAdopteeForm",
     getAdoptees: debounce(function () {
         this.setState({
             search_url: ADOPTEE_SEARCH_ENDPOINT
-                .slice(0, ADOPTEE_SEARCH_ENDPOINT.indexOf("999"))
+                .slice(0, ADOPTEE_SEARCH_ENDPOINT.indexOf("999999999"))
             + this.state.value + "/"
         });
     }, 250),
@@ -1627,118 +1622,22 @@ var ThanksForContacting = React.createClass({displayName: "ThanksForContacting",
     }
 });
 
-var ContactForm = React.createClass({displayName: "ContactForm",
-    getInitialState: function () {
-        return {value: gettext("Please enter your email")};
-    },
-    handleChange: function (event) {
-        this.setState({
-            value: event.target.value
-        })
-    },
-    continueForward: function () {
-        // http://stackoverflow.com/questions/46155/validate-email-address-in-javascript
-        var validateEmail = function (email) {
-            var re = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-            return re.test(email);
-        };
-        if (validateEmail(this.state.value)) {
-            // TODO: Make an endpoint we can submit contact requests to
-            this.props.transition({
-                tag: ThanksForContacting,
-                props: {}
-            });
-        }
-    },
-    render: function () {
-        var submit = gettext("Submit");
-        return (
-            React.createElement("div", {className: "row"}, 
-                React.createElement("div", {className: "col-md-12"}, 
-                    React.createElement("input", {id: "emailInput", 
-                           value: this.state.value, 
-                           onChange: this.handleChange}), 
-                    React.createElement("button", {id: "emailButton", 
-                            className: "btn btn-primary active", 
-                            onClick: this.continueForward}, 
-                        submit
-                    )
-                )
-            )
-        );
-    }
-});
-
 var SubmitStart = React.createClass({displayName: "SubmitStart",
-    getInitialState: function () {
-        return {provide_own_story: true}
-    },
-    contact: function () {
-        this.willBeContacted(true);
-    },
-    provide: function () {
-        this.willBeContacted(false);
-    },
-    willBeContacted: function (beContacted) {
-        this.setState({
-            provide_own_story: !beContacted
-        });
-    },
     continueForward: function () {
         this.refs.form.continueForward();
     },
     render: function () {
-        // Translators: Option for story submission: Opposing option is 'Provide my own story'
-        var be_contacted = gettext("Get more information");
-        // Translators: Option for story submission: Opposing option is 'Be contacted'
-        var provide_my_own = gettext("Provide my own story");
-        // Translators: Prompt for story submission
-
-        var be_contacted_button_class = this.state.provide_own_story ? this.props.inactive_button_class
-            : this.props.active_button_class;
-        var provide_your_own_button_class = this.state.provide_own_story ? this.props.active_button_class
-            : this.props.inactive_button_class;
-        var form = this.state.provide_own_story ?
-        {
-            tag: ProvideForm,
-            props: {
-                active_button_class: this.props.active_button_class,
-                inactive_button_class: this.props.inactive_button_class,
-                transition: this.props.transition
-            }
-        }
-            :
-        {
-            tag: ContactForm,
-            props: {
-                active_button_class: this.props.active_button_class,
-                inactive_button_class: this.props.inactive_button_class,
-                transition: this.props.transition
-            }
+        var form_props = {
+            active_button_class: this.props.active_button_class,
+            inactive_button_class: this.props.inactive_button_class,
+            transition: this.props.transition
         };
-
-        var FormTag = form.tag;
-        var form_props = form.props;
 
         var tos = gettext("By submitting your story to this site, you are agreeing to post your content publicly. You are also promising that the content is not plagiarized from anyone, that it does not infringe a copyright or trademark, and that it isn’t libelous or otherwise unlawful or misleading. You also agree to be bound by this site’s Terms of Use and Privacy Policy.");
 
         return (
             React.createElement("div", null, 
-                React.createElement("div", {className: "row"}, 
-                    React.createElement("div", {className: "col-md-12"}, 
-                        React.createElement("button", {id: "beContactedButton", 
-                                className: be_contacted_button_class, 
-                                onClick: this.contact}, 
-                            be_contacted
-                        ), 
-                        React.createElement("button", {id: "provideStoryButton", 
-                                className: provide_your_own_button_class, 
-                                onClick: this.provide}, 
-                            provide_my_own
-                        )
-                    )
-                ), 
-                React.createElement(FormTag, React.__spread({},  form_props, {ref: "form"})), 
+                React.createElement(ProvideForm, React.__spread({},  form_props, {ref: "form"})), 
 
                 React.createElement("div", {className: "row"}, 
                     React.createElement("div", {className: "col-md-12"}, 
@@ -1791,7 +1690,7 @@ var SubmitPrompt = React.createClass({displayName: "SubmitPrompt",
             React.createElement(BootstrapModal, null, 
                 React.createElement("div", {className: "row"}, 
                     React.createElement("div", {className: "col-md-12"}, 
-                        React.createElement("h2", null, tell_your_story)
+                        React.createElement("h3", null, tell_your_story)
                     )
                 ), 
                 React.createElement(ContentTag, React.__spread({},  content_props, {ref: "content"})), 

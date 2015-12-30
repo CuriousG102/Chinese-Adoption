@@ -2,20 +2,35 @@ p, button, a, h1, h2, h3, a, h4, h5, h6 {
     font-family: notoSerif, Palatino, "Palatino Linotype", serif, "SimSun", "STHeiti Light", "华文细黑", "宋体";
 }
 
+a {
+    color: #E64C3B;
+}
+
 p {
     font-size: 16px;
     color: #333;
 }
 
 .otherLanguagePromptContainer {
-    width: 0;
-    height: 20px;
-    float: right;
+    position: absolute;
+    height: 25px;
+    top: 0;
+    right: 20px;
+}
+
+.otherLanguagePromptContainer:before {
+    content : "";
+    position: absolute;
+    left    : 5%;
+    bottom  : 0;
+    height  : 2px;
+    border-bottom: 2px solid #E64C3B;
+    padding-bottom: 5px;
+    width: 90%;
 }
 
 .otherLanguagePromptContainer a {
-    width: 50px;
-    color: #E64C3B;
+    margin: 0 auto;
 }
 
 .button {
@@ -27,10 +42,10 @@ p {
     box-shadow: 3px 3px 0 rgba(0, 0, 0, .1);
     text-align: center;
     border: 2px solid #E64C3B;
-    -ms-box-sizing:border-box;
-    -moz-box-sizing:border-box;
-    -webkit-box-sizing:border-box;
-    box-sizing:border-box;
+    -ms-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 .button.active {
@@ -43,18 +58,14 @@ p {
     /*box-shadow: none;*/
 }
 
-.headerRow .button:nth-child(1) {
+.headerRow .button {
+    margin-top: 20px;
     margin-left: 20px;
     margin-right: 25px;
 }
 
-.headerRow .button:nth-child(2) {
-    margin-left: 25px;
-    margin-right: 20px;
-}
-
 .buttonContainer {
-    margin: 20px 0 50px;
+    margin: 0 0 50px;
     text-align: center;
 }
 
@@ -80,10 +91,7 @@ p {
 
 .story-card {
     background: #FFFFFF;
-    border: 1px solid #838383;
-    box-shadow: 0px 10px 8px 2px rgba(124, 124, 124, 0.50);
-    border-radius: 6px;
-    padding: 0px 25px;
+    box-shadow: 3px 3px 1px rgba(0, 0, 0, .1);
     height: 400px;
     overflow: hidden;
 }
@@ -99,7 +107,7 @@ p {
 }
 
 .logoSwitchLinkContainer {
-    text-align:center;
+    text-align: center;
     margin: 20px 0;
 }
 
@@ -127,27 +135,42 @@ p {
 }
 
 .story-card img {
-    max-height: 60%;
-    max-width: 60%;
-    padding-top: 3px;
-    float: right;
-    margin: 10px;
+    width: 100%;
+    border-width: 2px;
+    border-style: none none solid none;
+    border-color: #E64C3B;
 }
 
 .story-container {
-    max-height: 65%;
     overflow: hidden;
-    margin-top: 18px;
+    margin: 13px auto 0;
+    width: 90%;
+    padding-top: 12px;
+    border-style: solid none none;
+    border-color: #ddd;
+    border-width: 2px;
+}
+
+.story-text {
+    font-size: 14px;
 }
 
 .story-card {
     position: relative;
 }
 
+.detail-link-container {
+    position: absolute;
+    bottom: 0;
+    height: 30px;
+    width: 100%;
+    background: rgb(255, 255, 255);
+}
+
 .detail-link {
     position: absolute;
     bottom: 10px;
-    left: 24px;
+    right: 24px;
 }
 
 .ReactModal__Overlay {
@@ -160,11 +183,85 @@ p {
     padding: 0 !important;
     margin-left: auto;
     margin-right: auto;
+    z-index: 1;
+}
+
+.modal-content {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;
+}
+
+.modal-content .adopteeName h2 {
+    margin-top: 26px;
+    margin-bottom: 0;
+}
+
+.modal-content .adopteeName h3 {
+    margin-top: 5px;
+    margin-bottom: 0;
+}
+
+.modal-content h2 {
+    font-size: 26px;
+}
+
+.modal-content h3 {
+    font-size: 22px;
+}
+
+.modal-content .adopteeName {
+    margin: 0 10px;
+    padding-bottom: 15px;
+}
+
+.modal-content .storyTeller {
+    margin: 0 10px;
+}
+
+.modal-content .storyTeller {
+    border-top: 1px solid #ddd;
+}
+
+.modal-content .storyTeller.middle, .modal-content.storyTeller.last {
+    padding-top: 5px;
+}
+
+.modal-content .storyTeller.first, .modal-content .storyTeller.middle {
+    padding-bottom: 20px;
+}
+
+#close-button {
+    position: absolute;
+    top: -25px;
+    right: -25px;
+}
+
+.storyTeller h2 {
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+.storyTeller h3 {
+    margin-top: 0;
+}
+
+.modal-content h4 {
+    color: #999;
+}
+
+.modal-content h3 {
+    color: #999;
+}
+
+.modal-content h2 {
+    color: #333;
 }
 
 .media-container .media-caption {
     float: right;
-
 }
 
 #close-row .glyphicon-remove-circle {
@@ -188,13 +285,9 @@ p {
     margin-bottom: 5px;
 }
 
-.storyTeller h3 {
-    margin-top: 20px;
-    font-weight: bold;
-}
-
 .storyTeller h4 {
     font-style: italic;
+
 }
 
 .media-container {
@@ -262,15 +355,11 @@ p {
 }
 
 .adopteeListing h3 {
-    margin: 0px;
-}
-
-#beContactedButton {
-    margin-right: 160px;
+    margin: 0;
 }
 
 #hasNoOtherContentButton {
-    margin-right: 245px;
+    margin-right: 50px;
 }
 
 /* TODO: Come back in and do a real rather than hackey fix */
@@ -282,6 +371,19 @@ p {
     font-size: 12px;
 }
 
-.front-page-row {
+.front-page-card {
     margin: 25px 0;
+}
+
+.front-page-card .adopteeName {
+    width: 90%;
+    margin: 0 auto;
+}
+
+.front-page-card .adopteeName h2 {
+    font-size: 26px;
+}
+
+.front-page-card .adopteeName h3 {
+    font-size: 22px;
 }
