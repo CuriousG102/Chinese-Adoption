@@ -1,6 +1,6 @@
 from .default_settings import ADOPTEE_STORIES_CONFIG as config
 from .custom_rest_fields import SoundcloudField, YoutubeField
-from .models import Adoptee, Photo, StoryTeller, RelationshipCategory, Audio, Video
+from .models import Adoptee, Photo, StoryTeller, RelationshipCategory, Audio, Video, AboutPerson
 
 from django import forms
 from django.utils.translation import ugettext_lazy as _
@@ -195,3 +195,8 @@ class StorySerializer(StoryBasicsSerializer):
     class Meta(StoryBasicsSerializer.Meta):
         fields = StoryBasicsSerializer.Meta.fields + ('relationship_to_story',
                                                       'media')
+
+class AboutPersonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AboutPerson
+        fields = ('photo', 'english_caption', 'chinese_caption', 'about_text')

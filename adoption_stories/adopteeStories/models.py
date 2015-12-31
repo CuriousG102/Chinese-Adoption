@@ -215,3 +215,22 @@ class StoryTeller(models.Model):
         string = " ".join(["Storyteller:", " ".join(string)])
 
         return string
+
+
+class AboutPerson(models.Model):
+    photo = RestrictedImageField(maximum_size=config['PHOTO_FRONT_STORY_MAX_SIZE'],
+                                 required_height=config['ABOUT_PHOTO_HEIGHT'],
+                                 required_width=config['ABOUT_PHOTO_WIDTH'],
+                                 required_formats=config['FORMATS'],
+                                 verbose_name=_('Picture of person on about page'))
+    english_caption = models.CharField(max_length=200, null=True, blank=True,
+                                       # Translators: Name of a field in the admin page
+                                       verbose_name=_('English Caption'))
+    chinese_caption = models.CharField(max_length=200, null=True, blank=True,
+                                       # Translators: Name of a field in the admin page
+                                       verbose_name=_('Chinese Caption'))
+    about_text = models.TextField(verbose_name=_('About text for that person.'),
+                                  help_text=_('Should include paragraph markup:'
+                                              'e.g. <p>This is a paragraph</p>'
+                                              '<p>This is a different paragraph</p>'))
+    published = models.BooleanField(verbose_name=_('Published status'))

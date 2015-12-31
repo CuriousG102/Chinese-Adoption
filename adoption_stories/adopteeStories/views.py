@@ -1,5 +1,5 @@
 # TODO: Clean up imports list and make it PEP8 compliant
-from adopteeStories.models import Adoptee, RelationshipCategory
+from adopteeStories.models import Adoptee, RelationshipCategory, AboutPerson
 from adopteeStories import serializers
 from django.db.models import Q
 
@@ -117,3 +117,8 @@ class AudioCreate(GenericCreate):
 
 class VideoCreate(GenericCreate):
     serializer_class = serializers.VideoSerializer
+
+
+class AboutPersonDetail(generics.RetrieveAPIView):
+    queryset = AboutPerson.objects.all().filter(published=True)
+    serializer_class = serializers.AboutPersonSerializer
