@@ -1,4 +1,9 @@
-p, button, a, h1, h2, h3, a, h4, h5, h6 {
+@font-face {
+  font-family: notoSerif;
+  src: url('NotoSerif-Regular.ttf');
+}
+
+p, button, a, h1, h2, h3, a, h4, h5, h6, input {
     font-family: notoSerif, Palatino, "Palatino Linotype", serif, "SimSun", "STHeiti Light", "华文细黑", "宋体";
 }
 
@@ -27,6 +32,16 @@ p {
     border-bottom: 2px solid #E64C3B;
     padding-bottom: 5px;
     width: 90%;
+}
+
+.promptTitle:after {
+    content: "";
+    position: absolute;;
+    left: 36%;
+    bottom: -15px;
+    height: 1px;
+    border-bottom: 2px solid #E54A3B;
+    width: 28%;
 }
 
 .otherLanguagePromptContainer a {
@@ -194,42 +209,34 @@ p {
     border-radius: 0;
 }
 
-.modal-content .adopteeName h2 {
+.detail-modal .adopteeName h2 {
     margin-top: 26px;
     margin-bottom: 0;
 }
 
-.modal-content .adopteeName h3 {
+.detail-modal .adopteeName h3 {
     margin-top: 5px;
     margin-bottom: 0;
 }
 
-.modal-content h2 {
-    font-size: 26px;
-}
-
-.modal-content h3 {
-    font-size: 22px;
-}
-
-.modal-content .adopteeName {
+.detail-modal .adopteeName {
     margin: 0 10px;
     padding-bottom: 15px;
 }
 
-.modal-content .storyTeller {
+.detail-modal .storyTeller {
     margin: 0 10px;
 }
 
-.modal-content .storyTeller {
+.detail-modal .storyTeller {
     border-top: 1px solid #ddd;
 }
 
-.modal-content .storyTeller.middle, .modal-content.storyTeller.last {
+.detail-modal .storyTeller.middle, .modal-content.storyTeller.last {
     padding-top: 5px;
 }
 
-.modal-content .storyTeller.first, .modal-content .storyTeller.middle {
+.detail-modal .storyTeller.first, .modal-content .storyTeller.middle {
     padding-bottom: 20px;
 }
 
@@ -248,15 +255,15 @@ p {
     margin-top: 0;
 }
 
-.modal-content h4 {
+.detail-modal h4 {
     color: #999;
 }
 
-.modal-content h3 {
+.detail-modal h3 {
     color: #999;
 }
 
-.modal-content h2 {
+.detail-modal h2 {
     color: #333;
 }
 
@@ -264,7 +271,13 @@ p {
     float: right;
 }
 
-#close-row .glyphicon-remove-circle {
+.x-icon {
+    height: 50px;
+    width: 50px;
+    background-image: url('x-icon.png');
+}
+
+#close-row .x-icon {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -272,9 +285,40 @@ p {
     z-index: 999999;
 }
 
-#close-row .glyphicon-remove-circle:hover {
-    color: #b0b0b0;
+.x-icon:active, .x-icon:hover {
     cursor: pointer;
+}
+
+.x-icon:hover {
+    background-image: url('x-icon-hover.png');
+}
+
+.x-icon:active {
+    background-image: url('x-icon-active.png');
+}
+
+.photo-container {
+    width:43%;
+    float:right;
+    margin: 0 0 10px 25px;
+}
+
+.photo-container .photo {
+    width: 100%;
+    max-height: 70vh;
+    border: 1px solid #e54a3b;
+    margin-bottom: 10px;
+}
+
+.photo-caption p, .media-caption p {
+    font-style: italic;
+    color: #999;
+    font-size: 14px;
+}
+
+.media-container .audio {
+    width: 80%;
+    margin: 0 auto;
 }
 
 .adopteeName h3 {
@@ -291,22 +335,14 @@ p {
 }
 
 .media-container {
-    float: right;
-    margin: 10px;
-    width: 60%;
+    margin: 15px;
     max-height: 400px;
     overflow: hidden;
-}
-
-.media-container img {
-    float: right;
-    max-height: 350px;
 }
 
 .adopteeListingDropdown {
     background: #FFFFFF;
     border: 1px solid #838383;
-    box-shadow: 0px 10px 8px 2px rgba(124, 124, 124, 0.50);
     border-radius: 6px;
     overflow: scroll;
     max-height: 300px;
@@ -329,37 +365,39 @@ p {
 }
 
 .adopteeListingPhoto {
-    min-width: 20%;
-    display: block;
-    text-align: right;
     margin-right: 13px;
 }
 
 .adopteeListingPhoto img {
     max-height: 100%;
-    max-width: 100%;
-    display: inline;
     float: right;
 }
 
 .adopteeListingName {
-    min-width: 75%;
-    max-width: 75%;
+    width: 65%;
     display: inline;
     float: left;
     margin-left: 12px;
 }
 
 .adopteeListing h4 {
-    margin: 10px 0px 0px 0px;
+    margin: 10px 0 0 0 !important;
 }
 
 .adopteeListing h3 {
     margin: 0;
 }
 
-#hasNoOtherContentButton {
-    margin-right: 50px;
+#hasNoOtherContentButton, #hasOtherContentButton,
+#dontProvideMultimediaButton, #provideMultimediaButton {
+    width: 110px;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
+
+#hasOtherContentButton, #provideMultimediaButton {
+    margin-right: 20px;
 }
 
 /* TODO: Come back in and do a real rather than hackey fix */
@@ -380,10 +418,29 @@ p {
     margin: 0 auto;
 }
 
-.front-page-card .adopteeName h2 {
+.promptTitle {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.prompt-modal h4 {
+    margin-top: 25px;
+    margin-bottom: 15px;
+}
+
+h2 {
     font-size: 26px;
 }
 
-.front-page-card .adopteeName h3 {
+h3 {
     font-size: 22px;
+}
+
+.prompt-modal input {
+    border-radius: 0;
+    color: #999;
+    font-size: 18px;
+    clear: left;
+    width: 100%;
+    margin: 10px 0;
 }

@@ -160,21 +160,22 @@ var RelationshipHeader = React.createClass({displayName: "RelationshipHeader",
     }
 });
 
+var getCaption = function (media_item) {
+    var caption_preference = language === ENGLISH ? [media_item.english_caption, media_item.chinese_caption]
+        : [media_item.chinese_caption, media_item.english_caption];
+    for (var i = 0; i < caption_preference.length; i++) {
+        if (caption_preference[i]) return caption_preference[i];
+    }
+
+    return "";
+}
+
 var Media = React.createClass({displayName: "Media",
     getInitialState: function () {
         return {
             embed_shizzle: {__html: ""}, isInnerHTML: true,
-            caption: "", style_overrides: null
+            caption: "", style_overrides: null, class_name: ""
         };
-    },
-    getCaption: function (media_item) {
-        var caption_preference = language === ENGLISH ? [media_item.english_caption, media_item.chinese_caption]
-            : [media_item.chinese_caption, media_item.english_caption];
-        for (var i = 0; i < caption_preference.length; i++) {
-            if (caption_preference[i]) return caption_preference[i];
-        }
-
-        return "";
     },
     componentDidMount: function () {
         if (this.props.media.audio.length > 0) {
@@ -194,8 +195,9 @@ var Media = React.createClass({displayName: "Media",
                             __html: data.html
                         },
                         isInnerHTML: true,
-                        caption: this.getCaption(audio),
-                        style_overrides: null
+                        caption: getCaption(audio),
+                        style_overrides: null,
+                        class_name: "audio"
                     });
                 }.bind(this),
                 error: function (xhr, status, err) {
@@ -210,30 +212,18 @@ var Media = React.createClass({displayName: "Media",
             this.setState({
                 embed_shizzle: embed_code,
                 isInnerHTML: false,
-                caption: this.getCaption(video),
-                style_overrides: null
-            });
-        } else if (this.props.media.photo.length > 0) {
-            var photo = this.props.media.photo[0];
-            var photo_url = photo.photo_file;
-            var special_style = {
-                "max-width": "60%",
-                "width": "unset"
-            };
-            var embed_code = React.createElement("img", {src: photo_url});
-            this.setState({
-                embed_shizzle: embed_code,
-                isInnerHTML: false,
-                caption: this.getCaption(photo),
-                style_overrides: special_style
+                caption: getCaption(video),
+                style_overrides: null,
+                class_name: "video"
             });
         }
     },
     render: function () {
         var content;
+        var class_name = this.state.class_name;
         if (this.state.isInnerHTML)
             content =
-                React.createElement("div", null, 
+                React.createElement("div", {className: class_name}, 
                     React.createElement("div", {className: "media-embed", 
                          dangerouslySetInnerHTML: this.state.embed_shizzle}), 
                     React.createElement("div", {className: "media-caption"}, 
@@ -244,7 +234,7 @@ var Media = React.createClass({displayName: "Media",
                 );
         else
             content =
-                React.createElement("div", null, 
+                React.createElement("div", {className: class_name}, 
                     React.createElement("div", {className: "media-embed"}, 
                         this.state.embed_shizzle
                     ), 
@@ -280,6 +270,10 @@ var StoryTeller = React.createClass({displayName: "StoryTeller",
             classname += " " + this.props.extra_classnames;
         }
 
+        var photo = this.props.media.photo[0];
+        var photo_url = photo.photo_file;
+        var photo_caption = getCaption(photo);
+
         return (
             React.createElement("div", {className: classname}, 
                 React.createElement(NameHeader, {english_name: this.props.english_name, 
@@ -293,7 +287,17 @@ var StoryTeller = React.createClass({displayName: "StoryTeller",
 
                 React.createElement(Media, {media: this.props.media}), 
 
-                React.createElement("div", null, 
+                React.createElement("div", {className: "photo-container"}, 
+                    React.createElement("img", {src: photo_url, className: "photo"}), 
+
+                    React.createElement("div", {className: "photo-caption"}, 
+                        React.createElement("p", null, 
+                            photo_caption
+                        )
+                    )
+                ), 
+
+                React.createElement("div", {className: "story-text"}, 
                     story_text
                 )
             )
@@ -557,15 +561,26 @@ var BootstrapModal = React.createClass({displayName: "BootstrapModal",
         this.transitionTo("/");
     },
     render: function () {
+        var class_name = "modal-content";
+
+        if (this.props.extra_class) {
+            class_name += " " + this.props.extra_class;
+        }
+
         return (
             React.createElement(Modal, {
                 isOpen: true, 
                 className: "Modal__Bootstrap modal-lg", 
                 onRequestClose: this.handleModalCloseRequest
                 }, 
-                React.createElement("div", {className: "modal-content"}, 
-                    React.createElement("img", {src: X_ICON, id: "close-button", onClick: this.handleModalCloseRequest}), 
+                React.createElement("div", {className: class_name}, 
                     React.createElement("div", {className: "container-fluid"}, 
+                        React.createElement("div", {className: "row", id: "close-row"}, 
+                            React.createElement("div", {className: "col-md-11"}), 
+                            React.createElement("div", {className: "col-md-1"}, 
+                                React.createElement("div", {className: "x-icon", onClick: this.handleModalCloseRequest})
+                            )
+                        ), 
                         this.props.children
                     )
                 )
@@ -606,8 +621,8 @@ var AdopteeDetail = React.createClass({displayName: "AdopteeDetail",
         for (var i = 0; i < this.state.stories.length; i++) {
             var story = this.state.stories[i];
             var extra_class;
-            if (i===0) extra_class = "first";
-            else if (i===this.state.stories.length-1) extra_class = "last";
+            if (i === 0) extra_class = "first";
+            else if (i === this.state.stories.length - 1) extra_class = "last";
             else extra_class = "middle";
             story_components.push(
                 React.createElement("div", {className: "row"}, 
@@ -625,7 +640,8 @@ var AdopteeDetail = React.createClass({displayName: "AdopteeDetail",
             )
         }
         return (
-            React.createElement(BootstrapModal, null, 
+            React.createElement(BootstrapModal, {
+                extra_class: "detail-modal"}, 
                 React.createElement("div", {className: "row"}, 
                     React.createElement("div", {className: "col-md-12"}, 
                         React.createElement(Adoptee, {
@@ -905,13 +921,7 @@ var YoutubeForm = React.createClass({displayName: "YoutubeForm",
                                onChange: this.handleChange, 
                                className: url_input_classname})
                     )
-                ), 
-                "/*                ", React.createElement("div", {className: "row"}, 
-                                    React.createElement("div", {className: "col-md-12"}, 
-                                        React.createElement("div", {className: "media-embed", 
-                                             dangerouslySetInnerHTML: this.state.embed_shizzle})
-                                    )
-                                ), " */"
+                )
             )
         );
     }
@@ -919,12 +929,6 @@ var YoutubeForm = React.createClass({displayName: "YoutubeForm",
 
 var MediaUpload = React.createClass({displayName: "MediaUpload",
     MULTIMEDIA_FORMS: {
-        //picture: {
-        //    name: gettext("Picture"),
-        //    tag: PictureForm,
-        //    upload_field_name: "photo_file",
-        //    endpoint: PHOTO_UPLOAD_ENDPOINT
-        //},
         soundcloud: {
             name: gettext("SoundCloud"),
             tag: SoundcloudForm,
@@ -945,7 +949,10 @@ var MediaUpload = React.createClass({displayName: "MediaUpload",
             wants_to_provide: true,
             selected_form: "soundcloud",
             english_caption: this.ENGLISH_CAPTION_DEFAULT,
-            chinese_caption: this.CHINESE_CAPTION_DEFAULT
+            chinese_caption: this.CHINESE_CAPTION_DEFAULT,
+            photo_english_caption: this.ENGLISH_CAPTION_DEFAULT,
+            photo_chinese_caption: this.CHINESE_CAPTION_DEFAULT,
+            photo_data_file: null
         };
     },
     handle_type_selection: function (event) {
@@ -968,40 +975,71 @@ var MediaUpload = React.createClass({displayName: "MediaUpload",
             if (text !== boiler && text.length > 0) return text;
             return null;
         };
-        if (!this.state.wants_to_provide) {
-            this.props.transition({
-                tag: Thanks,
-                props: {}
-            });
-        } else {
-            var upload_field = this.refs.multimedia_form.post_data();
-            if (!upload_field) return; // not a valid upload
-            var upload_data = {
-                english_caption: get_value(this.state.english_caption,
-                    this.ENGLISH_CAPTION_DEFAULT),
-                chinese_caption: get_value(this.state.chinese_caption,
-                    this.CHINESE_CAPTION_DEFAULT),
-                story_teller: this.props.story_teller
-            };
-            var upload_field_name = this.MULTIMEDIA_FORMS[this.state.selected_form].upload_field_name;
-            upload_data[upload_field_name] = upload_field;
-            var endpoint = this.MULTIMEDIA_FORMS[this.state.selected_form].endpoint;
-            $.ajax({
-                url: endpoint,
-                type: 'POST',
-                dataType: "json",
-                data: upload_data,
-                success: function (data) {
-                    this.props.transition({
-                        tag: Thanks,
-                        props: {}
-                    });
-                }.bind(this),
-                error: function (endpoint, xhr, status, err) {
-                    console.error(endpoint, status, err.toString());
-                }.bind(this, endpoint)
-            });
+        if (this.state.photo_data_file === null) return;
+        var photo_upload_data = {
+            english_caption: get_value(this.state.photo_english_caption,
+                this.ENGLISH_CAPTION_DEFAULT),
+            chinese_caption: get_value(this.state.photo_chinese_caption,
+                this.CHINESE_CAPTION_DEFAULT),
+            story_teller: this.props.story_teller,
+            photo_file: this.state.photo_data_file
+        };
+        var photo_upload_form_data = new FormData();
+        var keys = Object.keys(photo_upload_data);
+        for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            photo_upload_form_data.append(key, photo_upload_data[key]);
         }
+        // TODO: Make this concurrent using promises rather than a callback hack
+        var upload_and_transition = function (data) {
+            if (!this.state.wants_to_provide) {
+                this.props.transition({
+                    tag: Thanks,
+                    props: {}
+                });
+            } else {
+                var upload_field = this.refs.multimedia_form.post_data();
+                if (!upload_field) return; // not a valid upload
+                var upload_data = {
+                    english_caption: get_value(this.state.english_caption,
+                        this.ENGLISH_CAPTION_DEFAULT),
+                    chinese_caption: get_value(this.state.chinese_caption,
+                        this.CHINESE_CAPTION_DEFAULT),
+                    story_teller: this.props.story_teller
+                };
+                var upload_field_name = this.MULTIMEDIA_FORMS[this.state.selected_form].upload_field_name;
+                upload_data[upload_field_name] = upload_field;
+                var endpoint = this.MULTIMEDIA_FORMS[this.state.selected_form].endpoint;
+                $.ajax({
+                    url: endpoint,
+                    type: 'POST',
+                    dataType: "json",
+                    data: upload_data,
+                    success: function (data) {
+                        this.props.transition({
+                            tag: Thanks,
+                            props: {}
+                        });
+                    }.bind(this),
+                    error: function (endpoint, xhr, status, err) {
+                        console.error(endpoint, status, err.toString());
+                    }.bind(this, endpoint)
+                });
+            }
+        }.bind(this);
+        $.ajax({
+            url: PHOTO_UPLOAD_ENDPOINT,
+            type: 'POST',
+            dataType: "json",
+            data: photo_upload_form_data,
+            processData: false,
+            contentType: false,
+            success: upload_and_transition,
+            error: function (endpoint, xhr, status, err) {
+                console.error(endpoint, status, err.toString());
+            }.bind(this, PHOTO_UPLOAD_ENDPOINT)
+        });
+
     },
     handleEnglishChange: function (event) {
         this.setState({
@@ -1013,15 +1051,28 @@ var MediaUpload = React.createClass({displayName: "MediaUpload",
             chinese_caption: event.target.value
         });
     },
+    handlePhotoEnglishChange: function (event) {
+        this.setState({
+            photo_english_caption: event.target.value
+        });
+    },
+    handlePhotoChineseChange: function (event) {
+        this.setState({
+            photo_chinese_caption: event.target.value
+        });
+    },
+    handleFile: function (e) {
+        var file = e.target.files[0];
+        this.setState({
+            photo_data_file: file
+        });
+    },
     render: function () {
-        var do_you_wish_to_provide = gettext("Do you wish to provide a multimedia item (photo, video, or audio) " +
+        var do_you_wish_to_provide = gettext("Do you wish to provide a multimedia item (video or audio) " +
             "to accompany your story?");
         var no = gettext("No");
         var yes = gettext("Yes");
         var what_kind = gettext("Will the multimedia item be a photo, YouTube video, or a SoundCloud clip?");
-        var youtube = gettext("YouTube");
-        var picture = gettext("Photo");
-        var soundcloud = gettext("SoundCloud");
         var type_selection_options = [];
         $.each(Object.keys(this.MULTIMEDIA_FORMS), function (type_selection_options, i, key) {
             var form_option = this.MULTIMEDIA_FORMS[key];
@@ -1033,7 +1084,7 @@ var MediaUpload = React.createClass({displayName: "MediaUpload",
                 React.createElement("div", {id: "multimediaKindForm"}, 
                     React.createElement("div", {className: "row"}, 
                         React.createElement("div", {className: "col-md-12"}, 
-                            what_kind
+                            React.createElement("h4", null, what_kind)
                         )
                     ), 
                     React.createElement("div", {className: "row"}, 
@@ -1060,31 +1111,61 @@ var MediaUpload = React.createClass({displayName: "MediaUpload",
                 React.createElement("input", {id: "multimediaChineseCaption", 
                        onChange: this.handleChineseChange, 
                        value: this.state.chinese_caption})] : [];
+        var select_a_photo = gettext(
+            "Please use the space below to upload a photo to your story. " +
+            "The photo should have a width and height greater than 400px " +
+            "each, be no larger than 2.5 megabytes, and be a JPEG."
+        );
         return (
             React.createElement("div", null, 
                 React.createElement("div", {className: "row"}, 
                     React.createElement("div", {className: "col-md-12"}, 
-                        do_you_wish_to_provide
+                        select_a_photo
                     )
                 ), 
                 React.createElement("div", {className: "row"}, 
                     React.createElement("div", {className: "col-md-12"}, 
-                        React.createElement("button", {id: "dontProvideMultimediaButton", 
-                                className: dont_provide_multimedia_button_class, 
-                                onClick: this.dont_provide}, 
-                            no
-                        ), 
+                        React.createElement("input", {type: "file", id: "photoUploadField", onChange: this.handleFile})
+                    )
+                ), 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-md-12"}, 
+                        React.createElement("input", {id: "photoEnglishCaption", 
+                               onChange: this.handlePhotoEnglishChange, 
+                               value: this.state.photo_english_caption}), 
+                        React.createElement("input", {id: "photoChineseCaption", 
+                               onChange: this.handlePhotoChineseChange, 
+                               value: this.state.photo_chinese_caption})
+                    )
+                ), 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-md-12"}, 
+                        React.createElement("h4", null, do_you_wish_to_provide)
+                    )
+                ), 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-md-12"}, 
                         React.createElement("button", {id: "provideMultimediaButton", 
                                 className: provide_multimedia_button_class, 
                                 onClick: this.provide}, 
                             yes
+                        ), 
+                        React.createElement("button", {id: "dontProvideMultimediaButton", 
+                                className: dont_provide_multimedia_button_class, 
+                                onClick: this.dont_provide}, 
+                            no
                         )
                     )
                 ), 
                 media_type_form, 
                 React.createElement(MultimediaFormTag, {wants_to_provide: this.state.wants_to_provide, 
                                    ref: "multimedia_form"}), 
-                caption
+
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-md-12"}, 
+                        caption
+                    )
+                )
             )
         );
     }
@@ -1372,7 +1453,7 @@ var AdopteeSearchListing = React.createClass({displayName: "AdopteeSearchListing
         this.props.select_adoptee(this.props.id, text);
     },
     render: function () {
-        var photo = this.props.photo ? React.createElement("img", {src: this.props.photo.photo_file}) : [];
+        var photo = this.props.photo;
         return (
             React.createElement("div", {className: "adopteeListing", onClick: this.handleClick}, 
                 React.createElement(NameHeader, {header_tag: "h3", 
@@ -1383,7 +1464,7 @@ var AdopteeSearchListing = React.createClass({displayName: "AdopteeSearchListing
                             pinyin_name: this.props.pinyin_name}), 
 
                 React.createElement("div", {className: "adopteeListingPhoto"}, 
-                    photo
+                    React.createElement("img", {src: photo})
                 )
             )
         );
@@ -1596,15 +1677,15 @@ var ProvideForm = React.createClass({displayName: "ProvideForm",
                 ), 
                 React.createElement("div", {className: "row"}, 
                     React.createElement("div", {className: "col-md-12"}, 
-                        React.createElement("button", {id: "hasNoOtherContentButton", 
-                                className: no_other_content_class, 
-                                onClick: this.noOtherContent}, 
-                            no
-                        ), 
                         React.createElement("button", {id: "hasOtherContentButton", 
                                 className: other_content_class, 
                                 onClick: this.otherContent}, 
                             yes
+                        ), 
+                        React.createElement("button", {id: "hasNoOtherContentButton", 
+                                className: no_other_content_class, 
+                                onClick: this.noOtherContent}, 
+                            no
                         )
                     )
                 ), 
@@ -1687,10 +1768,11 @@ var SubmitPrompt = React.createClass({displayName: "SubmitPrompt",
         content_props['inactive_button_class'] = this.props.inactive_button_class;
         content_props['transition'] = this.transition;
         return (
-            React.createElement(BootstrapModal, null, 
+            React.createElement(BootstrapModal, {
+                extra_class: "prompt-modal"}, 
                 React.createElement("div", {className: "row"}, 
                     React.createElement("div", {className: "col-md-12"}, 
-                        React.createElement("h3", null, tell_your_story)
+                        React.createElement("h3", {className: "promptTitle"}, tell_your_story)
                     )
                 ), 
                 React.createElement(ContentTag, React.__spread({},  content_props, {ref: "content"})), 
