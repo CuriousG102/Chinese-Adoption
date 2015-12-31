@@ -119,6 +119,7 @@ class VideoCreate(GenericCreate):
     serializer_class = serializers.VideoSerializer
 
 
-class AboutPersonDetail(generics.RetrieveAPIView):
+# TODO: Add tests around this view
+class AboutPersonDetail(generics.ListAPIView):
     queryset = AboutPerson.objects.all().filter(published=True)
     serializer_class = serializers.AboutPersonSerializer
