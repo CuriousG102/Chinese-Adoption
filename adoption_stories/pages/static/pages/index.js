@@ -4,7 +4,7 @@
 
 // Return first non-null value of list or a default value
 function firstNonNullOrDefault(array, def) {
-    for (var i=0; i < array.length; i++) {
+    for (var i = 0; i < array.length; i++) {
         if (array[i]) {
             def = array[i];
             break;
@@ -156,18 +156,10 @@ var RelationshipHeader = React.createClass({displayName: "RelationshipHeader",
         else                      header_order = [this.props.chinese_name,
             this.props.english_name];
 
-        var header = "";
-        for (var i = 0; i < header_order.length; i++) {
-            if (header_order[i]) {
-                var header_text = header_order[i];
-                header = React.createElement("h4", null, header_text);
-                break;
-            }
-        }
-
+        var header_text = firstNonNullOrDefault(header_order, "");
 
         return (
-            React.createElement("div", {className: "relationshipHeader"}, header)
+            React.createElement("div", {className: "relationshipHeader"}, React.createElement("h4", null, header_text))
         );
     }
 });
@@ -175,11 +167,7 @@ var RelationshipHeader = React.createClass({displayName: "RelationshipHeader",
 var getCaption = function (media_item) {
     var caption_preference = language === ENGLISH ? [media_item.english_caption, media_item.chinese_caption]
         : [media_item.chinese_caption, media_item.english_caption];
-    for (var i = 0; i < caption_preference.length; i++) {
-        if (caption_preference[i]) return caption_preference[i];
-    }
-
-    return "";
+    return firstNonNullOrDefault(caption_preference, "");
 };
 
 var Media = React.createClass({displayName: "Media",
@@ -465,8 +453,6 @@ var StoryCard = React.createClass({displayName: "StoryCard",
 var FrontPage = React.createClass({displayName: "FrontPage",
     mixins: [ReactRouter.Navigation],
     render: function () {
-        // Translators: Title for the site
-        var title = gettext("Our China Stories");
         // Translators: Summary of the site
         var summary = gettext("Since 1992, some 140,000 children have left China for homes in sixteen countries. Here, Chinese adoptees, their families and friends tell their stories.");
         // Translators: Button label
@@ -500,17 +486,10 @@ var FrontPage = React.createClass({displayName: "FrontPage",
 
         var items_prerender_processor = function (items) {
             var items_to_return = [];
-            // put three items in each row with widths of 6, 3, 3
-            //                                            3, 6, 3
-            //                                            3, 3, 6 etc.
-            var columned_items_for_rows = [];
             var ITEMS_IN_A_ROW = 3;
-            for (var i = 0; i < items.length; i++) {
-                var item = items[i];
-                columned_items_for_rows.push(
-                    React.createElement("div", {className: "col-md-4 front-page-card"}, item)
-                );
-            }
+            var columned_items_for_rows = items.map(function(item) {
+                return React.createElement("div", {className: "col-md-4 front-page-card"}, item)
+            });
 
             for (var i = 0; i < columned_items_for_rows.length; i += ITEMS_IN_A_ROW) {
                 var end_slice_index = i + ITEMS_IN_A_ROW > columned_items_for_rows.length ?
@@ -628,12 +607,10 @@ var AdopteeDetail = React.createClass({displayName: "AdopteeDetail",
         }
     },
     render: function () {
-        var story_components = [];
-        for (var i = 0; i < this.state.stories.length; i++) {
-            var story = this.state.stories[i];
+        var story_components = this.state.stories.map(function(story, i, arr) {
             var extra_class;
             if (i === 0) extra_class = "first";
-            else if (i === this.state.stories.length - 1) extra_class = "last";
+            else if (i === arr.length - 1) extra_class = "last";
             else extra_class = "middle";
             story_components.push(
                 React.createElement("div", {className: "row"}, 
@@ -649,7 +626,8 @@ var AdopteeDetail = React.createClass({displayName: "AdopteeDetail",
                     )
                 )
             )
-        }
+        });
+
         return (
             React.createElement(BootstrapModal, {
                 extra_class: "detail-modal"}, 
@@ -686,25 +664,27 @@ var AboutPerson = React.createClass({displayName: "AboutPerson",
         }
 
         return (
-                React.createElement("div", {className: class_name}, 
-                    React.createElement(NameHeader, {
-                        english_name: this.props.english_name, 
-                        chinese_name: this.props.chinese_name, 
-                        pinyin_name: this.props.pinyin_name, 
-                        header_tag: "h2", 
-                        sub_header_tag: "h3"}), 
-                    React.createElement("div", {className: "photo-container"}, 
-                        React.createElement("img", {src: this.props.photo, className: "photo"}), 
-                        React.createElement("div", {className: "photo-caption"}, 
-                            React.createElement("p", null, 
-                                caption
-                            )
+            React.createElement("div", {className: class_name}, 
+                React.createElement(NameHeader, {
+                    english_name: this.props.english_name, 
+                    chinese_name: this.props.chinese_name, 
+                    pinyin_name: this.props.pinyin_name, 
+                    header_tag: "h2", 
+                    sub_header_tag: "h3"}), 
+
+                React.createElement("div", {className: "photo-container"}, 
+                    React.createElement("img", {src: this.props.photo, className: "photo"}), 
+
+                    React.createElement("div", {className: "photo-caption"}, 
+                        React.createElement("p", null, 
+                            caption
                         )
-                    ), 
-                    React.createElement("div", {className: "about-text-container"}, 
-                        text
                     )
+                ), 
+                React.createElement("div", {className: "about-text-container"}, 
+                    text
                 )
+            )
         );
     }
 });
@@ -730,10 +710,10 @@ var AboutView = React.createClass({displayName: "AboutView",
         };
 
         var items_prerender_processor = function (items) {
-            return items.map(function(item, i, arr) {
+            return items.map(function (item, i, arr) {
                 // This isn't the best idea but it's not terrible either for this case ...
                 // https://facebook.github.io/react/docs/jsx-spread.html
-                if (i===0) {
+                if (i === 0) {
                     item.props.extra_class = "first";
                 } else if (i === arr.length - 1) {
                     item.props.extra_class = "last";
@@ -831,7 +811,7 @@ var AreaTextEditor = React.createClass({displayName: "AreaTextEditor",
             var text_editor_loading = gettext("Text editor loading");
             return React.createElement("div", {id: "tellStoryTextAreaLoading"}, text_editor_loading);
         } else if (this.state.scriptLoadError) {
-            var error_message = gettext("There is a problem with your connectivity" +
+            var error_message = gettext("There is a problem with your connectivity " +
                 "or with the website");
             return React.createElement("div", {id: "tellStoryTextAreaError"}, error_message);
         } else {
@@ -857,46 +837,6 @@ var Thanks = React.createClass({displayName: "Thanks",
         );
     }
 });
-
-//var PictureForm = React.createClass({
-//    getInitialState: function () {
-//        return {
-//            files: []
-//        };
-//    },
-//    is_valid: function (file) {
-//        if
-//    },
-//    onDrop: function (files) {
-//        if (this.is_valid(files[0])) {
-//            this.setState({files: files});
-//        }
-//    },
-//    render: function () {
-//        var preview_url = files ? files[0].preview : "";
-//        var upload_like_this = gettext("Upload image that is 2.5 MB or less in size and at least " +
-//                                "600 x 400 px");
-//        if (!this.props.wants_to_provide) return <div />;
-//        return (
-//            <div>
-//                <div className="row">
-//                    <div className="col-md-12">
-//                        <Dropzone multiple={false}
-//                                  accept=".jpg">
-//                            <div>
-//                            </div>
-//                        </Dropzone>
-//                    </div>
-//                </div>
-//                <div className="row">
-//                    <div className="col-md-12">
-//                        <img id="imgPreview" src={preview_url}/>
-//                    </div>
-//                </div>
-//            </div>
-//        )
-//    }
-//});
 
 var SoundcloudForm = React.createClass({displayName: "SoundcloudForm",
     re_detect: /^(http(s)?:\/\/(www\.)?)?soundcloud\.com\/.*/,
@@ -1436,24 +1376,18 @@ var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
             categories = [React.createElement("option", {value: -1}, loading)]
         }
         else {
-            categories = this.state.categories.slice();
-            categories = categories.map(function (json, i, arr) {
+            categories = [];
+            var select_a_category = gettext("Select relationship");
+            categories.push(React.createElement("option", {value: -1, key: -1}, select_a_category));
+            categories.push(this.state.categories.map(function (json, i, arr) {
                 var order_of_names;
                 if (language === ENGLISH)
                     order_of_names = [json.english_name, json.chinese_name];
                 else
                     order_of_names = [json.chinese_name, json.english_name];
-                var name;
-                for (var j = 0; j < order_of_names.length; j++) {
-                    if (order_of_names[j]) {
-                        name = order_of_names[j];
-                        break;
-                    }
-                }
+                var name = firstNonNullOrDefault(order_of_names, null);
                 return React.createElement("option", {value: json.id, key: json.id}, name);
-            });
-            var select_a_category = gettext("Select relationship");
-            categories.unshift(React.createElement("option", {value: -1, key: -1}, select_a_category));
+            }));
             var other = gettext("Other relationship");
             categories.push(React.createElement("option", {value: -2, key: -2}, other));
         }
@@ -1689,7 +1623,6 @@ var AddToAdopteeForm = React.createClass({displayName: "AddToAdopteeForm",
     },
     render: function () {
         var search_result_maker = function (search_result_json) {
-            var a = 1;
             return {
                 "component": AdopteeSearchListing,
                 "props": {
