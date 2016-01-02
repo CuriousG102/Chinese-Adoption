@@ -4,6 +4,7 @@ from adopteeStories import serializers
 from django.db.models import Q
 
 # Create your views here.
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from rest_framework import generics
@@ -120,6 +121,7 @@ class VideoCreate(GenericCreate):
 
 
 # TODO: Add tests around this view
-class AboutPersonDetail(generics.ListAPIView):
+class AboutPersonList(generics.ListAPIView):
     queryset = AboutPerson.objects.all().filter(published=True)
     serializer_class = serializers.AboutPersonSerializer
+    pagination_class = PageNumberPagination

@@ -13,7 +13,7 @@ from PIL import Image
 import loremipsum
 import random
 
-from .models import Adoptee, Audio, Video, Photo, RelationshipCategory, StoryTeller
+from .models import Adoptee, Audio, Video, Photo, RelationshipCategory, StoryTeller, AboutPerson
 from .default_settings import ADOPTEE_STORIES_CONFIG as config
 from .chinese_lorem import ipsum as chinese_lorem
 
@@ -39,8 +39,9 @@ YOUTUBE_VIDEOS = ('https://www.youtube.com/watch?v=dQw4w9WgXcQ',
 SOUNDCLOUD_CLIPS = ('https://soundcloud.com/syed-sarim-ahsen/wake-me-up-avicci-feat-aloe',
                     'https://soundcloud.com/helterskelter-beatles-c/cant-buy-me-love',)
 
-PHOTO_DIMENSION_BOUNDARIES = ((config['MIN_WIDTH'], int(config['MIN_WIDTH']*7.5)),
-                              (config['MIN_HEIGHT'], int(config['MIN_HEIGHT']*7.5)))  # like ((minX, maxX), (minY, maxY))
+PHOTO_DIMENSION_BOUNDARIES = ((config['MIN_WIDTH'], int(config['MIN_WIDTH'] * 7.5)),
+                              (config['MIN_HEIGHT'],
+                               int(config['MIN_HEIGHT'] * 7.5)))  # like ((minX, maxX), (minY, maxY))
 
 NUMBER_OF_CAPTION_SENTENCES = (1, 2)  # it's a range [min, max)
 
@@ -86,7 +87,43 @@ def create_random_audio(storyteller):
     return audio
 
 
-def generate_test_content(number_of_adoptees=100):
+def create_about_people(number_of_people):
+    PEOPLE_NAMES = (('Karen', 'Wilbanks'), ('Josh', 'Duggar'), ('Brandon', 'Mond'),
+                    ('Jena', 'Heath', '姓名', 'xing-ming'))
+    NUMBER_OF_ABOUT_PARAGRAPHS = (1, 3)  # it's a range [min, max)
+    for i in range(number_of_people):
+        image_file = create_random_image_file(config['ABOUT_PHOTO_WIDTH'],
+                                              config['ABOUT_PHOTO_HEIGHT'])
+        english_caption = LoremIpsumProxy().get_sentences(random.randrange(*NUMBER_OF_CAPTION_SENTENCES))
+        chinese_caption = chinese_lorem.get_sentences(random.randrange(*NUMBER_OF_CAPTION_SENTENCES))
+        number_of_paragraphs = random.randrange(*NUMBER_OF_ABOUT_PARAGRAPHS)
+        about_text_english = LoremIpsumProxy().get_paragraphs(number_of_paragraphs)
+        about_text_chinese = chinese_lorem.get_paragraphs(number_of_paragraphs)
+        english_name = " ".join([random.choice(PEOPLE_NAMES)[0],
+                                 random.choice(PEOPLE_NAMES)[1]])
+        choice = random.choice(PEOPLE_NAMES)
+        try:
+            chinese_name = choice[2]
+            pinyin_name = choice[3]
+        except IndexError:
+            chinese_name = None
+            pinyin_name = None
+        person = AboutPerson(english_caption=english_caption,
+                             chinese_caption=chinese_caption,
+                             about_text_english=about_text_english,
+                             about_text_chinese=about_text_chinese,
+                             english_name=english_name,
+                             chinese_name=chinese_name,
+                             pinyin_name=pinyin_name,
+                             order=i,
+                             published=True)
+        person.photo.save('bs.jpg', ContentFile(image_file.getvalue()))
+        person.save()
+
+
+def generate_test_content(number_of_adoptees=100, number_of_about_people=6):
+    create_about_people(number_of_about_people)
+
     STORYTELLER_NAMES = (('Karen', 'Wilbanks'), ('Josh', 'Duggar'), ('Brandon', 'Mond'),
                          ('Jena', 'Heath', '姓名', 'xing-ming'))
 

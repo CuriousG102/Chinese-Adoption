@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, string_concat
 from django.core import validators
 
 
@@ -52,7 +52,7 @@ class Adoptee(models.Model):
         for field in to_string_stuff:
             if field is not None:
                 string.append(field)
-        string = " ".join(["Adoptee:", " ".join(string)])
+        string = string_concat(self.Meta.verbose_name, ' ', ' '.join(string))
 
         return string
 
@@ -78,11 +78,12 @@ class MultimediaItem(models.Model):
     updated = models.DateTimeField(auto_now=True, verbose_name=_('Updated At'))
 
     class Meta:
+        verbose_name = _('Multimedia Item')
         abstract = True
         ordering = ['-created']
 
     def __str__(self):
-        return " ".join([str(self.story_teller), str(self.created)])
+        return string_concat(self.Meta.verbose_name, ' ', self.story_teller, ' ', self.created)
 
 
 class Audio(MultimediaItem):
@@ -158,7 +159,7 @@ class RelationshipCategory(models.Model):
         for field in to_string_stuff:
             if field is not None:
                 string.append(field)
-        string = " ".join(["Relationship:", " ".join(string)])
+        string = string_concat(self.Meta.verbose_name, ' ', ' '.join(string))
 
         return string
 
@@ -212,7 +213,7 @@ class StoryTeller(models.Model):
         for field in to_string_stuff:
             if field is not None:
                 string.append(field)
-        string = " ".join(["Storyteller:", " ".join(string)])
+        string = string_concat(self.Meta.verbose_name, ' ', ' '.join(string))
 
         return string
 
@@ -229,8 +230,42 @@ class AboutPerson(models.Model):
     chinese_caption = models.CharField(max_length=200, null=True, blank=True,
                                        # Translators: Name of a field in the admin page
                                        verbose_name=_('Chinese Caption'))
-    about_text = models.TextField(verbose_name=_('About text for that person.'),
-                                  help_text=_('Should include paragraph markup:'
-                                              'e.g. <p>This is a paragraph</p>'
-                                              '<p>This is a different paragraph</p>'))
+    about_text_english = models.TextField(verbose_name=_('About text for that person.'),
+                                          help_text=_('Should include paragraph markup:'
+                                                      'e.g. <p>This is a paragraph</p>'
+                                                      '<p>This is a different paragraph</p>'),
+                                          null=True, blank=True)
+    about_text_chinese = models.TextField(verbose_name=_('About text for that person.'),
+                                          help_text=_('Should include paragraph markup:'
+                                                      'e.g. <p>This is a paragraph</p>'
+                                                      '<p>This is a different paragraph</p>'),
+                                          null=True, blank=True)
     published = models.BooleanField(verbose_name=_('Published status'))
+    english_name = models.CharField(max_length=150, null=True,
+                                    # Translators: Name of a field in the admin page
+                                    verbose_name=_('English Name'),
+                                    blank=True)
+    chinese_name = models.CharField(max_length=50, null=True,
+                                    # Translators: Name of a field in the admin page
+                                    verbose_name=_('Chinese Name'),
+                                    blank=True)
+    pinyin_name = models.CharField(max_length=150, null=True,
+                                   # Translators: Name of a field in the admin page
+                                   verbose_name=_('Pinyin Name'),
+                                   blank=True)
+    order = models.IntegerField(verbose_name=_('Position of person in about page'))
+
+    class Meta:
+        ordering = ['order']
+        verbose_name = _('About Person')
+        verbose_name_plural = _('About People')
+
+    def __str__(self):
+        to_string_stuff = [self.english_name, self.chinese_name, self.pinyin_name]
+        string = []
+        for field in to_string_stuff:
+            if field is not None:
+                string.append(field)
+        string = string_concat(self.Meta.verbose_name, ' ', ' '.join(string))
+
+        return string

@@ -21,4 +21,6 @@ urlpatterns = [
         name="audioCreate"),
     url(r'^video/$', views.VideoCreate.as_view(),
         name="videoCreate"),
+    url(r'^about/$', views.AboutPersonList.as_view(),
+        name="aboutList")
 ]

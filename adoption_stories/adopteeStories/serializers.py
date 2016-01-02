@@ -196,7 +196,10 @@ class StorySerializer(StoryBasicsSerializer):
         fields = StoryBasicsSerializer.Meta.fields + ('relationship_to_story',
                                                       'media')
 
+
 class AboutPersonSerializer(serializers.ModelSerializer):
     class Meta:
         model = AboutPerson
-        fields = ('photo', 'english_caption', 'chinese_caption', 'about_text')
+        fields = ('photo', 'english_caption', 'chinese_caption',
+                  'about_text_english', 'about_text_chinese',
+                  'english_name', 'chinese_name', 'pinyin_name',)

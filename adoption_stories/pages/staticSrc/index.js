@@ -2,6 +2,18 @@
 //                  the command jsx --watch staticSrc/ static/pages from the
 //                  pages directory and leave it running
 
+// Return first non-null value of list or a default value
+function firstNonNullOrDefault(array, def) {
+    for (var i=0; i < array.length; i++) {
+        if (array[i]) {
+            def = array[i];
+            break;
+        }
+    }
+
+    return def;
+}
+
 // Django CSRF Protection; https://docs.djangoproject.com/en/1.8/ref/csrf/#ajax
 function getCookie(name) {
     var cookieValue = null;
@@ -168,7 +180,7 @@ var getCaption = function (media_item) {
     }
 
     return "";
-}
+};
 
 var Media = React.createClass({
     getInitialState: function () {
@@ -305,6 +317,7 @@ var StoryTeller = React.createClass({
     }
 });
 
+// TODO: make this non-global
 var paginator_ajax_in_progress = false;
 
 var PaginationSection = React.createClass({
@@ -368,6 +381,7 @@ var PaginationSection = React.createClass({
             el = el[0];
         }
 
+        if (!el) this.addItems();
         var rect = el.getBoundingClientRect();
 
         // once the top-left corner of the dom is out of view this will actually be false,
@@ -428,9 +442,6 @@ var StoryCard = React.createClass({
         stuff_to_add.push(<div className="story-container">
             <p className="story-text">{story_text}</p>
         </div>);
-
-        var detail_name_order = language === ENGLISH ? [this.props.english_name, this.props.pinyin_name, this.props.chinese_name]
-            : [this.props.chinese_name, this.props.english_name, this.props.pinyin_name];
 
         // Translators: The ... that comes before
         var link_text = gettext("...");
@@ -657,13 +668,104 @@ var AdopteeDetail = React.createClass({
     }
 });
 
+var AboutPerson = React.createClass({
+    render: function () {
+        // TODO: This is scattered so many places. At the very least there should be a utility function to return the first non-null value from a list or a default value
+        var caption_order_preference = language === ENGLISH ?
+            [this.props.english_caption, this.props.chinese_caption] :
+            [this.props.chinese_caption, this.props.english_caption];
+        var caption = firstNonNullOrDefault(caption_order_preference, "");
+
+        var text_order_preference = language === ENGLISH ?
+            [this.props.about_text_english, this.props.about_text_chinese] :
+            [this.props.about_text_chinese, this.props.about_text_english];
+        var text = firstNonNullOrDefault(text_order_preference, "");
+        var class_name = "about-person";
+        if (this.props.extra_class) {
+            class_name += " " + this.props.extra_class;
+        }
+
+        return (
+                <div className={class_name}>
+                    <NameHeader
+                        english_name={this.props.english_name}
+                        chinese_name={this.props.chinese_name}
+                        pinyin_name={this.props.pinyin_name}
+                        header_tag="h2"
+                        sub_header_tag="h3"/>
+                    <div className="photo-container">
+                        <img src={this.props.photo} className="photo"/>
+                        <div className="photo-caption">
+                            <p>
+                                {caption}
+                            </p>
+                        </div>
+                    </div>
+                    <div className="about-text-container">
+                        {text}
+                    </div>
+                </div>
+        );
+    }
+});
+
 var AboutView = React.createClass({
     render: function () {
+        var about_person_maker = function (about_person_json) {
+            return (
+            {
+                "component": AboutPerson,
+                "props": {
+                    "english_name": about_person_json.english_name,
+                    "chinese_name": about_person_json.chinese_name,
+                    "pinyin_name": about_person_json.pinyin_name,
+                    "about_text_english": about_person_json.about_text_english,
+                    "about_text_chinese": about_person_json.about_text_chinese,
+                    "english_caption": about_person_json.english_caption,
+                    "chinese_caption": about_person_json.chinese_caption,
+                    "photo": about_person_json.photo
+                }
+            }
+            )
+        };
+
+        var items_prerender_processor = function (items) {
+            return items.map(function(item, i, arr) {
+                // This isn't the best idea but it's not terrible either for this case ...
+                // https://facebook.github.io/react/docs/jsx-spread.html
+                if (i===0) {
+                    item.props.extra_class = "first";
+                } else if (i === arr.length - 1) {
+                    item.props.extra_class = "last";
+                } else {
+                    item.props.extra_class = "middle";
+                }
+                return (
+                    <div className="row">
+                        <div className="col-md-12">
+                            {item}
+                        </div>
+                    </div>
+                );
+            });
+        };
+
+        var who_we_are = gettext("Who We Are");
+
         return (
-            <BootstrapModal>
+            <BootstrapModal
+                extra_class="about-modal">
                 <div className="row">
                     <div className="col-md-12">
-                        // about text and a couple of images
+                        <h3 className="whoWeAreTitle">{who_we_are}</h3>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-md-12">
+                        <PaginationSection
+                            initial_url={ABOUT_PERSON_LIST_ENDPOINT}
+                            make_element={about_person_maker}
+                            items_prerender_processor={items_prerender_processor}/>
                     </div>
                 </div>
             </BootstrapModal>

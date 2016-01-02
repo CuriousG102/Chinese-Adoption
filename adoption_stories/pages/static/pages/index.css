@@ -34,7 +34,7 @@ p {
     width: 90%;
 }
 
-.promptTitle:after {
+.promptTitle:after, .whoWeAreTitle:after {
     content: "";
     position: absolute;;
     left: 36%;
@@ -224,20 +224,26 @@ p {
     padding-bottom: 15px;
 }
 
-.detail-modal .storyTeller {
+.detail-modal .storyTeller, .about-modal .about-person {
     margin: 0 10px;
 }
 
-.detail-modal .storyTeller {
+.detail-modal .storyTeller, .about-modal .about-person {
     border-top: 1px solid #ddd;
 }
 
-.detail-modal .storyTeller.middle, .modal-content.storyTeller.last {
+.detail-modal .storyTeller.middle, .modal-content .storyTeller.last,
+.about-modal .about-person.middle, .about-modal .about-person.last{
     padding-top: 5px;
 }
 
-.detail-modal .storyTeller.first, .modal-content .storyTeller.middle {
+.detail-modal .storyTeller.first, .modal-content .storyTeller.middle,
+.about-modal .about-person.first, .about-modal .about-person.middle{
     padding-bottom: 20px;
+}
+
+.about-modal .about-person.first {
+    border-top: none;
 }
 
 #close-button {
@@ -246,12 +252,12 @@ p {
     right: -25px;
 }
 
-.storyTeller h2 {
+.storyTeller h2, .about-person h2 {
     margin-top: 15px;
     margin-bottom: 5px;
 }
 
-.storyTeller h3 {
+.storyTeller h3, .about-person h3 {
     margin-top: 0;
 }
 
@@ -259,11 +265,11 @@ p {
     color: #999;
 }
 
-.detail-modal h3 {
+.detail-modal h3, .about-modal h3 {
     color: #999;
 }
 
-.detail-modal h2 {
+.detail-modal h2, .about-modal h2 {
     color: #333;
 }
 
@@ -418,9 +424,16 @@ p {
     margin: 0 auto;
 }
 
-.promptTitle {
+.promptTitle, .whoWeAreTitle {
     text-align: center;
+}
+
+.promptTitle {
     margin-bottom: 15px;
+}
+
+.whoWeAreTitle {
+    margin-bottom: 25px;
 }
 
 .prompt-modal h4 {
