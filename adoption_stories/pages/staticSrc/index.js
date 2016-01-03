@@ -612,7 +612,7 @@ var AdopteeDetail = React.createClass({
             if (i === 0) extra_class = "first";
             else if (i === arr.length - 1) extra_class = "last";
             else extra_class = "middle";
-            story_components.push(
+            return (
                 <div className="row">
                     <div className="col-md-12">
                         <StoryTeller english_name={story.english_name}
@@ -625,7 +625,7 @@ var AdopteeDetail = React.createClass({
                             />
                     </div>
                 </div>
-            )
+            );
         });
 
         return (

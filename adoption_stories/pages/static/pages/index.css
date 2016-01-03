@@ -434,6 +434,7 @@ p {
 
 .whoWeAreTitle {
     margin-bottom: 25px;
+    color: #333 !important;
 }
 
 .prompt-modal h4 {
