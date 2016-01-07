@@ -1,16 +1,23 @@
 from django.db import models
-from django.utils.translation import ugettext_lazy as _, string_concat
-from django.core import validators
-
-
-# Create your models here.
+from django.utils.encoding import force_text
+from django.utils.translation import ugettext_lazy as _
 from embed_video.fields import EmbedYoutubeField, EmbedSoundcloudField
 
 from .custom_model_fields import RestrictedImageField
 from .default_settings import ADOPTEE_STORIES_CONFIG as config
 
+class NamesToStringMixin():
+    NAME_ATTRIBUTES = ['english_name', 'pinyin_name', 'chinese_name']
+    @property
+    def name(self):
+        s = []
+        for name in self.NAME_ATTRIBUTES:
+            name_string = getattr(self, name, None)
+            if name_string:
+                s.append(name_string)
+        return ' '.join(s)
 
-class Adoptee(models.Model):
+class Adoptee(models.Model, NamesToStringMixin):
     # english_name must have a value || (pinyin_name && chinese_name)
     # must have a value implemented form level
     english_name = models.CharField(max_length=150, null=True, blank=True,
@@ -47,13 +54,7 @@ class Adoptee(models.Model):
         verbose_name_plural = _('Adoptees')
 
     def __str__(self):
-        to_string_stuff = [self.english_name, self.chinese_name, self.pinyin_name]
-        string = []
-        for field in to_string_stuff:
-            if field is not None:
-                string.append(field)
-        string = string_concat(self._meta.verbose_name, ' ', ' '.join(string))
-
+        string = ' '.join([force_text(self._meta.verbose_name), self.name])
         return string
 
 
@@ -83,7 +84,7 @@ class MultimediaItem(models.Model):
         ordering = ['-created']
 
     def __str__(self):
-        return string_concat(self._meta.verbose_name, ' ', self.story_teller, ' ', self.created)
+        return ' '.join([force_text(self._meta.verbose_name), self.story_teller.name, force_text(self.created)])
 
 
 class Audio(MultimediaItem):
@@ -124,7 +125,7 @@ class Photo(MultimediaItem):
         verbose_name_plural = _('Photos')
 
 
-class RelationshipCategory(models.Model):
+class RelationshipCategory(models.Model, NamesToStringMixin):
     # english_name must have a value || chinese name must have a value at first
     # but to publish both must have a value or all stories with an untranslated
     # category must only show up english side/chinese side
@@ -154,17 +155,11 @@ class RelationshipCategory(models.Model):
         verbose_name_plural = _('Relationship Categories')
 
     def __str__(self):
-        to_string_stuff = [self.english_name, self.chinese_name]
-        string = []
-        for field in to_string_stuff:
-            if field is not None:
-                string.append(field)
-        string = string_concat(self._meta.verbose_name, ' ', ' '.join(string))
-
+        string = ' '.join([force_text(self._meta.verbose_name), self.name])
         return string
 
 
-class StoryTeller(models.Model):
+class StoryTeller(models.Model, NamesToStringMixin):
     relationship_to_story = models.ForeignKey('RelationshipCategory',
                                               # Translators: Name of a field in the admin page
                                               verbose_name=_('Relationship to Story'))
@@ -208,17 +203,11 @@ class StoryTeller(models.Model):
         verbose_name_plural = _('Story Tellers')
 
     def __str__(self):
-        to_string_stuff = [self.english_name, self.chinese_name, self.pinyin_name]
-        string = []
-        for field in to_string_stuff:
-            if field is not None:
-                string.append(field)
-        string = string_concat(self._meta.verbose_name, ' ', ' '.join(string))
-
+        string = ' '.join([force_text(self._meta.verbose_name), self.name])
         return string
 
 
-class AboutPerson(models.Model):
+class AboutPerson(models.Model, NamesToStringMixin):
     photo = RestrictedImageField(maximum_size=config['PHOTO_FRONT_STORY_MAX_SIZE'],
                                  required_height=config['ABOUT_PHOTO_HEIGHT'],
                                  required_width=config['ABOUT_PHOTO_WIDTH'],
@@ -261,11 +250,5 @@ class AboutPerson(models.Model):
         verbose_name_plural = _('About People')
 
     def __str__(self):
-        to_string_stuff = [self.english_name, self.chinese_name, self.pinyin_name]
-        string = []
-        for field in to_string_stuff:
-            if field is not None:
-                string.append(field)
-        string = string_concat(self._meta.verbose_name, ' ', ' '.join(string))
-
+        string = ' '.join([force_text(self._meta.verbose_name), self.name])
         return string
