@@ -2,9 +2,14 @@ import os
 
 from .base import *
 
+DEBUG = False
+ALLOWED_HOSTS = [os.environ['DOMAIN']]
+
 INSTALLED_APPS += (
     'storages',
 )
+
+SECRET_KEY = os.environ['SECRET_KEY']
 
 AWS_S3_ACCESS_KEY_ID = os.environ['AWS_S3_ACCESS_KEY_ID']
 AWS_S3_SECRET_ACCESS_KEY = os.environ['AWS_S3_SECRET_ACCESS_KEY']
