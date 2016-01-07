@@ -10,6 +10,7 @@ from embed_video.admin import AdminVideoMixin
 admin.site.register(models.Photo)
 admin.site.register(models.RelationshipCategory)
 admin.site.register(models.StoryTeller)
+admin.site.register(models.AboutPerson)
 
 
 class LimitChoicesBaseForm(ModelForm):

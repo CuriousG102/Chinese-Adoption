@@ -52,7 +52,7 @@ class Adoptee(models.Model):
         for field in to_string_stuff:
             if field is not None:
                 string.append(field)
-        string = string_concat(self.Meta.verbose_name, ' ', ' '.join(string))
+        string = string_concat(self._meta.verbose_name, ' ', ' '.join(string))
 
         return string
 
@@ -83,7 +83,7 @@ class MultimediaItem(models.Model):
         ordering = ['-created']
 
     def __str__(self):
-        return string_concat(self.Meta.verbose_name, ' ', self.story_teller, ' ', self.created)
+        return string_concat(self._meta.verbose_name, ' ', self.story_teller, ' ', self.created)
 
 
 class Audio(MultimediaItem):
@@ -159,7 +159,7 @@ class RelationshipCategory(models.Model):
         for field in to_string_stuff:
             if field is not None:
                 string.append(field)
-        string = string_concat(self.Meta.verbose_name, ' ', ' '.join(string))
+        string = string_concat(self._meta.verbose_name, ' ', ' '.join(string))
 
         return string
 
@@ -213,7 +213,7 @@ class StoryTeller(models.Model):
         for field in to_string_stuff:
             if field is not None:
                 string.append(field)
-        string = string_concat(self.Meta.verbose_name, ' ', ' '.join(string))
+        string = string_concat(self._meta.verbose_name, ' ', ' '.join(string))
 
         return string
 
@@ -266,6 +266,6 @@ class AboutPerson(models.Model):
         for field in to_string_stuff:
             if field is not None:
                 string.append(field)
-        string = string_concat(self.Meta.verbose_name, ' ', ' '.join(string))
+        string = string_concat(self._meta.verbose_name, ' ', ' '.join(string))
 
         return string
