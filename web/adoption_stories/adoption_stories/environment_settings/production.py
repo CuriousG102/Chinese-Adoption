@@ -1,4 +1,5 @@
 import os
+from storages.backends import S3BotoStorage
 
 from .base import *
 
@@ -21,7 +22,19 @@ AWS_STATIC_S3_CUSTOM_DOMAIN = '{}.s3.amazonaws.com'.format(AWS_STATIC_STORAGE_BU
 AWS_MEDIA_S3_CUSTOM_DOMAIN = '{}.s3.amazonaws.com'.format(AWS_MEDIA_STORAGE_BUCKET_NAME)
 AWS_IS_GZIPPED = True
 AWS_S3_URL_PROTOCOL = 'https:'
+AWS_AUTO_CREATE_BUCKET = False
 
 STATIC_URL = 'https://{}/'.format(AWS_STATIC_S3_CUSTOM_DOMAIN)
 MEDIA_URL = 'https://{}/'.format(AWS_MEDIA_S3_CUSTOM_DOMAIN)
-STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+
+
+class MediaStorage(S3BotoStorage):
+    bucket_name = AWS_MEDIA_STORAGE_BUCKET_NAME
+
+
+class StaticStorage(S3BotoStorage):
+    bucket_name = AWS_STATIC_STORAGE_BUCKET_NAME
+
+
+STATICFILES_STORAGE = StaticStorage
+DEFAULT_FILE_STORAGE = MediaStorage

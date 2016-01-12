@@ -10,5 +10,3 @@ COPY requirements.txt /usr/src/app/
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . /usr/src/app
-
-RUN python adoption_stories/manage.py collectstatic --noinput
