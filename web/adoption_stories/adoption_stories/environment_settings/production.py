@@ -7,6 +7,7 @@ ALLOWED_HOSTS = [os.environ['DOMAIN']]
 
 INSTALLED_APPS += (
     'storages',
+    'custom_storages',
 )
 
 SECRET_KEY = os.environ['SECRET_KEY']
@@ -26,5 +27,5 @@ AWS_AUTO_CREATE_BUCKET = False
 STATIC_URL = 'https://{}/'.format(AWS_STATIC_S3_CUSTOM_DOMAIN)
 MEDIA_URL = 'https://{}/'.format(AWS_MEDIA_S3_CUSTOM_DOMAIN)
 
-STATICFILES_STORAGE = 'adoption_stories.custom_storages.StaticStorage'
-DEFAULT_FILE_STORAGE = 'adoption_stories.custom_storages.MediaStorage'
+STATICFILES_STORAGE = 'custom_storages.StaticStorage'
+DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
