@@ -10,8 +10,8 @@ install-all: install-docker install-site
 run-server: docker-compose up
 install-and-run: install-all run-server
 collect-static:
-	docker run --env-file=.env adoptionwebsite_web python /usr/src/app/adoption_stories/manage.py collectstatic --noinput
+	docker run --env-file=.env chineseadoption_web python /usr/src/app/adoption_stories/manage.py collectstatic --noinput
 migrate:
-	docker run --env-file=.env adoptionwebsite_web python /usr/src/app/adoption_stories/manage.py migrate
+	docker run --env-file=.env chineseadoption_web python /usr/src/app/adoption_stories/manage.py migrate
 new-super-user:
-	docker run --env-file=.env adoptionwebsite_web python /usr/src/app/adoption_stories/manage.py createsuperuser
+	docker run --env-file=.env chineseadoption_web python /usr/src/app/adoption_stories/manage.py createsuperuser
