@@ -7,7 +7,8 @@ install-docker:
 install-site:
 	docker-compose build
 install-all: install-docker install-site
-run-server: docker-compose up
+run-server:
+	docker-compose up
 install-and-run: install-all run-server
 collect-static:
 	docker run --env-file=.env chineseadoption_web python /usr/src/app/adoption_stories/manage.py collectstatic --noinput
