@@ -1,5 +1,4 @@
 import os
-from storages.backends.s3boto import S3BotoStorage
 
 from .base import *
 
@@ -27,14 +26,5 @@ AWS_AUTO_CREATE_BUCKET = False
 STATIC_URL = 'https://{}/'.format(AWS_STATIC_S3_CUSTOM_DOMAIN)
 MEDIA_URL = 'https://{}/'.format(AWS_MEDIA_S3_CUSTOM_DOMAIN)
 
-
-class MediaStorage(S3BotoStorage):
-    bucket_name = AWS_MEDIA_STORAGE_BUCKET_NAME
-
-
-class StaticStorage(S3BotoStorage):
-    bucket_name = AWS_STATIC_STORAGE_BUCKET_NAME
-
-
-STATICFILES_STORAGE = StaticStorage
-DEFAULT_FILE_STORAGE = MediaStorage
+STATICFILES_STORAGE = 'adoption_stories.custom_storages.StaticStorage'
+DEFAULT_FILE_STORAGE = 'adoption_stories.custom_storages.MediaStorage'
