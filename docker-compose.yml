@@ -6,6 +6,7 @@ web:
   links:
     - postgres:postgres
   env_file: .env
+  working_dir: /usr/src/app/adoption_stories
   command: /usr/local/bin/gunicorn adoption_stories.wsgi:application -w 2 -b :8000
 
 nginx:
