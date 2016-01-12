@@ -30,7 +30,7 @@ urlpatterns = [
     url(r'^jsi18n/$', javascript_catalog, js_info_dict),
 ]
 urlpatterns += i18n_patterns(url(r'', include('pages.urls')))
-# urlpatterns += static(settings.MEDIA_URL,
-#                       document_root=settings.MEDIA_ROOT)
-# urlpatterns += static(settings.STATIC_URL,
-#                       document_root=settings.STATIC_ROOT)
+urlpatterns += static(settings.MEDIA_URL,
+                      document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL,
+                      document_root=settings.STATIC_ROOT)
