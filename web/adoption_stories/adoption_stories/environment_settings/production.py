@@ -1,5 +1,5 @@
 import os
-from storages.backends import S3BotoStorage
+from storages.backends.s3boto import S3BotoStorage
 
 from .base import *
 
