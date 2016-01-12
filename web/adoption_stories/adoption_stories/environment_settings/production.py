@@ -24,3 +24,4 @@ AWS_S3_URL_PROTOCOL = 'https:'
 
 STATIC_URL = 'https://{}/'.format(AWS_STATIC_S3_CUSTOM_DOMAIN)
 MEDIA_URL = 'https://{}/'.format(AWS_MEDIA_S3_CUSTOM_DOMAIN)
+STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
