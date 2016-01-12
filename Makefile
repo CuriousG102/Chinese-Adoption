@@ -2,7 +2,6 @@ all: install-all collect-static migrate run-server
 
 install-docker:
 	wget -qO- https://get.docker.com/ | sh
-	usermod -aG docker $(whoami)
 	apt-get -y install python-pip
 	pip install docker-compose
 install-site:
