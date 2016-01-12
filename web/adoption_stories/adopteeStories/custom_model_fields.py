@@ -24,32 +24,33 @@ class ImageValidator:
         self.required_formats = required_formats
 
     def __call__(self, image_file):
-        image = image_file.file.image
-        if image_file.size > self.maximum_size:
-            # Translators: the words in brackets are replaced by something else. For the code to work properly you should leave the brackets and the words inside of them as-is. You can move them around (i.e. copy-paste in different places)
-            raise ValidationError(
-                string_format_lazy('The file size of the photo is too large. '
-                                   'It should be of size {max_kilobytes} KB or less',
-                                   max_kilobytes=int(self.maximum_size / 2 ** 10))
-            )
+        if hasattr(image_file.file, 'image'):
+            image = image_file.file.image
+            if image_file.size > self.maximum_size:
+                # Translators: the words in brackets are replaced by something else. For the code to work properly you should leave the brackets and the words inside of them as-is. You can move them around (i.e. copy-paste in different places)
+                raise ValidationError(
+                    string_format_lazy('The file size of the photo is too large. '
+                                       'It should be of size {max_kilobytes} KB or less',
+                                       max_kilobytes=int(self.maximum_size / 2 ** 10))
+                )
 
-        width, height = image.size
-        if width != self.required_width or height != self.required_height:
-            # Translators: the words in brackets are replaced by something else. For the code to work properly you should leave the brackets and the words inside of them as-is. You can move them around (i.e. copy-paste in different places)
-            raise ValidationError(
-                string_format_lazy('Photo has incorrect dimensions. It should be of '
-                                   'width {photo_width} and height {photo_height}.',
-                                   photo_width=self.required_width,
-                                   photo_height=self.required_height)
-            )
+            width, height = image.size
+            if width != self.required_width or height != self.required_height:
+                # Translators: the words in brackets are replaced by something else. For the code to work properly you should leave the brackets and the words inside of them as-is. You can move them around (i.e. copy-paste in different places)
+                raise ValidationError(
+                    string_format_lazy('Photo has incorrect dimensions. It should be of '
+                                       'width {photo_width} and height {photo_height}.',
+                                       photo_width=self.required_width,
+                                       photo_height=self.required_height)
+                )
 
-        if image.format not in self.required_formats:
-            # Translators: the words in brackets are replaced by something else. For the code to work properly you should leave the brackets and the words inside of them as-is. You can move them around (i.e. copy-paste in different places)
-            raise ValidationError(
-                string_format_lazy('Photo does not have the required format. '
-                                   'It should be one of the following formats: {formats_list}.',
-                                   formats_list=','.join(sorted(list(self.required_formats))))
-            )
+            if image.format not in self.required_formats:
+                # Translators: the words in brackets are replaced by something else. For the code to work properly you should leave the brackets and the words inside of them as-is. You can move them around (i.e. copy-paste in different places)
+                raise ValidationError(
+                    string_format_lazy('Photo does not have the required format. '
+                                       'It should be one of the following formats: {formats_list}.',
+                                       formats_list=','.join(sorted(list(self.required_formats))))
+                )
 
 class RestrictedImageField(models.ImageField):
     def __init__(self, maximum_size=None, required_width=None,
