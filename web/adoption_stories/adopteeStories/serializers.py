@@ -74,13 +74,13 @@ class StoryCreationSerializer(StoryBasicsSerializer):
 
 
 class AdopteeDetailSerializer(AdopteeBasicsSerializer):
-    stories = serializers.SerializerMethodField('get_ordered_stories')
+    stories = serializers.SerializerMethodField()
 
-    def get_ordered_stories(self, instance):
+    def get_stories(self, instance):
         ordered_stories = StoryTeller.objects.all() \
-            .filter(related_adoptee=instance) \
-            .filter(approved=True) \
-            .order_by('-updated', '-created')
+            .filter(related_adoptee=instance, approved=True,
+                    photo__approved=True)\
+            .distinct()
         return StorySerializer(ordered_stories, many=True).data
 
     class Meta(AdopteeBasicsSerializer.Meta):

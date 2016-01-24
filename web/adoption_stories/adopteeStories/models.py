@@ -196,7 +196,7 @@ class StoryTeller(models.Model, NamesToStringMixin):
                                    verbose_name=_('Updated At'))
 
     class Meta:
-        ordering = ['-created']
+        ordering = ['-updated', '-created']
         # Translators: Name of a field in the admin page
         verbose_name = _('Story Teller')
         # Translators: Name of a field in the admin page

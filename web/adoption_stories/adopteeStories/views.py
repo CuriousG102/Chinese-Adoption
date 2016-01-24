@@ -24,7 +24,6 @@ from rest_framework import mixins
 ADOPTEE_FILTERS_Q_OBJECTS = [Q(front_story__isnull=False),
                              Q(front_story__approved=True),
                              Q(photo_front_story__isnull=False),
-                             Q(front_story__photo__isnull=False),
                              Q(front_story__photo__approved=True),
                              ]
 ADOPTEE_FILTER = Q()
