@@ -14,13 +14,6 @@ from rest_framework import mixins
 
 # TODO: Address code debt around these filters
 
-# -- Basic SQL required for selecting distinct adoptees who have an approved storyteller --
-# SELECT DISTINCT ID
-# FROM ADOPTEE
-# INNER JOIN STORYTELLER
-# ON ADOPTEE.ID = STORYTELLER.RELATED_ADOPTEE
-# WHERE STORYTELLER.APPROVED = 1
-
 # If you are very keen, you may notice that this filter will allow through
 # adoptees with storytellers who are approved, but who do not possess approved
 # categories. I noticed this while writing my tests and debated it myself.
@@ -28,10 +21,11 @@ from rest_framework import mixins
 # that approving a storyteller means associated content will be out there with
 # that storyteller if it isn't media. This allows granularity in making one-off
 # exceptions for relationship categories without bloating the selector as well.
-ADOPTEE_FILTERS_Q_OBJECTS = [Q(stories__approved=True),
-                             Q(front_story__isnull=False),
+ADOPTEE_FILTERS_Q_OBJECTS = [Q(front_story__isnull=False),
                              Q(front_story__approved=True),
                              Q(photo_front_story__isnull=False),
+                             Q(front_story__photo__isnull=False),
+                             Q(front_story__photo__approved=True),
                              ]
 ADOPTEE_FILTER = Q()
 
