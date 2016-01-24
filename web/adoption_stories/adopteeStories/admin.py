@@ -30,9 +30,7 @@ class LimitChoicesBaseForm(ModelForm):
 
 
 class LimitChoicesAdopteeForm(LimitChoicesBaseForm):
-    limit_choices_methods = [{'field_name': 'photo_front_story',
-                              'method': lambda instance: Q(story_teller__related_adoptee=instance)},
-                             {'field_name': 'front_story',
+    limit_choices_methods = [{'field_name': 'front_story',
                               'method': lambda instance: Q(related_adoptee=instance)}]
 
 
