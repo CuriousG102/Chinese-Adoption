@@ -838,136 +838,72 @@ var Thanks = React.createClass({
     }
 });
 
-var SoundcloudForm = React.createClass({
-    re_detect: /^(http(s)?:\/\/(www\.)?)?soundcloud\.com\/.*/,
+var mediaFormMethods = {
     is_valid: function (url) {
         return this.re_detect.test(url);
     },
     post_data: function () {
-        if (this.is_valid(this.state.soundcloud_url))
-            return this.state.soundcloud_url;
+        if (this.is_valid(this.state.url))
+            return this.state.url;
         else
             return null
     },
     getInitialState: function () {
         return {
-            soundcloud_url: gettext("Please paste a soundcloud url of your audio here"),
-            embed_shizzle: {__html: ""}
+            url: ""
         };
     },
-    getEmbed: debounce(function (url) {
-        $.ajax({
-            url: "http://soundcloud.com/oembed",
-            dataType: "json",
-            data: {
-                format: "json",
-                url: url,
-                maxheight: 81
-            },
-            success: function (initial_url, data) {
-                // if statement guards against scenario where user has changed url but the reuest has returned
-                // for a stale one
-                if (this.state.soundcloud_url === initial_url) {
-                    this.setState({
-                        embed_shizzle: {
-                            __html: data.html
-                        }
-                    });
-                }
-            }.bind(this, url),
-            error: function (initial_url, xhr, status, err) {
-                console.error(initial_url, status, err.toString());
-            }.bind(this, url)
-        })
-    }, 1000),
     handleChange: function (event) {
         this.setState({
-            soundcloud_url: event.target.value,
-            embed_shizzle: {__html: ""}
+            url: event.target.value
         });
-        if (this.is_valid(event.target.value)) {
-            this.getEmbed(event);
-        }
     },
     render: function () {
-        var url_input_classname = this.is_valid(this.state.soundcloud_url) ?
+        var url_input_classname = this.is_valid(this.state.url) ?
             "valid" : "invalid";
         if (!this.props.wants_to_provide) return <div />;
-        var explain = gettext("Be sure you are in a quiet place with minimal background noise when you record your SoundCloud clip. Your clip should not be longer than five minutes.");
         return (
             <div>
                 <div className="row">
                     <div className="col-md-12">
-                        <h4>{explain}</h4>
+                        <h4>{this.explanation_text}</h4>
                     </div>
                 </div>
                 <div className="row">
                     <div className="col-md-12">
-                        <input id="soundCloudURLInput"
-                               value={this.state.soundcloud_url}
+                        <input id="mediaFormURLInput"
+                               value={this.state.url}
                                onChange={this.handleChange}
+                               placeholder={this.default_url}
                                className={url_input_classname}/>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-md-12">
-                        <div className="media-embed"
-                             dangerouslySetInnerHTML={this.state.embed_shizzle}/>
                     </div>
                 </div>
             </div>
         );
     }
+};
+
+var SoundcloudForm = React.createClass({
+    mixins: [mediaFormMethods],
+    re_detect: /^(http(s)?:\/\/(www\.)?)?soundcloud\.com\/.*/,
+    default_url: gettext("Please paste a soundcloud url of your audio here"),
+    explanation_text: gettext("Be sure you are in a quiet place with minimal background noise when you record " +
+        "your SoundCloud clip. Your clip should not be longer than five minutes."),
 });
 
 var YoutubeForm = React.createClass({
+    mixins: [mediaFormMethods],
     re_detect: /^(http(s)?:\/\/)?(www\.|m\.)?youtu(\.?)be(\.com)?\/.*/,
-    is_valid: function (url) {
-        return this.re_detect.test(url);
-    },
-    post_data: function () {
-        if (this.is_valid(this.state.youtube_url))
-            return this.state.youtube_url;
-        else
-            return null
-    },
-    getInitialState: function () {
-        return {
-            youtube_url: gettext("Please paste a youtube url of your video here"),
-            // embed_shizzle: {__html: ""}
-        };
-    },
-    handleChange: function (event) {
-        this.setState({
-            youtube_url: event.target.value,
-            // embed_shizzle: {__html: ""}
-        });
-
-    },
-    render: function () {
-        var url_input_classname = this.is_valid(this.state.youtube_url) ?
-            "valid" : "invalid";
-        var explain = gettext("When shooting your photo or YouTube video, be sure you are not standing with light behind you. If you are using your phone to shoot video, be sure the phone is horizontal.");
-        if (!this.props.wants_to_provide) return <div />;
-        return (
-            <div>
-                <div className="row">
-                    <div className="col-md-12">
-                        <h4>{explain}</h4>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-md-12">
-                        <input id="soundCloudURLInput"
-                               value={this.state.youtube_url}
-                               onChange={this.handleChange}
-                               className={url_input_classname}/>
-                    </div>
-                </div>
-            </div>
-        );
-    }
+    default_url: gettext("Please paste a youtube url of your video here"),
+    explanation_text: gettext("When shooting your photo or YouTube video, be sure you are not standing with " +
+        "light behind you. If you are using your phone to shoot video, be sure the phone is horizontal.")
 });
+
+// TODO: This could be named better and also probably shouldn't be a global variable
+var get_value = function (text) {
+    if ($.trim(text).length > 0) return text;
+    return null;
+};
 
 var MediaUpload = React.createClass({
     MULTIMEDIA_FORMS: {
@@ -984,16 +920,18 @@ var MediaUpload = React.createClass({
             endpoint: VIDEO_UPLOAD_ENDPOINT
         }
     },
+    ENGLISH_PHOTO_CAPTION_DEFAULT: gettext("English caption for photo (if able)"),
+    CHINESE_PHOTO_CAPTION_DEFAULT: gettext("Chinese caption for photo (if able)"),
     ENGLISH_CAPTION_DEFAULT: gettext("English caption for multimedia (if able)"),
     CHINESE_CAPTION_DEFAULT: gettext("Chinese caption for multimedia (if able)"),
     getInitialState: function () {
         return {
             wants_to_provide: true,
             selected_form: "soundcloud",
-            english_caption: this.ENGLISH_CAPTION_DEFAULT,
-            chinese_caption: this.CHINESE_CAPTION_DEFAULT,
-            photo_english_caption: this.ENGLISH_CAPTION_DEFAULT,
-            photo_chinese_caption: this.CHINESE_CAPTION_DEFAULT,
+            english_caption: "",
+            chinese_caption: "",
+            photo_english_caption: "",
+            photo_chinese_caption: "",
             photo_data_file: null
         };
     },
@@ -1013,16 +951,10 @@ var MediaUpload = React.createClass({
         });
     },
     continueForward: function () {
-        var get_value = function (text, boiler) {
-            if (text !== boiler && text.length > 0) return text;
-            return null;
-        };
         if (this.state.photo_data_file === null) return;
         var photo_upload_data = {
-            english_caption: get_value(this.state.photo_english_caption,
-                this.ENGLISH_CAPTION_DEFAULT),
-            chinese_caption: get_value(this.state.photo_chinese_caption,
-                this.CHINESE_CAPTION_DEFAULT),
+            english_caption: get_value(this.state.photo_english_caption),
+            chinese_caption: get_value(this.state.photo_chinese_caption),
             story_teller: this.props.story_teller,
             photo_file: this.state.photo_data_file
         };
@@ -1043,10 +975,8 @@ var MediaUpload = React.createClass({
                 var upload_field = this.refs.multimedia_form.post_data();
                 if (!upload_field) return; // not a valid upload
                 var upload_data = {
-                    english_caption: get_value(this.state.english_caption,
-                        this.ENGLISH_CAPTION_DEFAULT),
-                    chinese_caption: get_value(this.state.chinese_caption,
-                        this.CHINESE_CAPTION_DEFAULT),
+                    english_caption: get_value(this.state.english_caption),
+                    chinese_caption: get_value(this.state.chinese_caption),
                     story_teller: this.props.story_teller
                 };
                 var upload_field_name = this.MULTIMEDIA_FORMS[this.state.selected_form].upload_field_name;
@@ -1149,12 +1079,14 @@ var MediaUpload = React.createClass({
         var caption = this.state.wants_to_provide ?
             [<input id="multimediaEnglishCaption"
                     onChange={this.handleEnglishChange}
-                    value={this.state.english_caption}/>,
+                    value={this.state.english_caption}
+                    placeholder={this.ENGLISH_CAPTION_DEFAULT}/>,
                 <input id="multimediaChineseCaption"
                        onChange={this.handleChineseChange}
-                       value={this.state.chinese_caption}/>] : [];
+                       value={this.state.chinese_caption}
+                       placeholder={this.CHINESE_CAPTION_DEFAULT}/>] : [];
         var select_a_photo = gettext(
-            "Please use the space below to upload a photo to your story. " +
+            "You must upload a photo to proceed. " +
             "The photo should have a width and height greater than 400px " +
             "each, be no larger than 2.5 megabytes, and be a JPEG."
         );
@@ -1174,10 +1106,12 @@ var MediaUpload = React.createClass({
                     <div className="col-md-12">
                         <input id="photoEnglishCaption"
                                onChange={this.handlePhotoEnglishChange}
-                               value={this.state.photo_english_caption}/>
+                               value={this.state.photo_english_caption}
+                               placeholder={this.ENGLISH_PHOTO_CAPTION_DEFAULT}/>
                         <input id="photoChineseCaption"
                                onChange={this.handlePhotoChineseChange}
-                               value={this.state.photo_chinese_caption}/>
+                               value={this.state.photo_chinese_caption}
+                               placeholder={this.CHINESE_PHOTO_CAPTION_DEFAULT}/>
                     </div>
                 </div>
                 <div className="row">
@@ -1213,87 +1147,20 @@ var MediaUpload = React.createClass({
     }
 });
 
+// TODO: This form is way too bloated and brittle. It should be broken out into various components with their own state and something like media form's post_data method
 var EnterStoryForm = React.createClass({
     getInitialState: function () {
         return {
             categories: [],
             categories_loading: true,
-            selected_category: -1,
-            new_category_english: this.props.new_category_english_text,
-            new_category_chinese: this.props.new_category_chinese_text,
-            english_name: this.props.english_name_text,
-            chinese_name: this.props.chinese_name_text,
-            pinyin_name: this.props.pinyin_name_text,
-            email: this.props.email_text
+            selected_category:this.CATEGORIES_ENUM.NONE_SELECTED,
+            new_category_english: "",
+            new_category_chinese: "",
+            english_name: "",
+            chinese_name: "",
+            pinyin_name: "",
+            email: ""
         };
-    },
-    continueForward: function () {
-        // TODO: All this validation is bs. Validation should be tied to specific fields so I can give meaningful error messages :-/
-        if (parseInt(this.state.selected_category) === -1 ||
-            (parseInt(this.state.selected_category) === -2 &&
-            (this.state.new_category_english === this.props.new_category_english_text || this.state.new_category_english.length === 0) &&
-            (this.state.new_category_chinese === this.props.new_category_chinese_text || this.state.new_category_chinese.length === 0)) ||
-            this.refs.textArea.getText().length === 0 ||
-            ((this.state.english_name === this.props.english_name_text || this.state.english_name.length === 0) &&
-            (this.state.chinese_name === this.props.chinese_name_text || this.state.chinese_name.length === 0) &&
-            (this.state.pinyin_name === this.props.pinyin_name_text || this.state.pinyin_name.length === 0)) || !this.emailIsValid(this.state.email)) return;
-
-        var postStoryteller = function (category_id) {
-            $.ajax({
-                method: "POST",
-                url: STORYTELLER_ENDPOINT,
-                dataType: "json",
-                data: {
-                    relationship_to_story: category_id,
-                    story_text: this.refs.textArea.getText(),
-                    email: this.state.email,
-                    related_adoptee: this.props.adoptee_id,
-                    // TODO: The validation logic below is repeated like, everywhere, and should really be its own function
-                    english_name: this.state.english_name !== this.props.english_name_text
-                    && this.state.english_name.length > 0 ?
-                        this.state.english_name : null,
-                    chinese_name: this.state.chinese_name !== this.props.chinese_name_text
-                    && this.state.chinese_name.length > 0 ?
-                        this.state.chinese_name : null,
-                    pinyin_name: this.state.pinyin_name !== this.props.pinyin_name_text
-                    && this.state.pinyin_name.length > 0 ?
-                        this.state.pinyin_name : null
-                },
-                success: function (data) {
-                    this.props.transition({
-                        tag: MediaUpload,
-                        props: {story_teller: data.id}
-                    });
-                }.bind(this),
-                error: function (xhr, status, err) {
-                    console.error(STORYTELLER_ENDPOINT, status, err.toString());
-                }.bind(this)
-            })
-        }.bind(this);
-        if (parseInt(this.state.selected_category) === -2) {
-            // TODO: Since error is boilerplate on all our AJAX calls it can probably be implemented as part of ajaxSetup
-            $.ajax({
-                method: "POST",
-                url: CATEGORY_ENDPOINT,
-                dataType: "json",
-                data: {
-                    english_name: this.state.new_category_english !== this.props.new_category_english_text
-                    && this.state.new_category_english.length > 0 ?
-                        this.state.new_category_english : null,
-                    chinese_name: this.state.new_category_chinese !== this.props.new_category_chinese_text
-                    && this.state.new_category_chinese.length > 0 ?
-                        this.state.new_category_chinese : null
-                },
-                success: function (data) {
-                    postStoryteller(data.id);
-                }.bind(this),
-                error: function (xhr, status, err) {
-                    console.error(CATEGORY_ENDPOINT, status, err.toString());
-                }.bind(this)
-            });
-        } else {
-            postStoryteller(this.state.selected_category)
-        }
     },
     getDefaultProps: function () {
         return {
@@ -1306,6 +1173,63 @@ var EnterStoryForm = React.createClass({
             pinyin_name_text: gettext("Your name in Pinyin (if applicable)"),
             email_text: gettext("Your email")
         };
+    },
+    continueForward: function () {
+        // TODO: All this validation is bs. Validation should be tied to specific fields so I can give meaningful error messages :-/
+        if (parseInt(this.state.selected_category) === this.CATEGORIES_ENUM.NONE_SELECTED ||
+            (parseInt(this.state.selected_category) === this.CATEGORIES_ENUM.OTHER &&
+            !get_value(this.state.new_category_english) &&
+            !get_value(this.state.new_category_chinese)) ||
+            !get_value(this.refs.textArea.getText()) ||
+            (!get_value(this.state.english_name) &&
+             !get_value(this.state.chinese_name) &&
+             !get_value(this.state.pinyin_name)) || !this.emailIsValid(this.state.email)) return;
+
+        var postStoryteller = function (category_id) {
+            $.ajax({
+                method: "POST",
+                url: STORYTELLER_ENDPOINT,
+                dataType: "json",
+                data: {
+                    relationship_to_story: category_id,
+                    story_text: this.refs.textArea.getText(),
+                    email: this.state.email,
+                    related_adoptee: this.props.adoptee_id,
+                    english_name: get_value(this.state.english_name),
+                    chinese_name: get_value(this.state.chinese_name),
+                    pinyin_name: get_value(this.state.pinyin_name)
+                },
+                success: function (data) {
+                    this.props.transition({
+                        tag: MediaUpload,
+                        props: {story_teller: data.id}
+                    });
+                }.bind(this),
+                error: function (xhr, status, err) {
+                    console.error(STORYTELLER_ENDPOINT, status, err.toString());
+                }.bind(this)
+            })
+        }.bind(this);
+        if (parseInt(this.state.selected_category) === this.CATEGORIES_ENUM.NONE_SELECTED) {
+            // TODO: Since error is boilerplate on all our AJAX calls it can probably be implemented as part of ajaxSetup
+            $.ajax({
+                method: "POST",
+                url: CATEGORY_ENDPOINT,
+                dataType: "json",
+                data: {
+                    english_name: get_value(this.state.new_category_english),
+                    chinese_name: get_value(this.state.new_category_chinese)
+                },
+                success: function (data) {
+                    postStoryteller(data.id);
+                }.bind(this),
+                error: function (xhr, status, err) {
+                    console.error(CATEGORY_ENDPOINT, status, err.toString());
+                }.bind(this)
+            });
+        } else {
+            postStoryteller(this.state.selected_category)
+        }
     },
     componentDidMount: function () {
         $.ajax({
@@ -1363,6 +1287,10 @@ var EnterStoryForm = React.createClass({
         var re = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
         return re.test(email);
     },
+    CATEGORIES_ENUM: {
+        "NONE_SELECTED": -1,
+        "OTHER": -2,
+    },
     render: function () {
         var what_is_your_name = gettext("What is your name?");
         var what_is_your_email = gettext("What is your email?");
@@ -1373,12 +1301,15 @@ var EnterStoryForm = React.createClass({
         var categories;
         if (this.state.categories_loading) {
             var loading = gettext("Loading");
-            categories = [<option value={-1}>{loading}</option>]
+            categories = [<option value={this.CATEGORIES_ENUM.NONE_SELECTED}>{loading}</option>]
         }
         else {
             categories = [];
             var select_a_category = gettext("Select relationship");
-            categories.push(<option value={-1} key={-1}>{select_a_category}</option>);
+            categories.push(<option value={this.CATEGORIES_ENUM.NONE_SELECTED}
+                                    key={this.CATEGORIES_ENUM.NONE_SELECTED}>
+                                {select_a_category}
+                            </option>);
             categories.push(this.state.categories.map(function (json, i, arr) {
                 var order_of_names;
                 if (language === ENGLISH)
@@ -1389,10 +1320,13 @@ var EnterStoryForm = React.createClass({
                 return <option value={json.id} key={json.id}>{name}</option>;
             }));
             var other = gettext("Other relationship");
-            categories.push(<option value={-2} key={-2}>{other}</option>);
+            categories.push(<option value={this.CATEGORIES_ENUM.NONE_SELECTED}
+                                    key={this.CATEGORIES_ENUM.NONE_SELECTED}>
+                                {other}
+                            </option>);
         }
         var other_category_creator;
-        if (parseInt(this.state.selected_category) === -2) {
+        if (parseInt(this.state.selected_category) === this.CATEGORIES_ENUM.NONE_SELECTED) {
             // Translators: Seen by person when creating a new relationship category
             var instructions = gettext("Please fill out the relationship " +
                 "name in at least one language");
@@ -1405,12 +1339,14 @@ var EnterStoryForm = React.createClass({
                 <div className="row">
                     <div className="col-md-12">
                         <input value={this.state.new_category_english}
+                               placeholder={this.props.new_category_english_text}
                                onChange={this.handleCategoryCreatorEnglishChange}/>
                     </div>
                 </div>,
                 <div className="row">
                     <div className="col-md-12">
                         <input value={this.state.new_category_chinese}
+                               placeholder={this.props.new_category_chinese_text}
                                onChange={this.handleCategoryCreatorChineseChange}/>
                     </div>
                 </div>
@@ -1428,9 +1364,15 @@ var EnterStoryForm = React.createClass({
                 </div>
                 <div className="row">
                     <div className="col-md-12">
-                        <input value={this.state.english_name} onChange={this.handleEnglishNameChange}/>
-                        <input value={this.state.chinese_name} onChange={this.handleChineseNameChange}/>
-                        <input value={this.state.pinyin_name} onChange={this.handlePinyinNameChange}/>
+                        <input value={this.state.english_name}
+                               placeholder={this.props.english_name_text}
+                               onChange={this.handleEnglishNameChange}/>
+                        <input value={this.state.chinese_name}
+                               placeholder={this.props.chinese_name_text}
+                               onChange={this.handleChineseNameChange}/>
+                        <input value={this.state.pinyin_name}
+                               placeholder={this.props.pinyin_name_text}
+                               onChange={this.handlePinyinNameChange}/>
                     </div>
                 </div>
                 <div className="row">
@@ -1441,6 +1383,7 @@ var EnterStoryForm = React.createClass({
                 <div className="row">
                     <div className="col-md-12">
                         <input value={this.state.email}
+                               placeholder={this.props.email_text}
                                onChange={this.handleEmailChange}
                                className={email_class}/>
                     </div>
@@ -1510,50 +1453,44 @@ var AdopteeSearchListing = React.createClass({
 var CreateAdopteeForm = React.createClass({
     getInitialState: function () {
         return {
+            english_name: "",
+            pinyin_name: "",
+            chinese_name: "",
+        }
+    },
+    getDefaultProps: function () {
+        return {
             // Translators: Part of the adoptee creation form
-            english_name: gettext("English Name"),
-            english_name_valid: false,
+            english_name_text: gettext("English Name"),
             // Translators: Part of the adoptee creation form
-            pinyin_name: gettext("Pinyin Name"),
-            pinyin_name_valid: false,
+            pinyin_name_text: gettext("Pinyin Name"),
             // Translators: Part of the adoptee creation form
-            chinese_name: gettext("Chinese Name"),
-            chinese_name_valid: false
+            chinese_name_text: gettext("Chinese Name")
         }
     },
     englishInputChange: function (event) {
-        this.setState({english_name: event.target.value, english_name_valid: true});
+        this.setState({english_name: event.target.value});
     },
     pinyinInputChange: function (event) {
-        this.setState({pinyin_name: event.target.value, pinyin_name_valid: true});
+        this.setState({pinyin_name: event.target.value});
     },
     chineseInputChange: function (event) {
-        this.setState({chinese_name: event.target.value, chinese_name_valid: true});
+        this.setState({chinese_name: event.target.value});
     },
     continueForward: function () {
         // TODO: Make this block duplicate posts
-        var get_name_value = function (name, valid) {
-            if (valid && name && name.length > 0)
-                return name;
-
-            return null;
-        };
-
         // TODO: Refactor
-        if ((this.state.english_name_valid && this.state.english_name.length > 0) ||
-            (this.state.pinyin_name_valid && this.state.pinyin_name.length > 0) ||
-            (this.state.chinese_name_valid && this.state.chinese_name.length > 0)) {
+        if (get_value(this.state.english_name) ||
+            get_value(this.state.pinyin_name) ||
+            get_value(this.state.chinese_name)) {
             $.ajax({
                 url: ADOPTEE_CREATE_ENDPOINT,
                 type: 'POST',
                 dataType: "json",
                 data: {
-                    english_name: get_name_value(this.state.english_name,
-                        this.state.english_name_valid),
-                    chinese_name: get_name_value(this.state.chinese_name,
-                        this.state.chinese_name_valid),
-                    pinyin_name: get_name_value(this.state.pinyin_name,
-                        this.state.pinyin_name_valid)
+                    english_name: get_value(this.state.english_name),
+                    chinese_name: get_value(this.state.chinese_name),
+                    pinyin_name: get_value(this.state.pinyin_name)
                 },
                 success: function (data) {
                     this.props.transition({
@@ -1574,12 +1511,15 @@ var CreateAdopteeForm = React.createClass({
                 <h4>{what_is_name}</h4>
                 <input className="nameCreationInput"
                        value={this.state.english_name}
+                       placeholder={this.props.english_name_text}
                        onChange={this.englishInputChange}/>
                 <input className="nameCreationInput"
                        value={this.state.pinyin_name}
+                       placeholder={this.props.pinyin_name_text}
                        onChange={this.pinyinInputChange}/>
                 <input className="nameCreationInput"
                        value={this.state.chinese_name}
+                       placeholder={this.props.chinese_name_text}
                        onChange={this.chineseInputChange}/>
             </div>
         );
@@ -1589,7 +1529,7 @@ var CreateAdopteeForm = React.createClass({
 var AddToAdopteeForm = React.createClass({
     getInitialState: function () {
         return {
-            value: gettext('Name'),
+            value: "",
             search_url: ADOPTEE_SEARCH_ENDPOINT,
             selected_adoptee: null
         };
@@ -1640,6 +1580,7 @@ var AddToAdopteeForm = React.createClass({
                                  initial_url={this.state.search_url}
                                  class_string="adopteeListingDropdown"/>;
         var what_is_name = gettext("What is the name of the adoptee connected to your story?");
+        var name = gettext('Name');
         return (
             <div className="row">
                 <div className="col-md-12">
@@ -1647,6 +1588,7 @@ var AddToAdopteeForm = React.createClass({
                         <h4>{what_is_name}</h4>
                         <input type="text"
                                value={this.state.value}
+                               placeholder={name}
                                onChange={this.handleChange}
                                className="form-control"/>
                         {dropdown}
@@ -1750,7 +1692,7 @@ var SubmitStart = React.createClass({
         };
 
         var tos = gettext("By submitting your story to this site, you are agreeing to post your content publicly. You are also promising that the content is not plagiarized from anyone, that it does not infringe a copyright or trademark, and that it isn’t libelous or otherwise unlawful or misleading. You also agree to be bound by this site’s Terms of Use and Privacy Policy.");
-
+        var terms = gettext("Terms");
         return (
             <div>
                 <ProvideForm {...form_props} ref="form"/>
@@ -1760,6 +1702,7 @@ var SubmitStart = React.createClass({
                         <p className="tiny-tos">
                             {tos}
                         </p>
+                        <a href="">{terms}</a>
                     </div>
                 </div>
             </div>

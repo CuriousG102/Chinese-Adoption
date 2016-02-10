@@ -252,6 +252,10 @@ p {
     right: -25px;
 }
 
+#continueButton {
+    margin-bottom: 15px;
+}
+
 .storyTeller h2, .about-person h2 {
     margin-top: 15px;
     margin-bottom: 5px;
