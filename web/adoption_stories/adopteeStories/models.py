@@ -219,12 +219,12 @@ class AboutPerson(models.Model, NamesToStringMixin):
     chinese_caption = models.CharField(max_length=200, null=True, blank=True,
                                        # Translators: Name of a field in the admin page
                                        verbose_name=_('Chinese Caption'))
-    about_text_english = models.TextField(verbose_name=_('About text for that person.'),
+    about_text_english = models.TextField(verbose_name=_('About text for that person in English.'),
                                           help_text=_('Should include paragraph markup:'
                                                       'e.g. <p>This is a paragraph</p>'
                                                       '<p>This is a different paragraph</p>'),
                                           null=True, blank=True)
-    about_text_chinese = models.TextField(verbose_name=_('About text for that person.'),
+    about_text_chinese = models.TextField(verbose_name=_('About text for that person in Chinese.'),
                                           help_text=_('Should include paragraph markup:'
                                                       'e.g. <p>This is a paragraph</p>'
                                                       '<p>This is a different paragraph</p>'),
