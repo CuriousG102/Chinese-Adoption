@@ -251,7 +251,7 @@ var Media = React.createClass({displayName: "Media",
     }
 });
 
-var processStoryText = function (story_text) {
+var processText = function (story_text) {
     story_text = story_text.split(/<p>|<\/p>/);
     for (var i = 1; i < story_text.length; i += 2) {
         story_text[i] = React.createElement("p", null, story_text[i])
@@ -261,7 +261,7 @@ var processStoryText = function (story_text) {
 
 var StoryTeller = React.createClass({displayName: "StoryTeller",
     render: function () {
-        var story_text = this.props.story_text ? processStoryText(this.props.story_text)
+        var story_text = this.props.story_text ? processText(this.props.story_text)
             : React.createElement("p", null);
 
         var classname = "storyTeller";
@@ -426,7 +426,7 @@ var StoryCard = React.createClass({displayName: "StoryCard",
         stuff_to_add.push(React.createElement(Adoptee, {english_name: this.props.english_name, 
                                    chinese_name: this.props.chinese_name, 
                                    pinyin_name: this.props.pinyin_name}));
-        var story_text = processStoryText(this.props.front_story.story_text);
+        var story_text = processText(this.props.front_story.story_text);
         stuff_to_add.push(React.createElement("div", {className: "story-container"}, 
             React.createElement("p", {className: "story-text"}, story_text)
         ));
@@ -657,7 +657,7 @@ var AboutPerson = React.createClass({displayName: "AboutPerson",
         var text_order_preference = language === ENGLISH ?
             [this.props.about_text_english, this.props.about_text_chinese] :
             [this.props.about_text_chinese, this.props.about_text_english];
-        var text = firstNonNullOrDefault(text_order_preference, "");
+        var text = processText(firstNonNullOrDefault(text_order_preference, "<p></p>"));
         var class_name = "about-person";
         if (this.props.extra_class) {
             class_name += " " + this.props.extra_class;
@@ -1165,12 +1165,12 @@ var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
     getDefaultProps: function () {
         return {
             // Translators: Seen by person when creating a new relationship category
-            new_category_english_text: gettext("Relationship name in English"),
+            new_category_english_text: gettext("Relationship category in English"),
             // Translators: Seen by person when creating a new relationship category
-            new_category_chinese_text: gettext("Relationship name in Chinese"),
-            english_name_text: gettext("Your name in English (if applicable)"),
-            chinese_name_text: gettext("Your name in Chinese (if applicable)"),
-            pinyin_name_text: gettext("Your name in Pinyin (if applicable)"),
+            new_category_chinese_text: gettext("Relationship category in Chinese"),
+            english_name_text: gettext("Your name in English (optional)"),
+            chinese_name_text: gettext("Your name in Chinese (optional)"),
+            pinyin_name_text: gettext("Your name in Pinyin (optional)"),
             email_text: gettext("Your email")
         };
     },
@@ -1461,11 +1461,11 @@ var CreateAdopteeForm = React.createClass({displayName: "CreateAdopteeForm",
     getDefaultProps: function () {
         return {
             // Translators: Part of the adoptee creation form
-            english_name_text: gettext("English Name"),
+            english_name_text: gettext("English Name (optional)"),
             // Translators: Part of the adoptee creation form
-            pinyin_name_text: gettext("Pinyin Name"),
+            pinyin_name_text: gettext("Pinyin Name (optional)"),
             // Translators: Part of the adoptee creation form
-            chinese_name_text: gettext("Chinese Name")
+            chinese_name_text: gettext("Chinese Name (optional)")
         }
     },
     englishInputChange: function (event) {
