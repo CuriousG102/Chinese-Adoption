@@ -49,6 +49,7 @@ p {
 }
 
 .button {
+    cursor: pointer;
     font-size: 18px;
     height: 55px;
     width: 200px;
@@ -282,6 +283,7 @@ p {
 }
 
 .x-icon {
+    cursor: pointer;
     height: 50px;
     width: 50px;
     background-image: url('x-icon.png');
