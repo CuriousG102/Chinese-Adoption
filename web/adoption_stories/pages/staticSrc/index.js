@@ -518,11 +518,16 @@ var FrontPage = React.createClass({
         // Translators: Share text for twitter
         var twitter_share_link = "https://twitter.com/intent/tweet?text=" + encodeURI(gettext("Check out ourchinastories.com!"));
         var fb_share_link = "http://www.facebook.com/sharer/sharer.php?u=" + encodeURI("http://www.ourchinastories.com/");
+
+        var admin = gettext("Admin");
         return (
             <div className="container">
                 <div className="headerRow">
                     <div className="col-md-12">
                         <div className="logoSwitchLinkContainer">
+                            <div className="adminLinkContainer">
+                                <a href={ADMIN_URL}>{admin}</a>
+                            </div>
                             <div className="otherLanguagePromptContainer">
                                 <a href={other_language_link}>{other_language_prompt}</a>
                             </div>
@@ -631,7 +636,26 @@ var AdopteeDetail = React.createClass({
                 </div>
             );
         });
+        //
+        //var share_text = gettext("Share this story on Facebook or Twitter");
+        //var order_of_headers;
+        //if (language === ENGLISH)
+        //    order_of_headers = [this.state.english_name, this.state.chinese_name,
+        //        this.state.pinyin_name];
+        //else
+        //    order_of_headers = [this.state.chinese_name, this.state.pinyin_name, this.state.english_name];
+        //
+        //var twitter_share_link = "https://twitter.com/intent/tweet?text=" +
+        //    encodeURI(interpolate(gettext("Check out %s's story at %s"),
+        //                          [firstNonNullOrDefault(order_of_headers),
+        //                           window.location.href]));
+        //var fb_share_link = "http://www.facebook.com/sharer/sharer.php?u=" + encodeURI(window.location.href);
 
+        //<div className="socialShareStory">
+        //            <span>{share_text}</span>
+        //            <a className="twitterButton socialButton" href={twitter_share_link}/>
+        //            <a className="facebookButton socialButton" href={fb_share_link}/>
+        //        </div>
         return (
             <BootstrapModal
                 extra_class="detail-modal">
@@ -645,6 +669,7 @@ var AdopteeDetail = React.createClass({
                     </div>
                 </div>
                 {story_components}
+
             </BootstrapModal>
         );
     }

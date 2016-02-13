@@ -3,7 +3,7 @@
   src: url('NotoSerif-Regular.ttf');
 }
 
-p, button, a, h1, h2, h3, a, h4, h5, h6, input {
+p, button, a, h1, h2, h3, a, h4, h5, h6, input, span {
     font-family: notoSerif, Palatino, "Palatino Linotype", serif, "SimSun", "STHeiti Light", "华文细黑", "宋体";
 }
 
@@ -24,6 +24,24 @@ p {
 }
 
 .otherLanguagePromptContainer::before {
+    content : "";
+    position: absolute;
+    left    : 5%;
+    bottom  : 0;
+    height  : 2px;
+    border-bottom: 2px solid #E64C3B;
+    padding-bottom: 5px;
+    width: 90%;
+}
+
+.adminLinkContainer {
+    position: absolute;
+    height: 25px;
+    top: 0;
+    left: 20px;
+}
+
+.adminLinkContainer::before {
     content : "";
     position: absolute;
     left    : 5%;
@@ -132,7 +150,8 @@ p {
 }
 
 .logo {
-    height: 100px;
+    max-height: 100px;
+    max-width: 75%;
     margin-left: auto;
     margin-right: auto;
 }
@@ -288,11 +307,60 @@ p {
     width: 110px;
 }
 
+.socialContainer .socialButton {
+    float: left;
+}
+
 .twitterButton, .facebookButton {
     display: block;
     width: 50px;
     height: 50px;
-    float: left;
+}
+
+.socialShareStory {
+    height: 50px;
+}
+
+.socialShareStory .socialButton, .socialShareStory span {
+    position: fixed;
+    bottom: 45px;
+}
+.socialShareStory .twitterButton {
+    right: 45px;
+}
+.socialShareStory .facebookButton {
+    right: 105px;
+}
+.socialShareStory span {
+    right: 110px;
+}
+
+@media (max-width: 768px) {
+    .socialShareStory {
+        color: #999;
+        width: 100%;
+    }
+    .socialShareStory .socialButton, .socialShareStory span {
+        position: fixed;
+    }
+    .socialShareStory .twitterButton {
+        right: 15px;
+        bottom: 15px;
+    }
+    .socialShareStory .facebookButton {
+        right: 75px;
+        bottom: 15px;
+    }
+    .socialShareStory span {
+        right: 130px;
+        bottom: 25px;
+    }
+}
+
+.socialShareStory span {
+    font-style: italic;
+    color: #999;
+    font-size: 14px;
 }
 
 .twitterButton {

@@ -25,7 +25,7 @@ js_info_dict = {
 }
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', include(admin.site.urls), name="admin"),
     url(r'^api/v1/', include('adopteeStories.urls')),
     url(r'^jsi18n/$', javascript_catalog, js_info_dict),
 ]
