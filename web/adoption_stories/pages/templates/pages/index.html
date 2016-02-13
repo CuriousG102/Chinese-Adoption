@@ -8,7 +8,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>{% trans "Our China Stories" %}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0" charset="UTF-8"/>
   <!-- TODO: Add shims for legacy browsers -->
   <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
   <!-- TODO: Minify all this react stuff before hitting production -->
@@ -37,6 +37,7 @@
     var LOGO_LOCATION = "{% static "pages/logo.jpg" %}";
     var X_ICON = "{% static "pages/x-icon.png" %}";
     var ABOUT_PERSON_LIST_ENDPOINT = "{% url "aboutList" %}";
+    var TERMS_LOCATION = "{% static "pages/terms.pdf" %}"
   </script>
   <!-- TODO: Add opengraph integration at Jena's request -->
 </head>

@@ -23,7 +23,7 @@ p {
     right: 20px;
 }
 
-.otherLanguagePromptContainer:before {
+.otherLanguagePromptContainer::before {
     content : "";
     position: absolute;
     left    : 5%;
@@ -34,12 +34,11 @@ p {
     width: 90%;
 }
 
-.promptTitle:after, .whoWeAreTitle:after {
+.promptTitle::after, .whoWeAreTitle::after {
     content: "";
-    position: absolute;;
+    position: absolute;
     left: 36%;
-    bottom: -15px;
-    height: 1px;
+    height: 40px;
     border-bottom: 2px solid #E54A3B;
     width: 28%;
 }
@@ -47,6 +46,7 @@ p {
 .otherLanguagePromptContainer a {
     margin: 0 auto;
 }
+
 
 .button {
     cursor: pointer;
@@ -365,6 +365,7 @@ p {
     border-bottom: 1px solid;
     border-bottom-color: #e6e6e6;
     padding: 12px 5px;
+    cursor: pointer;
 }
 
 .adopteeListing:hover {

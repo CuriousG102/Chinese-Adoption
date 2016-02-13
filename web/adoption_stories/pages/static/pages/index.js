@@ -565,11 +565,8 @@ var BootstrapModal = React.createClass({displayName: "BootstrapModal",
                 }, 
                 React.createElement("div", {className: class_name}, 
                     React.createElement("div", {className: "container-fluid"}, 
-                        React.createElement("div", {className: "row", id: "close-row"}, 
-                            React.createElement("div", {className: "col-md-11"}), 
-                            React.createElement("div", {className: "col-md-1"}, 
-                                React.createElement("div", {className: "x-icon", onClick: this.handleModalCloseRequest})
-                            )
+                        React.createElement("div", {id: "close-row"}, 
+                            React.createElement("div", {className: "x-icon", onClick: this.handleModalCloseRequest})
                         ), 
                         this.props.children
                     )
@@ -970,7 +967,7 @@ var MediaUpload = React.createClass({displayName: "MediaUpload",
                 this.props.transition({
                     tag: Thanks,
                     props: {}
-                });
+                }, gettext("Finish"));
             } else {
                 var upload_field = this.refs.multimedia_form.post_data();
                 if (!upload_field) return; // not a valid upload
@@ -1289,7 +1286,7 @@ var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
     },
     CATEGORIES_ENUM: {
         "NONE_SELECTED": -1,
-        "OTHER": -2,
+        "OTHER": -2
     },
     render: function () {
         var what_is_your_name = gettext("What is your name?");
@@ -1320,13 +1317,13 @@ var EnterStoryForm = React.createClass({displayName: "EnterStoryForm",
                 return React.createElement("option", {value: json.id, key: json.id}, name);
             }));
             var other = gettext("Other relationship");
-            categories.push(React.createElement("option", {value: this.CATEGORIES_ENUM.NONE_SELECTED, 
-                                    key: this.CATEGORIES_ENUM.NONE_SELECTED}, 
+            categories.push(React.createElement("option", {value: this.CATEGORIES_ENUM.OTHER, 
+                                    key: this.CATEGORIES_ENUM.OTHER}, 
                                 other
                             ));
         }
         var other_category_creator;
-        if (parseInt(this.state.selected_category) === this.CATEGORIES_ENUM.NONE_SELECTED) {
+        if (parseInt(this.state.selected_category) === this.CATEGORIES_ENUM.OTHER) {
             // Translators: Seen by person when creating a new relationship category
             var instructions = gettext("Please fill out the relationship " +
                 "name in at least one language");
@@ -1702,7 +1699,7 @@ var SubmitStart = React.createClass({displayName: "SubmitStart",
                         React.createElement("p", {className: "tiny-tos"}, 
                             tos
                         ), 
-                        React.createElement("a", {href: ""}, terms)
+                        React.createElement("a", {href: TERMS_LOCATION}, terms)
                     )
                 )
             )
@@ -1711,12 +1708,14 @@ var SubmitStart = React.createClass({displayName: "SubmitStart",
 });
 
 var SubmitPrompt = React.createClass({displayName: "SubmitPrompt",
+    CONTINUE_TEXT: gettext("Continue"),
     getInitialState: function () {
         return {
             content: {
                 tag: SubmitStart,
                 props: {}
-            }
+            },
+            continue_text: this.CONTINUE_TEXT
         }
     },
     getDefaultProps: function () {
@@ -1725,10 +1724,14 @@ var SubmitPrompt = React.createClass({displayName: "SubmitPrompt",
             inactive_button_class: "button"
         }
     },
-    transition: function (content) {
+    transition: function (content, button_text) {
         this.setState({
             content: content
         });
+        if (button_text)
+            this.setState({
+                continue_text: button_texts
+            });
     },
     childContinue: function () {
         this.refs.content.continueForward();
@@ -1738,7 +1741,7 @@ var SubmitPrompt = React.createClass({displayName: "SubmitPrompt",
         var tell_your_story = gettext("Tell Your Story");
 
         // Translators: Continue button on story submission modal
-        var continue_text = gettext("Continue");
+        var continue_text = this.state.continue_text;
 
         var ContentTag = this.state.content.tag;
         var content_props = this.state.content.props;

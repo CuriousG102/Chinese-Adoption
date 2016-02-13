@@ -565,11 +565,8 @@ var BootstrapModal = React.createClass({
                 >
                 <div className={class_name}>
                     <div className="container-fluid">
-                        <div className="row" id="close-row">
-                            <div className="col-md-11"/>
-                            <div className="col-md-1">
-                                <div className="x-icon" onClick={this.handleModalCloseRequest}></div>
-                            </div>
+                        <div id="close-row">
+                            <div className="x-icon" onClick={this.handleModalCloseRequest}></div>
                         </div>
                         {this.props.children}
                     </div>
@@ -970,7 +967,7 @@ var MediaUpload = React.createClass({
                 this.props.transition({
                     tag: Thanks,
                     props: {}
-                });
+                }, gettext("Finish"));
             } else {
                 var upload_field = this.refs.multimedia_form.post_data();
                 if (!upload_field) return; // not a valid upload
@@ -1289,7 +1286,7 @@ var EnterStoryForm = React.createClass({
     },
     CATEGORIES_ENUM: {
         "NONE_SELECTED": -1,
-        "OTHER": -2,
+        "OTHER": -2
     },
     render: function () {
         var what_is_your_name = gettext("What is your name?");
@@ -1320,13 +1317,13 @@ var EnterStoryForm = React.createClass({
                 return <option value={json.id} key={json.id}>{name}</option>;
             }));
             var other = gettext("Other relationship");
-            categories.push(<option value={this.CATEGORIES_ENUM.NONE_SELECTED}
-                                    key={this.CATEGORIES_ENUM.NONE_SELECTED}>
+            categories.push(<option value={this.CATEGORIES_ENUM.OTHER}
+                                    key={this.CATEGORIES_ENUM.OTHER}>
                                 {other}
                             </option>);
         }
         var other_category_creator;
-        if (parseInt(this.state.selected_category) === this.CATEGORIES_ENUM.NONE_SELECTED) {
+        if (parseInt(this.state.selected_category) === this.CATEGORIES_ENUM.OTHER) {
             // Translators: Seen by person when creating a new relationship category
             var instructions = gettext("Please fill out the relationship " +
                 "name in at least one language");
@@ -1702,7 +1699,7 @@ var SubmitStart = React.createClass({
                         <p className="tiny-tos">
                             {tos}
                         </p>
-                        <a href="">{terms}</a>
+                        <a href={TERMS_LOCATION}>{terms}</a>
                     </div>
                 </div>
             </div>
@@ -1711,12 +1708,14 @@ var SubmitStart = React.createClass({
 });
 
 var SubmitPrompt = React.createClass({
+    CONTINUE_TEXT: gettext("Continue"),
     getInitialState: function () {
         return {
             content: {
                 tag: SubmitStart,
                 props: {}
-            }
+            },
+            continue_text: this.CONTINUE_TEXT
         }
     },
     getDefaultProps: function () {
@@ -1725,10 +1724,14 @@ var SubmitPrompt = React.createClass({
             inactive_button_class: "button"
         }
     },
-    transition: function (content) {
+    transition: function (content, button_text) {
         this.setState({
             content: content
         });
+        if (button_text)
+            this.setState({
+                continue_text: button_texts
+            });
     },
     childContinue: function () {
         this.refs.content.continueForward();
@@ -1738,7 +1741,7 @@ var SubmitPrompt = React.createClass({
         var tell_your_story = gettext("Tell Your Story");
 
         // Translators: Continue button on story submission modal
-        var continue_text = gettext("Continue");
+        var continue_text = this.state.continue_text;
 
         var ContentTag = this.state.content.tag;
         var content_props = this.state.content.props;
