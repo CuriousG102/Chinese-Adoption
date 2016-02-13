@@ -515,6 +515,9 @@ var FrontPage = React.createClass({displayName: "FrontPage",
         var other_language_prompt = language === ENGLISH ? "中文" : "Switch to English";
         var other_language_link = language === ENGLISH ? "/zh-hans/#" : "/en/#";
 
+        // Translators: Share text for twitter
+        var twitter_share_link = "https://twitter.com/intent/tweet?text=" + encodeURI(gettext("Check out ourchinastories.com!"));
+        var fb_share_link = "http://www.facebook.com/sharer/sharer.php?u=" + encodeURI("http://www.ourchinastories.com/");
         return (
             React.createElement("div", {className: "container"}, 
                 React.createElement("div", {className: "headerRow"}, 
@@ -529,6 +532,10 @@ var FrontPage = React.createClass({displayName: "FrontPage",
                         ), 
                         React.createElement("div", {className: "summaryContainer"}, 
                             React.createElement("p", null, summary)
+                        ), 
+                        React.createElement("div", {className: "socialContainer"}, 
+                            React.createElement("a", {className: "twitterButton socialButton", href: twitter_share_link}), 
+                            React.createElement("a", {className: "facebookButton socialButton", href: fb_share_link})
                         ), 
                         React.createElement("div", {className: "buttonContainer"}, 
                             React.createElement("div", {className: "buttons"}, 

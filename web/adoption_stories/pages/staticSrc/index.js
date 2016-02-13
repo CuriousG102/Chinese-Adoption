@@ -515,6 +515,9 @@ var FrontPage = React.createClass({
         var other_language_prompt = language === ENGLISH ? "中文" : "Switch to English";
         var other_language_link = language === ENGLISH ? "/zh-hans/#" : "/en/#";
 
+        // Translators: Share text for twitter
+        var twitter_share_link = "https://twitter.com/intent/tweet?text=" + encodeURI(gettext("Check out ourchinastories.com!"));
+        var fb_share_link = "http://www.facebook.com/sharer/sharer.php?u=" + encodeURI("http://www.ourchinastories.com/");
         return (
             <div className="container">
                 <div className="headerRow">
@@ -529,6 +532,10 @@ var FrontPage = React.createClass({
                         </div>
                         <div className="summaryContainer">
                             <p>{summary}</p>
+                        </div>
+                        <div className="socialContainer">
+                            <a className="twitterButton socialButton" href={twitter_share_link}/>
+                            <a className="facebookButton socialButton" href={fb_share_link}/>
                         </div>
                         <div className="buttonContainer">
                             <div className="buttons">

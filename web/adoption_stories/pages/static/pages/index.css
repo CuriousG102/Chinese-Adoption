@@ -282,6 +282,43 @@ p {
     float: right;
 }
 
+.socialContainer {
+    margin: 10px auto;
+    height: 50px;
+    width: 110px;
+}
+
+.twitterButton, .facebookButton {
+    display: block;
+    width: 50px;
+    height: 50px;
+    float: left;
+}
+
+.twitterButton {
+    background-image: url('twitter.png');
+}
+
+.twitterButton:hover {
+    background-image: url('twitter-hover.png');
+}
+
+.twitterButton:active {
+    background-image: url('twitter-active.png');
+}
+
+.facebookButton {
+    background-image: url('facebook.png');
+}
+
+.facebookButton:hover {
+    background-image: url('facebook-hover.png');
+}
+
+.facebookButton:active {
+    background-image: url('facebook-active.png');
+}
+
 .x-icon {
     cursor: pointer;
     height: 50px;
